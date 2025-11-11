@@ -1,0 +1,5 @@
+Copyright © 2025 Kevin Cooney
+
+This project was created for educational purposes as part of a school term project.
+Permission is granted to view and use this code for non-commercial, academic purposes only.
+No warranty is provided, and the author assumes no liability for any damages arising from its use.

@@ -1,0 +1,44 @@
+### 9. Milestones & Sequencing
+
+#### 9.1 Project Estimate
+
+- Medium: 3 weeks
+
+#### 9.2 Team Size & Composition
+
+- Medium Team: 6 people#### 
+
+9.3 Development Roadmap
+
+#### Chronological Task List
+
+- **Foundation Setup**
+    - Create project folder structure in VS Code (`ENTI333_FinalProject_VSCode_Folder/`)
+    - Generate and finalize foundational files:
+        - `PRD.md` (Product Requirements Document)
+        - `README.md` (Project overview and setup instructions)
+        - `PROMPT_LOG.md` (Record of AI prompts and decisions)
+        - `Brand_Kit.html` (Visual style guide)
+        - `LICENSE` and `.gitignore`
+- **Planning & Design**
+    - Use AI to generate:
+    - Legal and functional requirements (already done)
+    - Style options and finalize `BrandKit.html`
+    - Review and refine all documentation locally in VS Code
+- **Development & Version Control**
+    - Initialize Git repository locally and commit all documentation
+    - Start Replit project (Modern Web App template)
+    - Use Replit AI to begin coding:
+    - Reference `PRD.md` and `BrandKit.html`
+    - Build core features iteratively
+    - Log development steps in `PROMPT_LOG.md`
+- **Deployment & Documentation**
+    - Push project to GitHub
+    - Record a short walkthrough video of the working app
+    - Draft a blog post (problem, tools, AI process, lessons learned)
+    - Publish blog post with embedded video
+    - Submit final deliverables (GitHub repo + blog post link)
+- **Phase 1**: Core will creation and legal compliance flow (1.5 weeks)
+    - User registration, questionnaire, AI integration.
+- **Phase 2**: Output generation and sharing (1.5 weeks)
+    - Will and assessment document creation.

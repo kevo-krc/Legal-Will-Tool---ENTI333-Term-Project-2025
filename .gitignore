@@ -1,0 +1,28 @@
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs
+*.log
+
+# Dependency directories (if you add Node or build tools later)
+node_modules/
+jspm_packages/
+.npm/
+
+# Build/Dist folders (future-proof for bundlers)
+build/
+dist/
+out/
+tmp/
+
+# Testing outputs
+coverage/
+.nyc_output/
+
+# Editor settings
+.vscode/
+
+# Environment files (if you add configs later)
+.env
