@@ -1,4 +1,4 @@
-# AI Coding Prompt Log - Recipe App
+# AI Coding Prompt Log
 
 ## 1. Initial Project Setup and Foundation (2025-11-09)
 ### Goal: Create initial component structure.
@@ -309,11 +309,71 @@ The Updated_PRD_Legal_Will_App.md is a well-intentioned but dangerously under-sp
 - **Outcome:**The PRD.md needs an overhaul.  There will be many changes and scope redefining that will be omitted from this prompt_log for brevity.  Intial finalized PRD.md will be added to first GitHub commit.
 
 
+## 6. Implementing FR-003: Alphabetical Sorting (2025-11-09)
+### Goal: Initial prompt to Replit for coding the app.
+- **Source PRD Requirement:** 
+- **Prompt:** "I have imported my entire project, including the full requirements in the PRD.md document. I am building a full-stack application using React (frontend), Node.js (backend), and Supabase (database).
+CRITICAL FILE CONSTRAINT (DO NOT DEVIATE):
+1.	Brand Kit Constraint: The files brand_kit.html and brand-kit.css must remain in the same folder to function as a standalone reference page. For a React project, this means you must move both files into the public folder. The HTML will then correctly link to the CSS file.
+CORE DIRECTIVES:
+1.	Project Scope: Your only focus is to build the application described in the PRD.md. Ignore all other files in the repository.
+2.	Style Integration: Read and copy all necessary styles from the new location of brand-kit.css (in public) and incorporate them as global styles into the main React app (e.g., into a new file like src/styles/global.css or similar, which is then imported into src/App.js).
+3.	Logo File: Move the logo.png file into the React project's static assets folder (public).
+4.	Initial UI: Use the moved logo.png in the application header for the initial user interface in src/App.js.
+SUPABASE IMPLEMENTATION DETAILS (MANDATORY NAMING):
+The Supabase database and storage resources have already been set up. The Node.js backend MUST use these exact names for all operations:
+1.	Database Table Name: wills
+2.	Storage Bucket Name: will-documents
+3.	Will Document Pathing: All PDF files for a single will generation event must be stored under the following structure: will-documents/user_[user_id]/will_[will_id]/[document_type].pdf
+4.	Deletion Logic: The deletion function must perform a dual kill: delete all files using the path prefix above from the will-documents bucket (using the secure Service Role Key) AND delete the corresponding record from the wills table.
+TASK:
+Read the entire PRD.md document. Based on the requirements, the core directives, and the Supabase Implementation Details, propose a detailed, numbered, step-by-step Implementation Plan for building the entire application.
+DO NOT begin coding or implementing any features until I review and approve your Implementation Plan."
+- **AI Output Summary:** Code generation plan created in Replit successfully although clarifications with respect to replit secrets and pdf handling are needed.
+- **Debugging Prompt:** "
+WRT:
+4. Environment Configuration
+
+Create .env file structure for Supabase credentials:
+SUPABASE_URL
+SUPABASE_ANON_KEY
+SUPABASE_SERVICE_ROLE_KEY (for deletion operations)
+OPENAI_API_KEY (for AI integration)
+EMAIL_SERVICE_CONFIG (for email delivery)
+PRIVACY_POLICY_URL
+
+I have created secrets for you with api keys, emails, etc. You have honored the supabase secrets but not the gemini_api_key for the AI features or sendgrid for email.  Also I see a Privacy_Policy_URL, there is a privacy_policy.md file you could use instead of a URL here.
+
+WRT
+15. PDF Generation Endpoints
+
+POST /api/will/generate - AI generates will, creates PDF
+POST /api/assessment/generate - AI generates assessment, creates PDF
+POST /api/documents/upload - upload PDFs to Supabase Storage
+GET /api/documents/download/:will_id - download PDFs
+
+Does this imply that AI will generate the pdf? If yes, then that is undesirable.  I believe that is not something Gemini will do.  You will have to incorporate pdf creation within the app as needed.  I do see pdf creation as step 20 
+
+WRT Jurisdiction or Region
+Legal compliance and disclaimer for wills should be on the scale of province in Canada or State in the USA as laws change between province and state.  There are more jurisdictions and regions than just Canada and USA "
+- **Outcome:** Code generation plan created in Replit successfully.
+
+## 7. Starting first step of Replit build plan
+### Goal: Code the first step of Replits plan
+- **Source PRD Requirement:** 
+- **Prompt:** "I approve your plan. Please proceed with Step 1: Project Setup and Initial File Structure. Create all foundational files (package.json, server.js, src/App.js, etc.) for a React + Node.js full-stack environment. Ensure brand_kit files are moved correctly and the initial UI is set up. The backend should use Express to serve the React build and provide secure API endpoints."
+- **AI Output Summary:** Code generated successfully
+- **Debugging Prompt:** ""
+- **Outcome:** Code generated successfully
+
+
+**END**
+
 
 
 EXAMPLE FORMAT BELOW -- Delete This line and everything after we have finihsed the entire project!!!
 
-## 6. Implementing FR-003: Alphabetical Sorting (2025-11-09)
+## 8. Implementing FR-003: Alphabetical Sorting (2025-11-09)
 ### Goal: Implement sorting logic for recipes.
 - **Source PRD Requirement:** FR-003: The application must sort recipes alphabetically by title.
 - **Prompt:** "Using the `RecipeList.jsx` file, add state to hold a list of dummy recipe data. Implement a function to sort this data alphabetically by the 'title' key."
