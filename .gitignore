@@ -5,6 +5,7 @@ Thumbs.db
 # Logs
 logs
 *.log
+/tmp/
 
 # Dependency directories (if you add Node or build tools later)
 node_modules/
@@ -15,7 +16,6 @@ jspm_packages/
 build/
 dist/
 out/
-tmp/
 
 # Testing outputs
 coverage/
@@ -26,3 +26,8 @@ coverage/
 
 # Environment files (if you add configs later)
 .env
+.env.local
+.env.production
+
+# Word temporary files
+~$*
