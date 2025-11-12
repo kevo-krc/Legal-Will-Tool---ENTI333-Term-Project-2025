@@ -7,7 +7,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5000',
+  origin: process.env.FRONTEND_URL || true,
   credentials: true
 }));
 
@@ -44,8 +44,8 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, 'localhost', () => {
-  console.log(`Backend server running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Backend server running on http://0.0.0.0:${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log('Checking configuration...');
   console.log(`- Supabase URL: ${process.env.SUPABASE_URL ? 'Set' : 'Missing'}`);
