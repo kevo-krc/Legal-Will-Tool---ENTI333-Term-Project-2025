@@ -17,7 +17,7 @@ This project is a web-based application that helps users create legally valid wi
 - **Version Control:** GitHub
 
 ## 📂 Project Structure
-Current:
+Initial:
 root/
 ├── README.md             # Project overview and instructions
 ├── LICENSE               # License information
@@ -34,21 +34,34 @@ root/
 │   ├── App.js
 │   ├── index.css
 
-Proposed Future:
+From Replit:
 root/
-├── public/               # Static HTML/CSS
+/
+├── public/
 │   ├── Brand_Kit.html
-│   └── brand-kit.css
-├── src/                  # React components
+│   ├── brand-kit.css
+│   └── logo.png
+├── src/
+│   ├── components/
+│   │   ├── Header.jsx
+│   │   └── Footer.jsx
+│   ├── pages/
+│   │   ├── Home.jsx
+│   │   ├── Login.jsx
+│   │   ├── Register.jsx
+│   │   ├── Dashboard.jsx
+│   │   └── PrivacyPolicy.jsx
+│   ├── styles/
+│   │   └── global.css
+│   ├── App.jsx
+│   └── main.jsx
+├── server/
 │   ├── index.js
-│   ├── App.js
-│   └── index.css
-├── docs/                 # Documentation
-│   ├── PRD.md
-│   └── Privacy_Policy.md
-├── README.md
-├── LICENSE
-└── .gitignore
+│   └── package.json
+├── index.html
+├── vite.config.js
+├── package.json
+└── replit.md
 
 ## 🚀 Getting Started
 *(Setup instructions will be finalized after initial code commit)*
@@ -101,8 +114,8 @@ PRIVACY_POLICY_URL=https://yourdomain.com/privacy
 
 ## 🙌 Acknowledgements *(placeholder)*
 - University of Calgary
-- Professor [Name]
-- Tools: Replit, Supabase, React
+- Professor Mohammad Keyhani
+- Tools: Replit, Supabase, React, Gemini, Co-Pilot
 
 ## 📄 License
 This project is for academic purposes only and is not intended to provide legal advice.
