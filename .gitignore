@@ -7,15 +7,19 @@ logs
 *.log
 /tmp/
 
-# Dependency directories (if you add Node or build tools later)
+# Dependency directories
 node_modules/
+server/node_modules/
 jspm_packages/
 .npm/
+.pnp
+.pnp.js
 
-# Build/Dist folders (future-proof for bundlers)
+# Build/Dist folders
 build/
 dist/
 out/
+.next/
 
 # Testing outputs
 coverage/
@@ -23,11 +27,40 @@ coverage/
 
 # Editor settings
 .vscode/
+.idea/
+*.swp
+*.swo
 
-# Environment files (if you add configs later)
+# Environment files
 .env
 .env.local
 .env.production
+.env.development.local
+.env.test.local
+.env.production.local
+server/.env
+
+# Vite
+.vite
+dist-ssr
+*.local
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 # Word temporary files
 ~$*
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Documentation folders (keep only in repo root)
+Old PRDs/
+assets/
+attached_assets/
