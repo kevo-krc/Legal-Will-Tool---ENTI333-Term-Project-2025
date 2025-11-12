@@ -1,0 +1,17 @@
+I have imported my entire project, including the full requirements in the PRD.md document. I am building a full-stack application using React (frontend), Node.js (backend), and Supabase (database).
+CRITICAL FILE CONSTRAINT (DO NOT DEVIATE):
+1.	Brand Kit Constraint: The files brand_kit.html and brand-kit.css must remain in the same folder to function as a standalone reference page. For a React project, this means you must move both files into the public folder. The HTML will then correctly link to the CSS file.
+CORE DIRECTIVES:
+1.	Project Scope: Your only focus is to build the application described in the PRD.md. Ignore all other files in the repository.
+2.	Style Integration: Read and copy all necessary styles from the new location of brand-kit.css (in public) and incorporate them as global styles into the main React app (e.g., into a new file like src/styles/global.css or similar, which is then imported into src/App.js).
+3.	Logo File: Move the logo.png file into the React project's static assets folder (public).
+4.	Initial UI: Use the moved logo.png in the application header for the initial user interface in src/App.js.
+SUPABASE IMPLEMENTATION DETAILS (MANDATORY NAMING):
+The Supabase database and storage resources have already been set up. The Node.js backend MUST use these exact names for all operations:
+1.	Database Table Name: wills
+2.	Storage Bucket Name: will-documents
+3.	Will Document Pathing: All PDF files for a single will generation event must be stored under the following structure: will-documents/user_[user_id]/will_[will_id]/[document_type].pdf
+4.	Deletion Logic: The deletion function must perform a dual kill: delete all files using the path prefix above from the will-documents bucket (using the secure Service Role Key) AND delete the corresponding record from the wills table.
+TASK:
+Read the entire PRD.md document. Based on the requirements, the core directives, and the Supabase Implementation Details, propose a detailed, numbered, step-by-step Implementation Plan for building the entire application.
+DO NOT begin coding or implementing any features until I review and approve your Implementation Plan.
