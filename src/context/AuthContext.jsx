@@ -78,26 +78,18 @@ export const AuthProvider = ({ children }) => {
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            full_name: userData.fullName,
+            phone: userData.phone || null
+          }
+        }
       });
 
       if (signUpError) throw signUpError;
 
       if (authData.user) {
-        const accountNumber = generateAccountNumber();
-        
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert([{
-            user_id: authData.user.id,
-            account_number: accountNumber,
-            full_name: userData.fullName,
-            email: email,
-            phone: userData.phone || null,
-            created_at: new Date().toISOString()
-          }]);
-
-        if (profileError) throw profileError;
-
+        await new Promise(resolve => setTimeout(resolve, 1000));
         await fetchProfile(authData.user.id);
       }
 
