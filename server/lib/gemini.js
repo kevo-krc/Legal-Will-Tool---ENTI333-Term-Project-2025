@@ -242,26 +242,35 @@ async function executeWithRetry(promptFn, operationName, maxAttempts = 3, baseDe
 }
 
 async function generateComplianceStatement(jurisdiction, country) {
-  const prompt = `You are a legal expert. Generate a BRIEF compliance statement for creating a will in ${jurisdiction}, ${country === 'CA' ? 'Canada' : 'United States'}.
+  const prompt = `You are a legal expert. Generate an itemized list of legal requirements for creating a FORMAL will in ${jurisdiction}, ${country === 'CA' ? 'Canada' : 'United States'}.
 
-CRITICAL INSTRUCTIONS - BE CONCISE:
-- Maximum 150-200 words
-- List ONLY the MINIMUM legal requirements
-- Use short, direct sentences
-- No legal jargon or flowery language
+CRITICAL INSTRUCTIONS:
+- Maximum 300-400 words
+- Provide 5-7 NUMBERED, ITEMIZED requirements
+- Each item should be 1-2 sentences
+- Focus ONLY on formal typed/printed wills (exclude holograph/handwritten wills)
+- Use clear, direct language
 
-Required information (keep each to 1-2 sentences):
-1. Minimum age requirement for testator
-2. Mental capacity requirement (brief)
-3. Witnessing requirements (number, qualifications)
-4. Any jurisdiction-specific rules
+Required items (numbered list format):
+1. Testamentary Capacity (age requirement)
+2. Mental Capacity (understanding nature and effect of will)
+3. Written Form (must be typed and printed)
+4. Testator Signature (will-maker must sign)
+5. Witness Presence (number of witnesses, must be present simultaneously)
+6. Witness Signatures (witnesses must sign in testator's presence)
+7. Witness Eligibility (cannot be beneficiaries or spouses of beneficiaries)
 
-END WITH STRONG LIABILITY DISCLAIMER (2-3 sentences):
+Format as numbered list (1., 2., 3., etc.) with brief explanation for each item.
+
+EXCLUDE: Do NOT mention holograph wills, handwritten wills, or any alternatives to formal wills.
+
+END WITH STRONG LIABILITY DISCLAIMER (3-4 sentences):
 - This tool does NOT provide legal advice
-- This tool and its creators assume NO legal liability
-- Users should consult a licensed attorney
+- This tool and its creators assume NO legal liability whatsoever
+- Information may not reflect recent legal changes
+- Users MUST consult a licensed attorney before creating or executing a will
 
-Format as plain text, no markdown. BE BRIEF.`;
+Format as plain text, no markdown or tables.`;
 
   const { result } = await executeWithRetry(
     async () => {
