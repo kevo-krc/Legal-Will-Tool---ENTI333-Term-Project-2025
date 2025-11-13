@@ -1,7 +1,7 @@
 const express = require('express');
 const { supabase } = require('../lib/supabase');
 const { generateWillPDF, generateAssessmentPDF } = require('../lib/pdfGenerator');
-const { uploadPDF, getSignedUrl } = require('../lib/storage');
+const { uploadPDF, getSignedUrl, deletePDF } = require('../lib/storage');
 const router = express.Router();
 
 router.post('/', async (req, res) => {
