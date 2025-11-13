@@ -6,10 +6,6 @@ router.post('/', async (req, res) => {
   try {
     const { 
       user_id, 
-      account_number,
-      user_name,
-      email,
-      phone,
       country,
       jurisdiction,
       jurisdiction_full_name
@@ -19,10 +15,6 @@ router.post('/', async (req, res) => {
       .from('wills')
       .insert([{
         user_id,
-        account_number,
-        user_name,
-        email,
-        phone,
         country,
         jurisdiction,
         jurisdiction_full_name,
