@@ -100,13 +100,19 @@ function Questionnaire() {
 
   const handleAcceptConsent = async () => {
     try {
+      console.log('[Consent] Starting consent acceptance...');
+      console.log('[Consent] Will ID:', willId);
+      console.log('[Consent] Profile:', profile);
+      
       setSubmitting(true);
       setError('');
       
-      await axios.put(`${API_URL}/wills/${willId}`, {
+      console.log('[Consent] Sending PUT request to update disclaimer_accepted...');
+      const updateResponse = await axios.put(`${API_URL}/wills/${willId}`, {
         disclaimer_accepted: true,
         disclaimer_accepted_at: new Date().toISOString()
       });
+      console.log('[Consent] PUT response:', updateResponse.data);
       
       setConsentAccepted(true);
       setShowConsentScreen(false);
@@ -117,20 +123,29 @@ function Questionnaire() {
       const qaData = updatedWill.qa_data || [];
       const roundNumber = updatedWill.questionnaire_round || 1;
       
+      console.log('[Consent] QA Data length:', qaData.length);
+      console.log('[Consent] Round number:', roundNumber);
+      
       if (qaData.length === 0 && roundNumber === 1) {
+        console.log('[Consent] Loading initial questions...');
         await loadInitialQuestions(updatedWill);
       } else if (qaData.length > 0) {
         if (qaData.length < roundNumber) {
+          console.log('[Consent] Loading follow-up questions for resume...');
           await loadFollowUpQuestionsForResume(qaData, updatedWill, roundNumber);
         } else {
+          console.log('[Consent] Loading existing questions from QA data...');
           const lastRoundQuestions = qaData[qaData.length - 1]?.questions || [];
           setQuestions(lastRoundQuestions);
         }
       }
       
+      console.log('[Consent] Consent acceptance completed successfully!');
       setSubmitting(false);
     } catch (err) {
-      console.error('Error accepting consent:', err);
+      console.error('[Consent] Error accepting consent:', err);
+      console.error('[Consent] Error details:', err.response?.data);
+      console.error('[Consent] Error status:', err.response?.status);
       setError('Failed to save consent. Please try again.');
       setSubmitting(false);
     }
@@ -138,10 +153,12 @@ function Questionnaire() {
 
   const loadInitialQuestions = async (willData) => {
     try {
+      const userName = profile?.full_name || profile?.display_name || 'User';
+      
       const response = await axios.post(`${API_URL}/ai/questions/initial`, {
         jurisdiction: willData.jurisdiction_full_name,
         country: willData.country,
-        userName: willData.user_name
+        userName: userName
       });
       
       setQuestions(response.data.questions);
