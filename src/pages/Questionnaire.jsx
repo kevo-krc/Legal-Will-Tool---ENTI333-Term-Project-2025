@@ -301,6 +301,18 @@ function Questionnaire() {
           />
         );
 
+      case 'number':
+        return (
+          <input
+            type="number"
+            id={question.id}
+            value={answers[question.id] || ''}
+            onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+            required={question.required}
+            min="0"
+          />
+        );
+
       case 'textarea':
         return (
           <textarea
