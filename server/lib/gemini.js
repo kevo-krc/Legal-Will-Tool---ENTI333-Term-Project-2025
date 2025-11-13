@@ -387,18 +387,35 @@ async function generateInitialQuestions(jurisdiction, country, userName) {
 async function generateFollowUpQuestions(previousAnswers, jurisdiction, country, roundNumber) {
   const summarized = summarizeAnswers(previousAnswers);
   
-  const prompt = `You are a lawyer gathering ESSENTIAL information TO CREATE a legally valid will. Review the client's answers and ask ${roundNumber === 2 ? '4-6' : '2-4'} follow-up questions to fill CRITICAL GAPS only.
+  const previouslyAskedQuestions = [];
+  previousAnswers.forEach(round => {
+    if (round.questions && Array.isArray(round.questions)) {
+      round.questions.forEach(q => {
+        if (q.question) {
+          previouslyAskedQuestions.push(q.question);
+        }
+      });
+    }
+  });
+  
+  const previousQuestionsText = previouslyAskedQuestions.length > 0 
+    ? `\n\nQUESTIONS ALREADY ASKED (DO NOT RE-ASK THESE OR SIMILAR VARIATIONS):\n${previouslyAskedQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}\n`
+    : '';
+  
+  const prompt = `You are a lawyer gathering ESSENTIAL information TO CREATE a legally valid will. Review the client's answers and ask ${roundNumber === 2 ? '4-6' : '2-4' } follow-up questions to fill CRITICAL GAPS only.
 
 Previous answers (summarized):
 ${summarized}
-
+${previousQuestionsText}
 Jurisdiction: ${jurisdiction}, ${country === 'CA' ? 'Canada' : 'United States'}
 Round ${roundNumber} of 3
+
+CRITICAL: Do NOT re-ask questions that were already asked in previous rounds. The user cannot confirm information with executors/guardians "now" - they are filling out this questionnaire in one sitting. If they said "no" to confirming willingness, accept that answer and move on to other gaps.
 
 ${roundNumber === 2 ? 'ROUND 2 - ESSENTIAL WILL REQUIREMENTS (ask if missing):' : 'ROUND 3 - FINAL CRITICAL GAPS (ask ONLY if absolutely necessary):'}
 
 PRIORITY 1 - REQUIRED FOR VALID WILL:
-- Missing executor information (full name, age, address, willingness to serve)
+- Missing executor information (full name, age, address - BUT DO NOT ask about willingness if already asked)
 - Missing alternate executor (full name, relationship)
 - Unclear beneficiary distribution (must have specific percentages or clear division)
 - Missing guardian for minors (if they have children under 18)
@@ -417,9 +434,11 @@ PRIORITY 3 - ONLY IF CRITICAL:
 - Ademption clause for specific gifts (what if item no longer owned?)
 - Digital asset access (only if they mentioned digital assets/crypto)
 
-${roundNumber === 3 ? 'IMPORTANT: Most information should be gathered by now. Only ask about truly CRITICAL missing pieces needed for a functional will.' : ''}
+${roundNumber === 3 ? 'IMPORTANT: Most information should be gathered by now. Only ask about truly CRITICAL missing pieces needed for a functional will. DO NOT repeat questions from Round 2.' : ''}
 
 DO NOT ASK ABOUT:
+- Questions already asked in previous rounds (see list above)
+- Whether they have "now" confirmed anything with anyone - this is a single-session questionnaire
 - Witness names or signing procedures (we handle that in instructions)
 - Legal formalities or will format
 - Tax planning or estate planning strategies
