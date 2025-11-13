@@ -1,179 +1,378 @@
-# Authentication System Testing Guide
+# Testing Guide - Legal Will Generation Tool
 
-## Step 1: Database Setup (Required First!)
+This comprehensive guide provides manual test cases for all features of the Legal Will Generation Tool from Phases 1-5.
 
-**You must complete this step before testing authentication:**
+## Prerequisites
 
-1. Open your Supabase dashboard: https://supabase.com/dashboard
-2. Select your project
-3. Navigate to **SQL Editor** (left sidebar)
-4. Click **New Query**
-5. Copy the entire contents of `server/migrations/001_create_profiles_table.sql`
-6. Paste it into the SQL Editor
-7. Click **Run** to execute the migration
-8. You should see: "Success. No rows returned"
+### 1. Database Migrations
+Before testing, ensure all database migrations are run in Supabase SQL Editor in order:
 
-**What this creates:**
-- `profiles` table for user data
-- Row Level Security (RLS) policies for data protection
-- Indexes for performance
-- Auto-update triggers for timestamps
+```sql
+-- Run in Supabase SQL Editor (in order):
+1. server/migrations/001_create_profiles_table.sql
+2. server/migrations/002_create_wills_table.sql
+3. server/migrations/003_create_storage_bucket.sql
+4. server/migrations/004_add_storage_fields_to_wills.sql
+```
 
-## Step 2: Test User Registration
+### 2. Environment Configuration
+Verify all secrets are configured in Replit Secrets:
+- ✅ `SUPABASE_URL`
+- ✅ `SUPABASE_ANON_KEY`
+- ✅ `SUPABASE_SERVICE_ROLE_KEY`
+- ✅ `GEMINI_API_KEY`
+- ✅ `SENDGRID_API_KEY`
+- ✅ `SENDGRID_FROM_EMAIL` (must be verified sender in SendGrid)
 
-1. **Navigate to Registration Page**
-   - Click "Get Started" button in the header, OR
-   - Click "Sign In" → then "Register here" link
-   - URL: `http://localhost:5000/register`
+### 3. Start the Application
+```bash
+# Development mode (two workflows)
+npm run dev        # Frontend on port 5000
+npm run server     # Backend on port 3001
+```
 
-2. **Fill Out Registration Form**
-   - Full Name: `John Doe` (or your name)
-   - Email: `test@example.com` (use a real email if you want to receive confirmation)
-   - Phone: `+1 234 567 8900` (optional)
-   - Password: `password123` (minimum 6 characters)
-   - Confirm Password: `password123` (must match)
+---
 
-3. **Expected Result**
-   - Button shows "Creating Account..." while processing
-   - You should be automatically redirected to Dashboard
-   - Your account number appears (format: WL...)
-   - Header shows your name and "Logout" button
+## Phase 1-2: Authentication & User Management
 
-4. **Test Error Handling**
-   - Try registering with same email again → Should show error
-   - Try passwords that don't match → Should show "Passwords do not match"
-   - Try password < 6 characters → Should show "Password must be at least 6 characters long"
+### Test Case 1: User Registration
+**Steps:**
+1. Navigate to homepage → Click "Get Started"
+2. Fill registration form:
+   - Full Name: "Test User"
+   - Email: "test@example.com"
+   - Phone: "+1-555-0100"
+   - Password: "SecurePass123!"
+3. Click "Register"
 
-## Step 3: Test Dashboard & Profile
+**Expected Results:**
+- ✅ Auto-generated account number (format: `WL{timestamp}{random}`)
+- ✅ Redirected to Dashboard
+- ✅ Header shows user name and logout button
 
-1. **View Profile Information**
-   - You should see:
-     - Account Number (yellow text, format: WL{timestamp}{random})
-     - Full Name
-     - Email
-     - Phone (or "Not set")
+### Test Case 2: User Login
+**Steps:**
+1. Click "Sign In" → Enter credentials → Click "Login"
 
-2. **Edit Profile**
-   - Click "Edit Profile" button
-   - Change your Full Name to something else
-   - Update your Phone Number
-   - Click "Save Changes"
-   - Should see green success message: "Profile updated successfully!"
-   - Profile should show updated information
+**Expected Results:**
+- ✅ Login successful → Redirected to Dashboard
+- ✅ Profile displayed correctly
 
-3. **Test Edit Cancellation**
-   - Click "Edit Profile"
-   - Make changes
-   - Click "Cancel"
-   - Changes should be discarded
+### Test Case 3: Profile Management
+**Steps:**
+1. Dashboard → "Edit Profile" → Update phone → "Save Changes"
 
-## Step 4: Test Logout
+**Expected Results:**
+- ✅ Success message → Changes persisted
 
-1. **Log Out**
-   - Click "Logout" button in header
-   - You should be redirected to home page
-   - Header should now show "Login" and "Get Started" buttons
+---
 
-2. **Test Protected Route**
-   - Try manually navigating to: `http://localhost:5000/dashboard`
-   - You should be automatically redirected to Login page
-   - This confirms protected routes are working
+## Phase 3: AI-Powered Questionnaire
 
-## Step 5: Test Login
+### Test Case 4: Creating a New Will
+**Steps:**
+1. Dashboard → "Create New Will"
+2. Select Country: Canada → Province: Alberta → "Next"
 
-1. **Navigate to Login Page**
-   - Click "Login" in header, OR
-   - URL: `http://localhost:5000/login`
+**Expected Results:**
+- ✅ AI generates compliance statement for Alberta
+- ✅ "Begin Questionnaire" button appears
 
-2. **Log In with Your Credentials**
-   - Email: The email you registered with
-   - Password: The password you used
-   - Click "Sign In"
+### Test Case 5: Completing the Questionnaire
+**Round 1:**
+1. Answer all 5-7 AI-generated questions → "Next Round"
 
-3. **Expected Result**
-   - Button shows "Signing In..." while processing
-   - You should be redirected to Dashboard
-   - Your profile information should be preserved
-   - Header shows your name and "Logout" button
+**Expected Results:**
+- ✅ All questions validated
+- ✅ Progress indicator shows "Round 1 of 3"
 
-4. **Test Error Handling**
-   - Try wrong password → Should show error message
-   - Try non-existent email → Should show error message
+**Round 2:**
+1. Answer 3-5 follow-up questions → "Next Round"
 
-## Step 6: Test Session Persistence
+**Expected Results:**
+- ✅ Questions personalized based on Round 1
+- ✅ Progress indicator shows "Round 2 of 3"
 
-1. **Refresh the Page**
-   - While logged in, refresh the browser
-   - You should remain logged in
-   - Dashboard should still display your information
+**Round 3:**
+1. Answer 2-3 final questions → "Finish"
 
-2. **Navigate Between Pages**
-   - Click "Home" in header → Go to home page
-   - Click "Dashboard" → Return to dashboard
-   - Your session should persist throughout
+**Expected Results:**
+- ✅ AI generates legal assessment
+- ✅ Redirected to Will Summary page
 
-## Step 7: Test Browser Storage
+---
 
-1. **Check Browser Console (Optional)**
-   - Press F12 to open Developer Tools
-   - Go to "Application" tab
-   - Check "Local Storage" → Should see Supabase auth token
-   - Check "Console" tab → Should see no errors (warnings about React Router are okay)
+## Phase 4: PDF Generation & Storage
 
-## Expected User Flow Summary
+### Test Case 6: PDF Download
+**Steps:**
+1. On Will Summary page, verify "✓ PDF Document Available"
+2. Click "Download PDF" button
 
-✅ **Registration Flow**
-Register → Auto-login → Redirect to Dashboard → See Account Number
+**Expected Results:**
+- ✅ PDF downloads (filename: `will_{jurisdiction}_{date}.pdf`)
+- ✅ PDF contains:
+  - Will header with branding
+  - Jurisdiction information
+  - Compliance statement
+  - All Q&A responses (3 rounds)
+  - Legal assessment
+  - Legal disclaimers
+  - User account number, email, timestamp
 
-✅ **Login Flow**  
-Login Page → Enter credentials → Redirect to Dashboard → See Profile
+---
 
-✅ **Profile Management Flow**
-Dashboard → Edit Profile → Save Changes → See Success Message → View Updated Profile
+## Phase 5: Data Management & Email
 
-✅ **Logout Flow**
-Click Logout → Redirect to Home → Session cleared → Protected routes inaccessible
+### Test Case 7: Email Delivery
+**Steps:**
+1. On Will Summary page, click "Email Me My Will" button
+2. Wait for success message
+3. Check email inbox (and spam folder)
 
-✅ **Protected Routes**
-Try accessing /dashboard while logged out → Auto-redirect to /login
+**Expected Results:**
+- ✅ Success alert: "Will sent successfully to your email!"
+- ✅ Email received within 1-2 minutes
+- ✅ Email contains:
+  - Professional HTML formatting
+  - Legal disclaimers prominently displayed
+  - PDF attachment
+  - Educational warnings
+  - Document ID and generation date
 
-## Common Issues & Solutions
+**Verification:**
+- Open attached PDF → Verify contents match downloaded version
+- Check email body for legal disclaimers
 
-### Issue: "Error creating account"
-- **Cause**: Database table not created yet
-- **Solution**: Run the SQL migration in Supabase dashboard (Step 1)
+### Test Case 8: Dual-Kill Deletion
+**Steps:**
+1. On Will Summary page, scroll to "Danger Zone"
+2. Click "Delete This Will" button
+3. Confirm deletion in browser dialog
 
-### Issue: "Profile not found" after registration
-- **Cause**: RLS policies not enabled or configured incorrectly
-- **Solution**: Re-run the SQL migration, ensure all policies are created
+**Expected Results:**
+- ✅ Confirmation dialog with warning message
+- ✅ Success alert: "Will deleted successfully."
+- ✅ Redirected to Dashboard
+- ✅ Will no longer listed in Dashboard
 
-### Issue: "Session expired" message
-- **Cause**: Supabase session token expired (normal after 1 hour)
-- **Solution**: Log out and log back in
+**Verification in Supabase:**
 
-### Issue: Can't see profile after login
-- **Cause**: Network issue or Supabase connection problem
-- **Solution**: Check browser console for errors, verify Supabase URL and keys are correct
+**A. Database Check:**
+```sql
+SELECT * FROM wills WHERE id = '{deleted_will_id}';
+-- Should return 0 rows
+```
 
-## Security Verification
+**B. Storage Check:**
+1. Supabase Dashboard → Storage → `will-documents` bucket
+2. Verify folder `user_{user_id}/will_{will_id}/` is deleted
+3. Verify no orphaned files remain
 
-✅ **Row Level Security (RLS) is Working**
-- Users can only see/edit their own profile
-- No user can access another user's data
-- All database operations respect RLS policies
+**Expected:**
+- ✅ Database record removed
+- ✅ All storage files deleted (filesRemoved count > 0 in response)
+- ✅ No partial deletion state
 
-✅ **Password Security**
-- Passwords are hashed by Supabase (never stored in plain text)
-- Password validation enforced on frontend
+---
 
-✅ **Session Security**
-- JWT tokens managed by Supabase
-- Auto-refresh tokens for persistent sessions
-- Secure logout clears all session data
+## Additional Test Cases
 
-## Next Steps After Testing
+### Test Case 9: Dashboard - View All Wills
+**Steps:**
+1. Create multiple wills (2-3)
+2. Navigate to Dashboard
 
-Once you've confirmed everything works:
-1. ✅ Phase 2 is complete and fully functional
-2. 🚀 Ready to proceed with Phase 3: Legal Compliance & Questionnaire
-3. 📝 Consider backing up your test data (optional)
+**Expected Results:**
+- ✅ All wills listed with jurisdiction, status, creation date
+- ✅ "Create New Will" button available
+
+### Test Case 10: Logout
+**Steps:**
+1. Click "Logout" → Verify redirection
+
+**Expected Results:**
+- ✅ Redirected to homepage
+- ✅ Cannot access protected routes
+
+---
+
+## Error Handling Tests
+
+### Test Case 11: Invalid Login
+1. Enter incorrect password → Click "Login"
+
+**Expected:** Error message, no redirect
+
+### Test Case 12: Unanswered Questions
+1. In questionnaire, leave questions blank → Click "Next Round"
+
+**Expected:** Validation error
+
+### Test Case 13: Email Without PDF
+1. Create will but don't complete questionnaire
+2. Try to email (manually via API)
+
+**Expected:** Error: "PDF not generated yet"
+
+### Test Case 14: Delete Non-Existent Will
+1. Delete a will → Try to delete same will again
+
+**Expected:** Error: "Will not found"
+
+### Test Case 15: Email Configuration Missing
+1. Remove `SENDGRID_FROM_EMAIL` from secrets
+2. Try to email will
+
+**Expected:** Error: "SENDGRID_FROM_EMAIL is not configured"
+
+---
+
+## Performance Tests
+
+### Test Case 16: AI Response Times
+- **Compliance Statement**: < 10 seconds
+- **Round 1 Questions**: < 15 seconds
+- **Round 2/3 Questions**: < 10 seconds
+- **Final Assessment**: < 15 seconds
+
+### Test Case 17: PDF Generation Time
+- **Expected**: PDF generated immediately upon questionnaire completion
+- **File Size**: 50-200 KB
+
+### Test Case 18: Email Delivery Time
+- **Expected**: Email sent within 1-5 minutes
+- **Check**: SendGrid dashboard for delivery status
+
+---
+
+## Security Tests
+
+### Test Case 19: RLS Policy Verification
+1. Create will as User A
+2. Login as User B
+3. Try to access User A's will URL directly
+
+**Expected:** 404 or access denied (RLS prevents cross-user access)
+
+### Test Case 20: Protected Routes
+1. Without login, navigate to `/dashboard`, `/create-will`, `/will/{id}`
+
+**Expected:** Redirected to login page
+
+### Test Case 21: Storage Access Control
+1. Create will with User A
+2. Get PDF storage path from database
+3. Login as User B
+4. Try to download User A's PDF via storage path
+
+**Expected:** Access denied (RLS blocks cross-user storage access)
+
+---
+
+## Edge Cases
+
+### Test Case 22: Multiple Simultaneous Deletions
+1. Open same will in two browser tabs
+2. Delete in Tab 1 → Try to delete in Tab 2
+
+**Expected:** Tab 2 shows "Will not found"
+
+### Test Case 23: Long Text Answers
+1. Enter very long answers (500+ words) in questionnaire
+2. Complete questionnaire → Download PDF
+
+**Expected:** Answers saved correctly, PDF renders properly
+
+### Test Case 24: Special Characters in Answers
+1. Enter answers with special characters: `@#$%^&*()`, emojis, unicode
+2. Complete questionnaire → Download PDF
+
+**Expected:** Characters displayed correctly in PDF
+
+### Test Case 25: Email to Invalid Address
+1. Update profile email to invalid format
+2. Try to email will
+
+**Expected:** SendGrid validation error or bounce notification
+
+---
+
+## Regression Tests
+
+After any code changes, run these critical path tests:
+
+1. ✅ **Auth Flow**: Register → Login → Logout
+2. ✅ **Will Creation Flow**: Create → Questionnaire (3 rounds) → Summary
+3. ✅ **PDF Flow**: Download → Verify contents
+4. ✅ **Email Flow**: Send → Receive → Verify attachment
+5. ✅ **Deletion Flow**: Delete → Verify database & storage cleanup
+
+---
+
+## Test Data Cleanup
+
+### Cleanup Test User Data:
+
+**1. Delete User Profile:**
+```sql
+-- In Supabase SQL Editor
+DELETE FROM profiles WHERE email = 'test@example.com';
+```
+
+**2. Clear Storage Files:**
+- Supabase Dashboard → Storage → `will-documents` bucket
+- Delete test user folders manually
+
+**3. Verify Cleanup:**
+```sql
+SELECT COUNT(*) FROM wills; -- Should be 0 for test user
+```
+
+---
+
+## Known Issues & Limitations
+
+1. **SendGrid Email Delay**: Emails may take 1-5 minutes (SendGrid processing time)
+2. **AI Response Variability**: Question generation times vary based on Gemini API load
+3. **Browser Compatibility**: Tested on Chrome, Firefox, Safari (latest versions)
+4. **Mobile Support**: Responsive design optimized for desktop
+
+---
+
+## Reporting Issues
+
+When reporting bugs, include:
+1. Test case number
+2. Steps to reproduce
+3. Expected vs. actual results
+4. Browser and OS
+5. Screenshots or error logs
+6. Account number (if applicable)
+7. Will ID (if applicable)
+
+---
+
+## API Testing with curl
+
+### Test Email Endpoint:
+```bash
+curl -X POST http://localhost:3001/api/wills/{willId}/email \
+  -H "Content-Type: application/json"
+```
+
+### Test Delete Endpoint:
+```bash
+curl -X DELETE http://localhost:3001/api/wills/{willId}
+```
+
+### Test Download Endpoint:
+```bash
+curl -X GET http://localhost:3001/api/wills/{willId}/download \
+  --output test_will.pdf
+```
+
+---
+
+**Last Updated**: November 13, 2025  
+**Version**: Phase 5 Complete - All Features Implemented

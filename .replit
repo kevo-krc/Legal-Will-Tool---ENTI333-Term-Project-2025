@@ -54,9 +54,14 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 43987
+localPort = 40631
 externalPort = 3002
 
 [[ports]]
 localPort = 46751
 externalPort = 3000
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["bash", "-c", "npm run server & npm run preview -- --host 0.0.0.0 --port 5000"]
+build = ["npm", "run", "build"]

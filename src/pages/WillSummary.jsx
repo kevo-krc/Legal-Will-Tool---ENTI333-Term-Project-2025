@@ -11,6 +11,8 @@ function WillSummary() {
   const [will, setWill] = useState(null);
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [sending, setSending] = useState(false);
 
   useEffect(() => {
     loadWill();
@@ -49,6 +51,47 @@ function WillSummary() {
       console.error('Error downloading PDF:', err);
       alert('Failed to download PDF. Please try again.');
       setDownloading(false);
+    }
+  };
+
+  const handleEmailWill = async () => {
+    if (sending) return;
+    
+    try {
+      setSending(true);
+      await axios.post(`${API_URL}/wills/${willId}/email`);
+      
+      alert('Will sent successfully to your email! Please check your inbox (and spam folder).');
+    } catch (err) {
+      console.error('Error sending email:', err);
+      const errorMsg = err.response?.data?.error || 'Failed to send email. Please try again or contact support.';
+      alert(errorMsg);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleDeleteWill = async () => {
+    if (deleting) return;
+    
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this will? This action cannot be undone. All associated documents will be permanently removed.'
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setDeleting(true);
+      const response = await axios.delete(`${API_URL}/wills/${willId}`);
+      
+      alert(`Will deleted successfully. ${response.data.filesRemoved} file(s) removed from storage.`);
+      navigate('/dashboard');
+    } catch (err) {
+      console.error('Error deleting will:', err);
+      alert('Failed to delete will. Please try again.');
+      setDeleting(false);
     }
   };
 
@@ -134,7 +177,36 @@ function WillSummary() {
                 >
                   {downloading ? 'Downloading...' : 'Download PDF'}
                 </button>
+                <button 
+                  onClick={handleEmailWill}
+                  className="btn btn-primary" 
+                  disabled={!will.storage_base_path || !will.pdf_filename || sending}
+                  style={{ backgroundColor: '#10B981' }}
+                >
+                  {sending ? 'Sending...' : 'Email Me My Will'}
+                </button>
               </div>
+            </div>
+
+            <div className="danger-zone-section" style={{ marginTop: '30px', paddingTop: '20px', borderTop: '1px solid #EF4444' }}>
+              <h3 style={{ color: '#EF4444' }}>Danger Zone</h3>
+              <p className="text-light mb-3">
+                Deleting this will is permanent. All associated documents and data will be removed from our system.
+              </p>
+              {willId && (
+                <button 
+                  onClick={handleDeleteWill}
+                  className="btn" 
+                  style={{ 
+                    backgroundColor: '#EF4444', 
+                    color: 'white',
+                    border: 'none'
+                  }}
+                  disabled={deleting}
+                >
+                  {deleting ? 'Deleting...' : 'Delete This Will'}
+                </button>
+              )}
             </div>
 
             <div className="qa-review-section">

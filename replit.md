@@ -3,7 +3,7 @@
 ## Overview
 This is a full-stack web application for creating legally valid wills for Canada and the USA using AI-assisted guidance. The project is an academic initiative demonstrating AI-driven legal document creation.
 
-**Current Status:** Phase 4 Complete - PDF Generation & Storage Implemented
+**Current Status:** Phase 5 Complete - Production Ready
 
 ## Project Information
 - **Author:** Kevin Cooney
@@ -66,6 +66,10 @@ The application is a full-stack React + Node.js project with:
   - generateWillPdf: Creates formatted PDF with will content, Q&A responses, assessment, and legal disclaimers
   - Automatic generation on questionnaire completion
   - Upload to Supabase Storage with path: `user_{user_id}/will_{will_id}/draft.pdf`
+- **Email Service:** `server/services/emailService.js`
+  - sendWillEmail: Sends PDF via SendGrid with legal disclaimers
+  - Professional HTML email template
+  - PDF attachment support (base64 encoding)
 - **API endpoints:**
   - `GET /api/health` - Health check
   - `GET /api/config/check` - Verify secrets configuration
@@ -78,8 +82,8 @@ The application is a full-stack React + Node.js project with:
   - `GET /api/wills/:willId` - Get specific will
   - `PUT /api/wills/:willId` - Update will data (with automatic PDF generation)
   - `GET /api/wills/:willId/download` - Download will PDF
-  - `DELETE /api/wills/:willId` - Delete will
-- Future endpoints: Email delivery
+  - `POST /api/wills/:willId/email` - Send will via email with PDF attachment
+  - `DELETE /api/wills/:willId` - Dual-kill deletion (database + storage files)
 
 ### Database (Implemented)
 - Supabase (PostgreSQL)
@@ -126,6 +130,19 @@ The application is a full-stack React + Node.js project with:
 - **USA**: All 50 states (state-specific laws)
 
 ## Recent Changes
+- **2025-11-13 (Phase 5):**
+  - Implemented dual-kill deletion for wills (database + Supabase Storage)
+  - Added SendGrid email service for PDF delivery
+  - Created POST `/api/wills/:willId/email` endpoint with PDF attachments
+  - Enhanced DELETE `/api/wills/:willId` endpoint with storage cleanup
+  - Added "Email Me My Will" button to WillSummary page
+  - Added "Delete This Will" button with confirmation dialog (Danger Zone)
+  - Configured Replit deployment (autoscale, build + run commands)
+  - Created comprehensive TESTING_GUIDE.md with all test cases
+  - Updated README.md with Phase 5 features and deployment instructions
+  - Updated PROMPT_LOG.md with Phase 5 development prompts
+  - Installed @sendgrid/mail package
+
 - **2025-11-13 (Phase 4):**
   - Installed pdfkit library for PDF generation
   - Created `server/services/pdfService.js` with generateWillPdf function
@@ -199,7 +216,7 @@ All sensitive credentials are stored in Replit Secrets:
 - ✅ `SUPABASE_SERVICE_ROLE_KEY` - For deletion operations
 - ✅ `GEMINI_API_KEY` - Google Gemini AI API key
 - ✅ `SENDGRID_API_KEY` - SendGrid email service key
-- ⚠️ `SENDGRID_FROM_EMAIL` - Verified sender email (to be set)
+- ⚠️ `SENDGRID_FROM_EMAIL` - Verified sender email (must be verified in SendGrid)
 
 ## Database Schema (Implemented)
 **Table:** `wills` (Implemented in `002_create_wills_table.sql` + `004_add_storage_fields_to_wills.sql`)
@@ -241,11 +258,11 @@ All sensitive credentials are stored in Replit Secrets:
 10. ✅ Upload PDFs to Supabase Storage
 11. ✅ Implement download functionality
 
-**Phase 5:** Data Management & Deployment
-12. Implement dual-kill deletion
-13. Set up email notifications (SendGrid)
-14. Configure deployment settings
-15. Final testing and documentation
+**Phase 5:** Data Management & Deployment ✅ COMPLETE
+12. ✅ Implement dual-kill deletion
+13. ✅ Set up email notifications (SendGrid)
+14. ✅ Configure deployment settings
+15. ✅ Final testing and documentation
 
 ## Privacy & Security Considerations
 - Privacy Policy served from local Privacy_Policy.md file

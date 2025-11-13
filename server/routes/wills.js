@@ -1,6 +1,7 @@
 const express = require('express');
 const { supabase } = require('../lib/supabase');
 const { generateWillPdf } = require('../services/pdfService');
+const { sendWillEmail } = require('../services/emailService');
 const router = express.Router();
 
 router.post('/', async (req, res) => {
@@ -222,18 +223,137 @@ router.get('/:willId/download', async (req, res) => {
   }
 });
 
+router.post('/:willId/email', async (req, res) => {
+  try {
+    const { willId } = req.params;
+
+    const { data: will, error: willError } = await supabase
+      .from('wills')
+      .select('*')
+      .eq('id', willId)
+      .single();
+
+    if (willError) {
+      if (willError.code === 'PGRST116') {
+        return res.status(404).json({ error: 'Will not found' });
+      }
+      throw willError;
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('user_id', will.user_id)
+      .single();
+
+    if (profileError || !profile?.email) {
+      return res.status(400).json({ error: 'User email not found' });
+    }
+
+    if (!will.storage_base_path || !will.pdf_filename) {
+      return res.status(422).json({ 
+        error: 'PDF not generated yet. Please complete the questionnaire first.' 
+      });
+    }
+
+    const filePath = `${will.storage_base_path}/${will.pdf_filename}`;
+    
+    const { data: fileData, error: downloadError } = await supabase.storage
+      .from('will-documents')
+      .download(filePath);
+
+    if (downloadError) {
+      console.error('Error downloading PDF for email:', downloadError);
+      return res.status(404).json({ error: 'PDF file not found' });
+    }
+
+    const pdfBuffer = Buffer.from(await fileData.arrayBuffer());
+
+    const emailResult = await sendWillEmail({
+      to: profile.email,
+      willId: will.id,
+      jurisdiction: will.jurisdiction_full_name,
+      pdfBuffer
+    });
+
+    res.json({ sent: true });
+  } catch (error) {
+    console.error('Error sending will email:', error);
+    res.status(500).json({ error: 'Failed to send email' });
+  }
+});
+
 router.delete('/:willId', async (req, res) => {
   try {
     const { willId } = req.params;
 
-    const { error } = await supabase
+    const { data: will, error: fetchError } = await supabase
+      .from('wills')
+      .select('*')
+      .eq('id', willId)
+      .single();
+
+    if (fetchError) {
+      if (fetchError.code === 'PGRST116') {
+        return res.status(404).json({ error: 'Will not found' });
+      }
+      throw fetchError;
+    }
+
+    let filesRemoved = 0;
+
+    if (will.storage_base_path) {
+      try {
+        const folderPath = will.storage_base_path;
+        
+        const { data: fileList, error: listError } = await supabase.storage
+          .from('will-documents')
+          .list(folderPath);
+
+        if (listError) {
+          console.error('Error listing files for deletion:', listError);
+          throw new Error(`Failed to list storage files: ${listError.message}`);
+        }
+        
+        if (fileList && fileList.length > 0) {
+          const filePaths = fileList.map(file => `${folderPath}/${file.name}`);
+          
+          const { data: removeData, error: removeError } = await supabase.storage
+            .from('will-documents')
+            .remove(filePaths);
+
+          if (removeError) {
+            console.error('Error removing files from storage:', removeError);
+            throw new Error(`Failed to delete storage files: ${removeError.message}`);
+          }
+          
+          filesRemoved = filePaths.length;
+          console.log(`Successfully removed ${filesRemoved} files from storage`);
+        } else {
+          console.log('No files found in storage for this will (empty folder)');
+        }
+      } catch (storageError) {
+        console.error('Storage deletion error:', storageError);
+        return res.status(500).json({ 
+          error: 'Failed to delete storage files',
+          details: storageError.message 
+        });
+      }
+    }
+
+    const { error: deleteError } = await supabase
       .from('wills')
       .delete()
       .eq('id', willId);
 
-    if (error) throw error;
+    if (deleteError) {
+      throw deleteError;
+    }
 
-    res.json({ message: 'Will deleted successfully' });
+    res.json({ 
+      deleted: true, 
+      filesRemoved 
+    });
   } catch (error) {
     console.error('Error deleting will:', error);
     res.status(500).json({ error: 'Failed to delete will' });
