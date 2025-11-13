@@ -75,19 +75,24 @@ function CreateWill() {
     } catch (err) {
       console.error('Error creating will:', err);
       
+      const retryInfo = err.response?.data?.retryMetadata || {};
+      const retryMessage = retryInfo.attempts > 1 
+        ? ` (Attempted ${retryInfo.attempts} times over ${Math.round(retryInfo.totalWaitMs / 1000)}s)`
+        : '';
+      
       if (err.response?.status === 429) {
         const errorData = err.response.data;
         if (errorData.errorType === 'RPM') {
-          setError('Rate limit exceeded: Too many requests per minute (max 10/min). Please wait a moment and try again.');
+          setError(`Rate limit exceeded: Too many requests per minute (max 10/min). Please wait a moment and try again.${retryMessage}`);
         } else if (errorData.errorType === 'RPD') {
-          setError('Daily quota exceeded: You have used all 250 AI requests for today. The quota resets at midnight Pacific Time. Please try again tomorrow.');
+          setError(`Daily quota exceeded: You have used all 250 AI requests for today. The quota resets at midnight Pacific Time. Please try again tomorrow.${retryMessage}`);
         } else {
-          setError(`AI service quota exceeded: ${errorData.error || 'Please try again later.'}`);
+          setError(`AI service quota exceeded: ${errorData.error || 'Please try again later.'}${retryMessage}`);
         }
       } else if (err.response?.status === 503) {
-        setError('Google AI service is temporarily overloaded. This is a temporary issue on Google\'s end. Please wait 30-60 seconds and try again.');
+        setError(`Google AI service is temporarily overloaded. This is a temporary issue on Google's end. Please wait 30-60 seconds and try again.${retryMessage}`);
       } else {
-        setError('Failed to generate legal compliance statement. Please try again.');
+        setError(`Failed to generate legal compliance statement. Please try again.${retryMessage}`);
       }
       
       setLoading(false);

@@ -149,6 +149,32 @@ function isTransientError(error) {
   return false;
 }
 
+function summarizeAnswers(qaData) {
+  if (!qaData || qaData.length === 0) return 'No previous answers';
+  
+  const summaries = qaData.map((round, index) => {
+    if (!round.answers || Object.keys(round.answers).length === 0) return null;
+    
+    const questionMap = {};
+    if (round.questions && Array.isArray(round.questions)) {
+      round.questions.forEach(q => {
+        questionMap[q.id] = q.question;
+      });
+    }
+    
+    const answerPairs = Object.entries(round.answers)
+      .map(([questionId, answer]) => {
+        const questionText = questionMap[questionId] || questionId;
+        return `${questionText}: ${answer}`;
+      })
+      .join('; ');
+    
+    return `Round ${index + 1}: ${answerPairs}`;
+  }).filter(Boolean);
+  
+  return summaries.join('\n') || 'No previous answers';
+}
+
 async function executeWithRetry(promptFn, operationName, maxAttempts = 3, baseDelayMs = 2000) {
   const maxTotalWaitMs = 60000;
   let attempts = 0;
@@ -216,20 +242,26 @@ async function executeWithRetry(promptFn, operationName, maxAttempts = 3, baseDe
 }
 
 async function generateComplianceStatement(jurisdiction, country) {
-  const prompt = `You are a legal expert specializing in estate planning law.
+  const prompt = `You are a legal expert. Generate a BRIEF compliance statement for creating a will in ${jurisdiction}, ${country === 'CA' ? 'Canada' : 'United States'}.
 
-Generate a clear, accurate compliance statement for creating a legal will in ${jurisdiction}, ${country === 'CA' ? 'Canada' : 'United States'}.
+CRITICAL INSTRUCTIONS - BE CONCISE:
+- Maximum 150-200 words
+- List ONLY the MINIMUM legal requirements
+- Use short, direct sentences
+- No legal jargon or flowery language
 
-The compliance statement should include:
-1. Basic legal requirements for a valid will in this jurisdiction
-2. Witnessing requirements (number of witnesses, qualifications)
-3. Age requirements for the testator
-4. Mental capacity requirements
-5. Any specific rules unique to this jurisdiction
-6. Important disclaimers about what this tool can and cannot do
+Required information (keep each to 1-2 sentences):
+1. Minimum age requirement for testator
+2. Mental capacity requirement (brief)
+3. Witnessing requirements (number, qualifications)
+4. Any jurisdiction-specific rules
 
-Keep the tone professional but accessible. The statement should be 200-300 words.
-Format the output as plain text without markdown.`;
+END WITH STRONG LIABILITY DISCLAIMER (2-3 sentences):
+- This tool does NOT provide legal advice
+- This tool and its creators assume NO legal liability
+- Users should consult a licensed attorney
+
+Format as plain text, no markdown. BE BRIEF.`;
 
   const { result } = await executeWithRetry(
     async () => {
@@ -243,41 +275,26 @@ Format the output as plain text without markdown.`;
 }
 
 async function generateInitialQuestions(jurisdiction, country, userName) {
-  const prompt = `You are an expert estate planning attorney helping ${userName} create a legal will for ${jurisdiction}, ${country === 'CA' ? 'Canada' : 'United States'}.
+  const prompt = `Generate 5-7 ESSENTIAL questions for a will in ${jurisdiction}, ${country === 'CA' ? 'Canada' : 'United States'}.
 
-Generate 5-7 essential questions for the first round of a will questionnaire. These questions should gather fundamental information about:
-1. Beneficiaries (spouse, children, family members)
-2. Executors (who will manage the estate)
-3. Guardians (if there are minor children)
-4. Major assets (property, investments, accounts)
-5. Special wishes or instructions
+CRITICAL - FOCUS ON MINIMUM REQUIREMENTS ONLY:
+- Ask ONLY what's legally required for a valid will
+- Keep questions SHORT and DIRECT
+- Avoid optional/nice-to-have information
+- Focus: beneficiaries, executor, guardians (if minor children), major assets
 
-Format your response as a JSON array of question objects. Each object should have:
-- "id": a unique identifier (q1, q2, q3, etc.)
-- "question": the question text
-- "type": "text", "textarea", "select", or "multi-select"
-- "required": true or false
-- "options": array of options (only for select/multi-select types)
-
-Example format:
+Return JSON array ONLY. Format:
 [
   {
     "id": "q1",
-    "question": "What is your current marital status?",
+    "question": "Marital status?",
     "type": "select",
     "required": true,
-    "options": ["Single", "Married", "Divorced", "Widowed", "Common-law/Domestic Partnership"]
-  },
-  {
-    "id": "q2",
-    "question": "Do you have any children?",
-    "type": "select",
-    "required": true,
-    "options": ["Yes", "No"]
+    "options": ["Single", "Married", "Divorced", "Widowed", "Common-law"]
   }
 ]
 
-IMPORTANT: Return ONLY the JSON array, no additional text or explanation.`;
+Keep questions concise. Return ONLY JSON, no extra text.`;
 
   const { result } = await executeWithRetry(
     async () => {
@@ -298,33 +315,33 @@ IMPORTANT: Return ONLY the JSON array, no additional text or explanation.`;
 }
 
 async function generateFollowUpQuestions(previousAnswers, jurisdiction, country, roundNumber) {
-  const prompt = `You are an expert estate planning attorney. Based on the previous answers provided, generate ${roundNumber === 2 ? '3-5' : '2-3'} follow-up questions to gather more specific details for creating a comprehensive will.
+  const summarized = summarizeAnswers(previousAnswers);
+  
+  const prompt = `Generate ${roundNumber === 2 ? '3-5' : '2-3'} follow-up questions for a will in ${jurisdiction}, ${country === 'CA' ? 'Canada' : 'United States'}.
 
-Previous answers:
-${JSON.stringify(previousAnswers, null, 2)}
+Previous answers (summarized):
+${summarized}
 
-Jurisdiction: ${jurisdiction}, ${country === 'CA' ? 'Canada' : 'United States'}
-Round: ${roundNumber} of 3
+CRITICAL - BE BRIEF AND FOCUSED:
+- Ask ONLY essential clarifications based on previous answers
+- Keep questions SHORT and DIRECT
+- Focus on MINIMUM requirements for legal validity
+- Avoid unnecessary details
 
-Generate questions that:
-1. Clarify or expand on previous answers
-2. Address specific distribution of assets
-3. Handle special circumstances mentioned
-4. Gather any remaining critical information
-5. Are tailored to the person's unique situation
+Round ${roundNumber} of 3.
 
-Format your response as a JSON array of question objects with the same structure as before:
+Return JSON array ONLY:
 [
   {
     "id": "q{number}",
     "question": "...",
     "type": "text|textarea|select|multi-select",
     "required": true|false,
-    "options": [...] (only for select types)
+    "options": [...] (for select types only)
   }
 ]
 
-IMPORTANT: Return ONLY the JSON array, no additional text or explanation.`;
+Return ONLY JSON, no extra text.`;
 
   const { result } = await executeWithRetry(
     async () => {
@@ -345,21 +362,32 @@ IMPORTANT: Return ONLY the JSON array, no additional text or explanation.`;
 }
 
 async function generateWillAssessment(allAnswers, jurisdiction, country) {
-  const prompt = `You are a legal expert in estate planning. Based on the questionnaire answers provided, create a legal assessment document that evaluates the completeness and validity of the information for creating a will in ${jurisdiction}, ${country === 'CA' ? 'Canada' : 'United States'}.
+  const summarized = summarizeAnswers(allAnswers);
+  
+  const prompt = `Create a BRIEF legal assessment for a will in ${jurisdiction}, ${country === 'CA' ? 'Canada' : 'United States'}.
 
-Questionnaire Answers:
-${JSON.stringify(allAnswers, null, 2)}
+Questionnaire answers (summarized):
+${summarized}
 
-Create an assessment that includes:
-1. Summary of key decisions (beneficiaries, executors, guardians)
-2. Analysis of asset distribution
-3. Identification of any potential legal issues or gaps
-4. Recommendations for additional considerations
-5. Confirmation that the information meets legal requirements
-6. Any disclaimers or warnings
+CRITICAL - BE CONCISE AND FOCUSED:
+- Maximum 250-350 words
+- List ONLY the key decisions: beneficiaries, executor, guardians, major assets
+- Identify ONLY critical legal gaps (if any)
+- Use short, direct sentences
+- NO unnecessary commentary
 
-The assessment should be professional, clear, and 400-600 words.
-Format the output as plain text with clear sections.`;
+Required sections (keep brief):
+1. Key Decisions Summary (3-4 sentences)
+2. Legal Completeness Check (2-3 sentences)
+3. Critical Gaps or Issues (if any - 2-3 sentences)
+
+END WITH STRONG LIABILITY DISCLAIMER (3-4 sentences):
+- This is NOT legal advice
+- This tool and creators assume NO legal liability
+- Results may not meet all legal requirements
+- Users MUST consult a licensed attorney before executing a will
+
+Format as plain text. BE BRIEF AND DIRECT.`;
 
   const { result } = await executeWithRetry(
     async () => {

@@ -73,10 +73,14 @@ function Questionnaire() {
       setAnswers({});
     } catch (err) {
       console.error('Error loading follow-up questions:', err);
+      const retryInfo = err.response?.data?.retryMetadata || {};
+      const retryMessage = retryInfo.attempts > 1 
+        ? ` (Attempted ${retryInfo.attempts} times over ${Math.round((retryInfo.totalWaitMs || 0) / 1000)}s)`
+        : '';
       if (err.response?.status === 503) {
-        setError('Google AI service is temporarily overloaded. Please wait 30-60 seconds and try again.');
+        setError(`Google AI service is temporarily overloaded. Please wait 30-60 seconds and try again.${retryMessage}`);
       } else {
-        setError('Failed to generate follow-up questions');
+        setError(`Failed to generate follow-up questions${retryMessage}`);
       }
     }
   };
@@ -92,10 +96,14 @@ function Questionnaire() {
       setQuestions(response.data.questions);
     } catch (err) {
       console.error('Error loading questions:', err);
+      const retryInfo = err.response?.data?.retryMetadata || {};
+      const retryMessage = retryInfo.attempts > 1 
+        ? ` (Attempted ${retryInfo.attempts} times over ${Math.round((retryInfo.totalWaitMs || 0) / 1000)}s)`
+        : '';
       if (err.response?.status === 503) {
-        setError('Google AI service is temporarily overloaded. Please wait 30-60 seconds and try again.');
+        setError(`Google AI service is temporarily overloaded. Please wait 30-60 seconds and try again.${retryMessage}`);
       } else {
-        setError('Failed to generate questions');
+        setError(`Failed to generate questions${retryMessage}`);
       }
     }
   };
@@ -169,10 +177,14 @@ function Questionnaire() {
       setSubmitting(false);
     } catch (err) {
       console.error('Error loading follow-up questions:', err);
+      const retryInfo = err.response?.data?.retryMetadata || {};
+      const retryMessage = retryInfo.attempts > 1 
+        ? ` (Attempted ${retryInfo.attempts} times over ${Math.round((retryInfo.totalWaitMs || 0) / 1000)}s)`
+        : '';
       if (err.response?.status === 503) {
-        setError('Google AI service is temporarily overloaded. Please wait 30-60 seconds and try again.');
+        setError(`Google AI service is temporarily overloaded. Please wait 30-60 seconds and try again.${retryMessage}`);
       } else {
-        setError('Failed to generate follow-up questions');
+        setError(`Failed to generate follow-up questions${retryMessage}`);
       }
       setSubmitting(false);
     }
@@ -195,10 +207,14 @@ function Questionnaire() {
       navigate(`/will-summary/${willId}`);
     } catch (err) {
       console.error('Error completing questionnaire:', err);
+      const retryInfo = err.response?.data?.retryMetadata || {};
+      const retryMessage = retryInfo.attempts > 1 
+        ? ` (Attempted ${retryInfo.attempts} times over ${Math.round((retryInfo.totalWaitMs || 0) / 1000)}s)`
+        : '';
       if (err.response?.status === 503) {
-        setError('Google AI service is temporarily overloaded. Please wait 30-60 seconds and try again.');
+        setError(`Google AI service is temporarily overloaded. Please wait 30-60 seconds and try again.${retryMessage}`);
       } else {
-        setError('Failed to generate assessment');
+        setError(`Failed to generate assessment${retryMessage}`);
       }
       setSubmitting(false);
     }

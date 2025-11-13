@@ -34,11 +34,14 @@ router.post('/compliance', async (req, res) => {
   } catch (error) {
     console.error('Error generating compliance statement:', error);
     
+    const retryMetadata = error.retryMetadata || {};
+    
     if (error.name === 'GeminiQuotaError') {
       return res.status(429).json({ 
         error: error.message,
         errorType: error.type,
-        retryAfter: error.retryAfter
+        retryAfter: error.retryAfter,
+        retryMetadata
       });
     }
     
@@ -46,13 +49,15 @@ router.post('/compliance', async (req, res) => {
       return res.status(503).json({ 
         error: 'AI service is temporarily overloaded. Please try again in a moment.',
         errorType: 'SERVICE_UNAVAILABLE',
-        message: error.message 
+        message: error.message,
+        retryMetadata
       });
     }
     
     res.status(500).json({ 
       error: 'Failed to generate compliance statement',
-      message: error.message 
+      message: error.message,
+      retryMetadata
     });
   }
 });
@@ -77,11 +82,14 @@ router.post('/questions/initial', async (req, res) => {
   } catch (error) {
     console.error('Error generating initial questions:', error);
     
+    const retryMetadata = error.retryMetadata || {};
+    
     if (error.name === 'GeminiQuotaError') {
       return res.status(429).json({ 
         error: error.message,
         errorType: error.type,
-        retryAfter: error.retryAfter
+        retryAfter: error.retryAfter,
+        retryMetadata
       });
     }
     
@@ -89,13 +97,15 @@ router.post('/questions/initial', async (req, res) => {
       return res.status(503).json({ 
         error: 'AI service is temporarily overloaded. Please try again in a moment.',
         errorType: 'SERVICE_UNAVAILABLE',
-        message: error.message 
+        message: error.message,
+        retryMetadata
       });
     }
     
     res.status(500).json({ 
       error: 'Failed to generate questions',
-      message: error.message 
+      message: error.message,
+      retryMetadata
     });
   }
 });
@@ -131,11 +141,14 @@ router.post('/questions/followup', async (req, res) => {
   } catch (error) {
     console.error('Error generating follow-up questions:', error);
     
+    const retryMetadata = error.retryMetadata || {};
+    
     if (error.name === 'GeminiQuotaError') {
       return res.status(429).json({ 
         error: error.message,
         errorType: error.type,
-        retryAfter: error.retryAfter
+        retryAfter: error.retryAfter,
+        retryMetadata
       });
     }
     
@@ -143,13 +156,15 @@ router.post('/questions/followup', async (req, res) => {
       return res.status(503).json({ 
         error: 'AI service is temporarily overloaded. Please try again in a moment.',
         errorType: 'SERVICE_UNAVAILABLE',
-        message: error.message 
+        message: error.message,
+        retryMetadata
       });
     }
     
     res.status(500).json({ 
       error: 'Failed to generate follow-up questions',
-      message: error.message 
+      message: error.message,
+      retryMetadata
     });
   }
 });
@@ -173,11 +188,14 @@ router.post('/assessment', async (req, res) => {
   } catch (error) {
     console.error('Error generating assessment:', error);
     
+    const retryMetadata = error.retryMetadata || {};
+    
     if (error.name === 'GeminiQuotaError') {
       return res.status(429).json({ 
         error: error.message,
         errorType: error.type,
-        retryAfter: error.retryAfter
+        retryAfter: error.retryAfter,
+        retryMetadata
       });
     }
     
@@ -185,13 +203,15 @@ router.post('/assessment', async (req, res) => {
       return res.status(503).json({ 
         error: 'AI service is temporarily overloaded. Please try again in a moment.',
         errorType: 'SERVICE_UNAVAILABLE',
-        message: error.message 
+        message: error.message,
+        retryMetadata
       });
     }
     
     res.status(500).json({ 
       error: 'Failed to generate assessment',
-      message: error.message 
+      message: error.message,
+      retryMetadata
     });
   }
 });
