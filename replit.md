@@ -133,6 +133,13 @@ The application is a full-stack React + Node.js project with:
 **Model:** `gemini-2.5-flash` (paid tier for higher limits)
 
 ## Recent Changes
+- **2025-11-13 (Authentication Timeout Fix):**
+  - Added 10-second timeout guard on Supabase session/profile fetches
+  - Implemented authError state for handling connection/auth failures
+  - Enhanced ProtectedRoute with error UI (Retry and Go to Login buttons)
+  - Fixed persistent "Loading..." issue when Supabase requests hang
+  - Added helpful message during loading state
+
 - **2025-11-13 (Phase 3 - Rate Limiting Update):**
   - Implemented Gemini API rate limiting with promise chain queue (10 RPM enforced)
   - Added comprehensive quota error handling (RPM vs RPD detection)
