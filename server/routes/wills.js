@@ -5,6 +5,25 @@ const { uploadPDF, getSignedUrl, deletePDF } = require('../lib/storage');
 const { sendWillDocumentsEmail } = require('../lib/emailService');
 const router = express.Router();
 
+async function createNotification(userId, type, title, message, actionType = 'none', relatedId = null, metadata = {}) {
+  try {
+    await supabase
+      .from('notifications')
+      .insert({
+        user_id: userId,
+        type,
+        title,
+        message,
+        action_type: actionType,
+        related_id: relatedId,
+        metadata
+      });
+    console.log(`[Notification] Created ${type} notification for user ${userId}`);
+  } catch (error) {
+    console.error('[Notification] Failed to create notification:', error);
+  }
+}
+
 router.post('/', async (req, res) => {
   try {
     const { 
@@ -235,6 +254,26 @@ router.post('/:willId/generate-pdfs', async (req, res) => {
     
   } catch (error) {
     console.error('[PDF Generation] Error:', error);
+    
+    const { willId } = req.params;
+    const { data: will } = await supabase
+      .from('wills')
+      .select('user_id')
+      .eq('id', willId)
+      .single();
+    
+    if (will?.user_id) {
+      await createNotification(
+        will.user_id,
+        'pdf_failure',
+        'PDF Generation Failed',
+        `Failed to generate PDF documents for your will. Error: ${error.message}`,
+        'retry_pdf',
+        willId,
+        { error: error.message, timestamp: new Date().toISOString() }
+      );
+    }
+    
     res.status(500).json({ 
       error: 'Failed to generate PDFs',
       details: error.message 
@@ -388,6 +427,26 @@ router.post('/:willId/share-email', async (req, res) => {
     
   } catch (error) {
     console.error('[Email Share] Error:', error);
+    
+    const { willId } = req.params;
+    const { userId, recipientEmail } = req.body;
+    
+    if (userId) {
+      await createNotification(
+        userId,
+        'email_failure',
+        'Email Sharing Failed',
+        `Failed to send will documents to ${recipientEmail || 'recipient'}. Error: ${error.message}`,
+        'retry_email',
+        willId,
+        { 
+          recipientEmail: recipientEmail || 'unknown',
+          error: error.message, 
+          timestamp: new Date().toISOString() 
+        }
+      );
+    }
+    
     res.status(500).json({ 
       error: 'Failed to send email',
       details: error.message 
