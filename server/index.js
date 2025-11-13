@@ -6,6 +6,7 @@ require('dotenv').config();
 const aiRoutes = require('./routes/ai');
 const willsRoutes = require('./routes/wills');
 const usersRoutes = require('./routes/users');
+const notificationsRoutes = require('./routes/notifications');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -21,6 +22,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api/ai', aiRoutes);
 app.use('/api/wills', willsRoutes);
 app.use('/api/users', usersRoutes);
+app.use('/api/notifications', notificationsRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ 
