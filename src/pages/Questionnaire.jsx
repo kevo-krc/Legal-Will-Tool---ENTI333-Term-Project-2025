@@ -313,6 +313,34 @@ function Questionnaire() {
           />
         );
 
+      case 'boolean':
+        return (
+          <div className="radio-group">
+            <label className="radio-label">
+              <input
+                type="radio"
+                name={question.id}
+                value="yes"
+                checked={answers[question.id] === 'yes'}
+                onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                required={question.required}
+              />
+              Yes
+            </label>
+            <label className="radio-label">
+              <input
+                type="radio"
+                name={question.id}
+                value="no"
+                checked={answers[question.id] === 'no'}
+                onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                required={question.required}
+              />
+              No
+            </label>
+          </div>
+        );
+
       case 'textarea':
         return (
           <textarea

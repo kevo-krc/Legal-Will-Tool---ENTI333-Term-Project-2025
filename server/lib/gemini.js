@@ -58,6 +58,14 @@ class GeminiQuotaError extends Error {
   }
 }
 
+class EmptyGeminiResponseError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'EmptyGeminiResponseError';
+    this.isTransient = true;
+  }
+}
+
 function parseQuotaError(error) {
   if (error.status === 429) {
     const errorMessage = error.message || '';
@@ -99,6 +107,11 @@ function parseQuotaError(error) {
 
 function isTransientError(error) {
   if (!error) return false;
+  
+  if (error.name === 'EmptyGeminiResponseError' || error.isTransient === true) {
+    console.log(`[Transient Error] Detected empty/invalid AI response - will retry`);
+    return true;
+  }
   
   let status = null;
   if (error.status !== undefined && error.status !== null) {
@@ -470,7 +483,7 @@ Be DIRECT and SPECIFIC. Return ONLY valid JSON array, no extra text.`;
       const jsonMatch = text.match(/\[[\s\S]*\]/);
       if (!jsonMatch) {
         console.error('[Follow-up Questions] No JSON array found. Full text:', text);
-        throw new Error('No JSON array found in response');
+        throw new EmptyGeminiResponseError('AI returned empty or invalid response - no JSON array found');
       }
       
       let parsed;
