@@ -3,7 +3,7 @@
 ## Overview
 This is a full-stack web application for creating legally valid wills for Canada and the USA using AI-assisted guidance. The project is an academic initiative demonstrating AI-driven legal document creation.
 
-**Current Status:** Phase 2 Complete - Authentication & User Management Implemented
+**Current Status:** Phase 3 Complete - Legal Compliance & AI Questionnaire Implemented
 
 ## Project Information
 - **Author:** Kevin Cooney
@@ -55,29 +55,50 @@ The application is a full-stack React + Node.js project with:
 ### Backend (Implemented)
 - Express.js server on port 3001 (bound to 0.0.0.0)
 - CORS enabled for frontend communication
-- Supabase admin client for future server-side operations
+- Supabase admin client for server-side operations
 - **Architecture Decision**: No auth proxy routes - frontend communicates directly with Supabase using RLS
-- API endpoints:
+- **Google Gemini AI Integration:** `server/lib/gemini.js`
+  - generateComplianceStatement: Province/state-specific legal requirements
+  - generateInitialQuestions: Round 1 questions (5-7 questions)
+  - generateFollowUpQuestions: Rounds 2-3 based on previous answers (3-5 questions)
+  - generateWillAssessment: Final legal assessment after completion
+- **API endpoints:**
   - `GET /api/health` - Health check
   - `GET /api/config/check` - Verify secrets configuration
-- Future endpoints: AI/Gemini integration, PDF generation, email delivery
+  - `POST /api/ai/compliance` - Generate compliance statement
+  - `POST /api/ai/questions/initial` - Generate Round 1 questions
+  - `POST /api/ai/questions/followup` - Generate follow-up questions
+  - `POST /api/ai/assessment` - Generate final assessment
+  - `POST /api/wills` - Create will
+  - `GET /api/wills/user/:userId` - Get all user's wills
+  - `GET /api/wills/:willId` - Get specific will
+  - `PUT /api/wills/:willId` - Update will data
+  - `DELETE /api/wills/:willId` - Delete will
+- Future endpoints: PDF generation, email delivery
 
-### Database (Migration Ready)
+### Database (Implemented)
 - Supabase (PostgreSQL)
 - **Implemented Tables:**
-  - `profiles` - User profile data with account_number, full_name, email, phone (SQL migration ready)
+  - `profiles` - User profile data with account_number, full_name, email, phone
+  - `wills` - Will documents and Q&A data with:
+    - Country (CA/US) and jurisdiction (province/state)
+    - Compliance statement
+    - Q&A data stored as JSONB array of rounds
+    - Questionnaire round tracking (1-3) and completion status
+    - Assessment content
+    - Status: draft, in_progress, completed, archived
 - **RLS Policies Implemented:**
-  - Users can view only their own profile
-  - Users can update only their own profile
-  - Users can insert only their own profile
-- **Future Tables:**
-  - `wills` - Will documents and Q&A data
+  - Profiles: Users can view/update/insert only their own profile
+  - Wills: Users can view/insert/update/delete only their own wills
+- **Migrations Ready:**
+  - `001_create_profiles_table.sql` - Profiles table with RLS
+  - `002_create_wills_table.sql` - Wills table with RLS
 - **Future Storage Bucket:** `will-documents`
 - Storage for:
   - User profiles (implemented)
-  - Q&A data from questionnaires (Phase 3)
-  - AI-generated legal assessments (Phase 3)
-  - Consent and disclaimer acknowledgments (Phase 3)
+  - Q&A data from questionnaires (implemented)
+  - AI-generated legal assessments (implemented)
+  - Consent and disclaimer acknowledgments (implemented)
   - Generated will documents (Phase 4)
   - Audit logs (Phase 5)
 
@@ -96,6 +117,22 @@ The application is a full-stack React + Node.js project with:
 - **USA**: All 50 states (state-specific laws)
 
 ## Recent Changes
+- **2025-11-13 (Phase 3):**
+  - Implemented Google Gemini AI integration for question generation and legal compliance
+  - Created wills database table with JSONB Q&A storage and RLS policies
+  - Built jurisdiction selection (13 Canadian provinces/territories + 50 US states)
+  - Implemented AI-powered compliance statement generation
+  - Built dynamic multi-round questionnaire flow (max 3 rounds)
+  - Created AI question generation based on previous answers
+  - Implemented final assessment generation after questionnaire completion
+  - Created CreateWill, Questionnaire, and WillSummary pages
+  - Updated Dashboard to display user's wills with status tracking
+  - Added backend API endpoints for AI operations and will management
+  - **Critical Bug Fixes:**
+    - Fixed state synchronization in Questionnaire (using local variables from willData)
+    - Fixed answer persistence between rounds (clearing answers on round transitions)
+  - Migration file: `server/migrations/002_create_wills_table.sql`
+
 - **2025-11-13 (Phase 2):**
   - Implemented Supabase authentication system
   - Created AuthContext with session management and auth functions
@@ -143,11 +180,12 @@ All sensitive credentials are stored in Replit Secrets:
 - ✅ `SENDGRID_API_KEY` - SendGrid email service key
 - ⚠️ `SENDGRID_FROM_EMAIL` - Verified sender email (to be set)
 
-## Database Schema (To Be Implemented)
-**Table:** `wills`
-- Columns: id, user_id, account_number, user_name, email, phone, address, dob, jurisdiction, compliance_statement, disclaimer_accepted, qa_data, will_content, assessment_content, pdf_paths, status, created_at, updated_at
+## Database Schema (Implemented)
+**Table:** `wills` (Implemented in `002_create_wills_table.sql`)
+- Columns: id (UUID), user_id (UUID), country (VARCHAR), jurisdiction (VARCHAR), jurisdiction_full_name (TEXT), compliance_statement (TEXT), qa_data (JSONB array), questionnaire_round (INT 1-3), questionnaire_completed (BOOLEAN), assessment_content (TEXT), will_content (TEXT), pdf_path (TEXT), status (VARCHAR), created_at, updated_at
+- RLS Policies: SELECT, INSERT, UPDATE, DELETE (users access only their own wills)
 
-**Storage Bucket:** `will-documents`
+**Storage Bucket:** `will-documents` (Phase 4)
 - Path structure: `will-documents/user_[user_id]/will_[will_id]/[document_type].pdf`
 
 ## User Preferences
@@ -164,19 +202,19 @@ All sensitive credentials are stored in Replit Secrets:
 - Deletion uses "dual-kill": storage files + database record
 
 ## Next Steps (Implementation Roadmap)
-**Phase 2:** Authentication & User Management
-1. Implement Supabase authentication (register/login)
-2. Create protected routes
-3. Build user profile management
-4. Auto-generate account numbers
+**Phase 2:** Authentication & User Management ✅ COMPLETE
+1. ✅ Implement Supabase authentication (register/login)
+2. ✅ Create protected routes
+3. ✅ Build user profile management
+4. ✅ Auto-generate account numbers
 
-**Phase 3:** Legal Compliance & Questionnaire
-5. Implement jurisdiction detection (province/state level)
-6. Integrate Gemini AI for compliance statements
-7. Build dynamic questionnaire flow (3 rounds max)
-8. Store Q&A data in Supabase
+**Phase 3:** Legal Compliance & Questionnaire ✅ COMPLETE
+5. ✅ Implement jurisdiction detection (province/state level)
+6. ✅ Integrate Gemini AI for compliance statements
+7. ✅ Build dynamic questionnaire flow (3 rounds max)
+8. ✅ Store Q&A data in Supabase
 
-**Phase 4:** PDF Generation & Storage
+**Phase 4:** PDF Generation & Storage (NEXT)
 9. Implement PDF generation (pdfkit)
 10. Upload PDFs to Supabase Storage
 11. Implement download/email functionality
