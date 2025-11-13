@@ -145,6 +145,76 @@ export const NotificationProvider = ({ children }) => {
     }
   }, [apiUrl, getSessionToken]);
 
+  const retryAction = useCallback(async (notification) => {
+    if (!notification.related_id) {
+      addToast('error', 'Retry Failed', 'Unable to retry: missing will ID');
+      return;
+    }
+
+    const currentRetryCount = notification.retry_count || 0;
+    if (currentRetryCount >= 3) {
+      addToast('error', 'Maximum Retries Reached', 'You have reached the maximum number of retry attempts (3).');
+      return;
+    }
+
+    try {
+      if (notification.action_type === 'retry_pdf') {
+        addToast('info', 'Retrying...', 'Attempting to regenerate PDF documents...');
+        
+        const response = await axios.post(`${apiUrl}/wills/${notification.related_id}/generate-pdfs`);
+        
+        await deleteNotification(notification.id);
+        
+        addToast('success', 'PDF Generation Successful', 'Your will documents have been generated successfully!');
+        
+        if (response.data.downloadUrls?.willPdf) {
+          window.open(response.data.downloadUrls.willPdf, '_blank');
+        }
+        if (response.data.downloadUrls?.assessmentPdf) {
+          setTimeout(() => {
+            window.open(response.data.downloadUrls.assessmentPdf, '_blank');
+          }, 500);
+        }
+        
+        return true;
+      } else if (notification.action_type === 'retry_email') {
+        const recipientEmail = notification.metadata?.recipientEmail;
+        if (!recipientEmail) {
+          addToast('error', 'Retry Failed', 'Unable to retry: missing recipient email');
+          return false;
+        }
+
+        addToast('info', 'Retrying...', `Attempting to send email to ${recipientEmail}...`);
+        
+        await axios.post(`${apiUrl}/wills/${notification.related_id}/share-email`, {
+          recipientEmail,
+          userId: user.id
+        });
+        
+        await deleteNotification(notification.id);
+        
+        addToast('success', 'Email Sent Successfully', `Will documents have been sent to ${recipientEmail}`);
+        
+        return true;
+      }
+    } catch (error) {
+      console.error('[Retry] Error:', error);
+      
+      const newRetryCount = currentRetryCount + 1;
+      const errorMessage = error.response?.data?.error || error.message;
+      
+      addToast(
+        'error',
+        'Retry Failed',
+        `Attempt ${newRetryCount}/3 failed: ${errorMessage}`,
+        newRetryCount < 3 ? notification.action_type : 'none',
+        notification.related_id
+      );
+      
+      return false;
+    }
+  }, [apiUrl, user, addToast, deleteNotification]);
+
   useEffect(() => {
     if (user) {
       fetchNotifications();
@@ -168,6 +238,7 @@ export const NotificationProvider = ({ children }) => {
     markAllAsRead,
     deleteNotification,
     deleteAllNotifications,
+    retryAction,
     isLoading
   };
 

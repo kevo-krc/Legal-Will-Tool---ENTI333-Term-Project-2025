@@ -9,7 +9,8 @@ const NotificationPanel = ({ onClose }) => {
     markAsRead,
     markAllAsRead,
     deleteNotification,
-    deleteAllNotifications
+    deleteAllNotifications,
+    retryAction
   } = useNotifications();
   const navigate = useNavigate();
 
@@ -19,12 +20,10 @@ const NotificationPanel = ({ onClose }) => {
     }
   };
 
-  const handleAction = (notification) => {
+  const handleAction = async (notification) => {
     if (notification.action_type === 'retry_email' || notification.action_type === 'retry_pdf') {
-      if (notification.related_id) {
-        navigate(`/will-summary/${notification.related_id}`);
-        onClose();
-      }
+      await retryAction(notification);
+      onClose();
     }
   };
 

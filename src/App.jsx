@@ -16,12 +16,12 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function AppContent() {
-  const { toasts, removeToast } = useNotifications();
+  const { toasts, removeToast, retryAction } = useNotifications();
   
   return (
     <div className="app">
       <Header />
-      <ToastContainer toasts={toasts} onClose={removeToast} />
+      <ToastContainer toasts={toasts} onClose={removeToast} onAction={retryAction} />
       <main className="main-content">
         <Routes>
           <Route path="/" element={<Home />} />
