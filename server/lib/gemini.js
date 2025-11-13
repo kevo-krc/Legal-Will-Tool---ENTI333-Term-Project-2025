@@ -293,47 +293,95 @@ function getStaticInitialQuestions(jurisdiction, country) {
       options: ["Single", "Married", "Divorced", "Widowed", "Common-law/Domestic Partnership", "Separated"]
     },
     {
-      id: "has_children",
-      question: "Do you have any children or dependents under 18?",
+      id: "spouse_name",
+      question: "If married or in a common-law relationship, what is your spouse/partner's full legal name?",
+      type: "text",
+      required: false
+    },
+    {
+      id: "children_details",
+      question: "List all your children (include full names and ages). If none, write 'None'.",
+      type: "textarea",
+      required: true
+    },
+    {
+      id: "guardian_for_minors",
+      question: "If you have minor children (under 18), who should be their legal guardian? Include full name and relationship. If not applicable, write 'N/A'.",
+      type: "text",
+      required: false
+    },
+    {
+      id: "executor_details",
+      question: "Who should be your Personal Representative (Executor)? Provide: full legal name, relationship to you, and their age.",
+      type: "textarea",
+      required: true
+    },
+    {
+      id: "executor_compensation",
+      question: "Should your executor receive compensation for their services?",
       type: "select",
       required: true,
-      options: ["Yes", "No"]
-    },
-    {
-      id: "executor_name",
-      question: "Who do you wish to appoint as your Personal Representative (Executor) to manage your estate? Provide their full legal name.",
-      type: "text",
-      required: true
-    },
-    {
-      id: "executor_relationship",
-      question: "What is the Personal Representative's relationship to you?",
-      type: "text",
-      required: true
+      options: ["Yes - standard executor fees", "No - they should serve without compensation", "Specific amount (will specify in follow-up)"]
     },
     {
       id: "alternate_executor",
-      question: "Who should be the alternate Personal Representative if your first choice cannot act? Provide their full name.",
+      question: "Who should be the alternate Personal Representative if your first choice cannot serve? Provide full name and relationship.",
       type: "text",
-      required: false
+      required: true
     },
     {
-      id: "primary_beneficiary",
-      question: "Who should receive the majority (residue) of your estate after debts and expenses? Provide full name(s).",
+      id: "beneficiary_distribution",
+      question: "How should your estate be distributed after debts and expenses? Be specific (e.g., '100% to spouse', '50% to child A, 50% to child B', '1/3 to each of my 3 children').",
       type: "textarea",
       required: true
     },
     {
-      id: "specific_gifts",
-      question: "Are there any specific items or amounts you want to leave to particular people or charities? (e.g., '$5,000 to my sister Jane Doe' or 'My car to John Smith')",
+      id: "contingent_beneficiaries",
+      question: "If your primary beneficiary/beneficiaries die before you, who should receive their share? Be specific.",
+      type: "textarea",
+      required: true
+    },
+    {
+      id: "specific_bequests",
+      question: "List any specific gifts (items or cash amounts) to particular people or charities. Format: 'Item/Amount to Full Name'. If none, write 'None'.",
       type: "textarea",
       required: false
     },
     {
-      id: "major_assets",
-      question: "What are your major assets? (e.g., real estate, bank accounts, investments, life insurance). Brief summary is fine.",
+      id: "residue_clause",
+      question: "After specific gifts are distributed, who receives the remainder (residue) of your estate?",
       type: "textarea",
       required: true
+    },
+    {
+      id: "real_estate",
+      question: "Do you own any real estate (house, land, etc.)? If yes, provide addresses and ownership type (sole, joint with spouse, etc.). If none, write 'None'.",
+      type: "textarea",
+      required: true
+    },
+    {
+      id: "financial_assets",
+      question: "Summarize your financial assets: bank accounts, investments, retirement accounts, life insurance. Approximate values are fine.",
+      type: "textarea",
+      required: true
+    },
+    {
+      id: "debts_liabilities",
+      question: "Do you have significant debts or liabilities (mortgage, loans, etc.)? If yes, briefly describe. If none, write 'None'.",
+      type: "textarea",
+      required: true
+    },
+    {
+      id: "digital_assets",
+      question: "Do you have digital assets or online accounts that need to be addressed (social media, cryptocurrency, digital businesses)? If yes, describe briefly. If none, write 'None'.",
+      type: "textarea",
+      required: false
+    },
+    {
+      id: "funeral_preferences",
+      question: "Do you have specific funeral or burial preferences (burial, cremation, specific location)? If none, write 'No preference'.",
+      type: "textarea",
+      required: false
     }
   ];
 }
@@ -345,7 +393,7 @@ async function generateInitialQuestions(jurisdiction, country, userName) {
 async function generateFollowUpQuestions(previousAnswers, jurisdiction, country, roundNumber) {
   const summarized = summarizeAnswers(previousAnswers);
   
-  const prompt = `You are a lawyer gathering information FROM a client TO CREATE a legal will. Based on their previous answers, generate ${roundNumber === 2 ? '3-5' : '2-3'} brief, practical follow-up questions.
+  const prompt = `You are a lawyer gathering ESSENTIAL information TO CREATE a legally valid will. Review the client's answers and ask ${roundNumber === 2 ? '4-6' : '2-4'} follow-up questions to fill CRITICAL GAPS only.
 
 Previous answers (summarized):
 ${summarized}
@@ -353,44 +401,47 @@ ${summarized}
 Jurisdiction: ${jurisdiction}, ${country === 'CA' ? 'Canada' : 'United States'}
 Round ${roundNumber} of 3
 
-LAWYER-STYLE FOLLOW-UP QUESTIONS - Focus on CONTINGENCIES & CLARIFICATIONS:
+${roundNumber === 2 ? 'ROUND 2 - ESSENTIAL WILL REQUIREMENTS (ask if missing):' : 'ROUND 3 - FINAL CRITICAL GAPS (ask ONLY if absolutely necessary):'}
 
-1. CONTINGENCY "WHAT IF" SCENARIOS (if applicable):
-   - If they named a spouse/single beneficiary: "What if your primary beneficiary dies before or at the same time as you? Who should inherit then?"
-   - If multiple children/beneficiaries: "If one beneficiary dies before you but has children, should their children inherit their parent's share (per stirpes) or should it go to the surviving beneficiaries?"
-   - If specific gifts mentioned: "What if you no longer own a specific item when you pass? Should the recipient get cash equivalent or nothing?"
+PRIORITY 1 - REQUIRED FOR VALID WILL:
+- Missing executor information (full name, age, address, willingness to serve)
+- Missing alternate executor (full name, relationship)
+- Unclear beneficiary distribution (must have specific percentages or clear division)
+- Missing guardian for minors (if they have children under 18)
+- Missing alternate guardian for minors
+- Vague residue clause (who gets the remainder after specific gifts?)
 
-2. GUARDIAN FOR MINOR CHILDREN (if has_children = Yes):
-   - "Who should be the legal guardian of your minor children if both parents pass away? Include full name."
-   - "Who should be the alternate guardian if your first choice cannot serve?"
+PRIORITY 2 - ESSENTIAL CLARIFICATIONS:
+- If percentages don't add to 100%, ask for clarification
+- If beneficiaries are vague ("my children"), ask for specific names
+- If assets listed but distribution unclear, ask how each major asset should be distributed
+- Missing debt payment instructions (should debts be paid before distribution?)
+- If minor children inherit, ask about trust age threshold (18, 21, 25?)
 
-3. TRUSTS FOR MINORS (if children or young beneficiaries):
-   - "Should inheritances for minor children be held in trust until they reach a certain age (e.g., 18, 21, 25)?"
+PRIORITY 3 - ONLY IF CRITICAL:
+- Per stirpes vs per capita for deceased beneficiaries (only if multiple children/beneficiaries)
+- Ademption clause for specific gifts (what if item no longer owned?)
+- Digital asset access (only if they mentioned digital assets/crypto)
 
-4. EXECUTOR DETAILS (if needed):
-   - "Is your executor willing and able to serve? Have you discussed this with them?"
-   - "Should your executor receive compensation for their work?"
+${roundNumber === 3 ? 'IMPORTANT: Most information should be gathered by now. Only ask about truly CRITICAL missing pieces needed for a functional will.' : ''}
 
-5. ASSET CLARIFICATIONS (if vague):
-   - Clarify ownership structure of major assets (joint tenancy vs tenants in common)
-   - Confirm beneficiary designations align with will
-
-DO NOT ASK:
-- About the will document format (we create that)
-- About witnesses or signing
-- About legal formalities
+DO NOT ASK ABOUT:
+- Witness names or signing procedures (we handle that in instructions)
+- Legal formalities or will format
+- Tax planning or estate planning strategies
+- Fringe "what if" scenarios unless directly relevant to will validity
 
 Return ONLY a JSON array with this exact structure:
 [
   {
-    "id": "contingent_beneficiary",
-    "question": "Brief question here?",
+    "id": "specific_beneficiary_names",
+    "question": "Your question here?",
     "type": "text",
     "required": true
   }
 ]
 
-Be BRIEF. Return ONLY valid JSON array, no extra text.`;
+Be DIRECT and SPECIFIC. Return ONLY valid JSON array, no extra text.`;
 
   const { result } = await executeWithRetry(
     async () => {
@@ -438,30 +489,45 @@ Be BRIEF. Return ONLY valid JSON array, no extra text.`;
 async function generateWillAssessment(allAnswers, jurisdiction, country) {
   const summarized = summarizeAnswers(allAnswers);
   
-  const prompt = `You have gathered information FROM a user TO CREATE a legal will. Assess whether we have sufficient information to draft a legally valid will in ${jurisdiction}, ${country === 'CA' ? 'Canada' : 'United States'}.
+  const prompt = `You have gathered comprehensive information TO CREATE a legal will for ${jurisdiction}, ${country === 'CA' ? 'Canada' : 'United States'}. Provide a brief summary of key decisions and NEXT STEPS for will execution.
 
 Information gathered (summarized):
 ${summarized}
 
-CRITICAL - BE CONCISE AND FOCUSED:
-- Maximum 250-350 words
-- Enumerate the KEY DECISIONS we've captured: executor, beneficiaries, guardians (if applicable), assets
-- Assess if we have MINIMUM information needed for a legal will
-- Identify any CRITICAL GAPS that prevent will creation
-- Use short, direct sentences
+ASSESSMENT FORMAT (250-350 words maximum):
 
-Required sections (keep brief):
-1. Summary of Key Decisions (3-4 sentences listing: executor, primary beneficiaries, guardianship if applicable, major assets)
-2. Completeness Assessment (2-3 sentences: Do we have enough to create a basic valid will? What's missing if anything critical?)
-3. Critical Gaps or Warnings (if any - 2-3 sentences about missing executor, beneficiary, or guardian information)
+1. WILL SUMMARY (4-6 sentences):
+   - Executor appointed: [name]
+   - Beneficiaries and distribution: [brief summary]
+   - Guardian for minors (if applicable): [name]
+   - Key assets covered: [brief list]
+   - Special bequests (if any): [brief mention]
 
-END WITH STRONG LIABILITY DISCLAIMER (3-4 sentences):
-- This is NOT legal advice
+2. READINESS FOR WILL CREATION (2-3 sentences):
+   - State whether we have sufficient information to draft a legally valid will
+   - Note if any CRITICAL information is still missing (executor, beneficiaries, or distribution percentages)
+   - If missing critical info, state what is needed before proceeding
+
+3. NEXT STEPS - WILL EXECUTION REQUIREMENTS (5-7 points):
+   For ${jurisdiction}, the will must be executed as follows:
+   - The will document must be printed (not handwritten, not electronic signature)
+   - Testator (will-maker) must sign at the end of the document
+   - Signature must be witnessed by [2 or 3] independent witnesses simultaneously present
+   - Witnesses must be adults (18+ years) who are NOT beneficiaries or spouses of beneficiaries
+   - Witnesses must sign in the presence of the testator and each other
+   - Each witness should provide their full name, address, and occupation
+   - [Any other jurisdiction-specific requirements]
+
+4. CRITICAL GAPS (only if absolutely necessary - 1-2 sentences):
+   - Only mention if executor name, beneficiary distribution, or guardian (for minors) is completely missing
+
+STRONG LIABILITY DISCLAIMER (3-4 sentences):
+- This tool does NOT provide legal advice
 - This tool and its creators assume NO legal liability whatsoever
-- The generated will may not meet all legal requirements
-- Users MUST consult a licensed attorney before signing or executing any will
+- The generated will may not reflect recent legal changes
+- Users MUST have the will reviewed by a licensed attorney before signing or execution
 
-Format as plain text with clear section headers. BE BRIEF AND DIRECT.`;
+Format as plain text with clear section headers. BE DIRECT AND ACTIONABLE.`;
 
   const { result } = await executeWithRetry(
     async () => {

@@ -73,11 +73,23 @@ The application is a full-stack React (Vite) and Node.js (Express) project.
 - Retry with cleaned JSON if initial parse fails
 
 ### Hybrid Questionnaire Architecture
-- **Round 1:** 8 static curated questions (no AI generation for speed/consistency)
-  * Marital status, children, executor (name & relationship), alternate executor, primary beneficiary, specific gifts, major assets
-  * Semantic IDs (marital_status, executor_name, etc.) for data organization
-  * Mix of required (5) and optional (3) fields
-- **Rounds 2-3:** Constrained AI follow-ups for missing/ambiguous data only
-- **Assessment:** Enumerates key decisions, assesses completeness, identifies critical gaps
-- All prompts emphasize brevity and minimum legal requirements only
+- **Round 1:** 16 comprehensive static questions (no AI generation for speed/consistency)
+  * Personal: marital status, spouse name, children details (names & ages)
+  * Executor: detailed info (name, age, relationship), compensation preference, alternate executor
+  * Beneficiaries: specific distribution percentages, contingent beneficiaries, residue clause
+  * Assets: real estate (addresses & ownership), financial assets, debts/liabilities, digital assets
+  * Other: guardian for minors, specific bequests, funeral preferences
+  * Mix of required (13) and optional (3) fields
+  * Gathers all essential information for creating a functional legal will
+- **Round 2:** AI asks 4-6 questions to fill CRITICAL gaps only (missing executor details, unclear distributions, guardian info)
+  * Prioritizes essential will requirements over fringe scenarios
+  * Focuses on information needed for valid will creation
+- **Round 3:** AI asks 2-4 final questions for any remaining critical gaps
+  * Minimal questions - assumes most info gathered
+  * Only truly essential missing pieces
+- **Assessment:** Summarizes key decisions + provides NEXT STEPS for will execution (printing, signing, witnesses)
+  * Focuses on execution requirements rather than identifying gaps
+  * Includes jurisdiction-specific witness and signature requirements
+  * Strong liability disclaimers about legal review needed
+- All prompts emphasize gathering functional will information over theoretical edge cases
 ```
