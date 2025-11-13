@@ -130,7 +130,7 @@ The application is a full-stack React + Node.js project with:
 - Frontend shows specific user-friendly messages for quota errors
 - Backend logging tracks request timing for debugging
 
-**Model:** `gemini-2.0-flash-exp` (free tier)
+**Model:** `gemini-2.5-flash` (paid tier for higher limits)
 
 ## Recent Changes
 - **2025-11-13 (Phase 3 - Rate Limiting Update):**
@@ -138,7 +138,7 @@ The application is a full-stack React + Node.js project with:
   - Added comprehensive quota error handling (RPM vs RPD detection)
   - Updated frontend to show user-friendly quota error messages
   - Backend logs track serialized request timing for debugging
-  - Model updated to `gemini-2.0-flash-exp` (free tier)
+  - Model updated to `gemini-2.5-flash` (paid tier for higher limits)
 
 - **2025-11-13 (Phase 3):**
   - Implemented Google Gemini AI integration for question generation and legal compliance
