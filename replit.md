@@ -73,23 +73,73 @@ The application is a full-stack React (Vite) and Node.js (Express) project.
 - Retry with cleaned JSON if initial parse fails
 
 ### Hybrid Questionnaire Architecture
-- **Round 1:** 16 comprehensive static questions (no AI generation for speed/consistency)
+- **Round 1:** 15 comprehensive static questions (no AI generation for speed/consistency)
   * Personal: marital status, spouse name, children details (names & ages)
   * Executor: detailed info (name, age, relationship), compensation preference, alternate executor
-  * Beneficiaries: specific distribution percentages, contingent beneficiaries, residue clause
+  * Beneficiaries: specific distribution percentages, contingent beneficiaries, residue distribution
   * Assets: real estate (addresses & ownership), financial assets, debts/liabilities, digital assets
   * Other: guardian for minors, specific bequests, funeral preferences
-  * Mix of required (13) and optional (3) fields
+  * Mix of required (12) and optional (3) fields
   * Gathers all essential information for creating a functional legal will
+  * Fixed redundancy: Q8 and Q11 consolidated into single beneficiary/residue question
 - **Round 2:** AI asks 4-6 questions to fill CRITICAL gaps only (missing executor details, unclear distributions, guardian info)
   * Prioritizes essential will requirements over fringe scenarios
   * Focuses on information needed for valid will creation
+  * Includes all previously asked questions in prompt to prevent re-asking
 - **Round 3:** AI asks 2-4 final questions for any remaining critical gaps
   * Minimal questions - assumes most info gathered
   * Only truly essential missing pieces
+  * Explicitly instructed NOT to ask if users have "now" confirmed information (single-session context)
 - **Assessment:** Summarizes key decisions + provides NEXT STEPS for will execution (printing, signing, witnesses)
   * Focuses on execution requirements rather than identifying gaps
   * Includes jurisdiction-specific witness and signature requirements
   * Strong liability disclaimers about legal review needed
 - All prompts emphasize gathering functional will information over theoretical edge cases
+- Enhanced token limit (4096) prevents AI response truncation
+
+### PDF Generation (Completed November 13, 2025)
+- **Backend Implementation:**
+  * `pdfGenerator.js` - Creates formatted legal documents using PDFKit library
+  * `generateWillPDF()` - Produces formal Last Will & Testament with proper legal structure:
+    - Header with testator name and jurisdiction
+    - Article 1: Declarations (marital status, family)
+    - Article 2: Executor appointment with powers
+    - Article 3: Guardian for minors (if applicable)
+    - Article 4: Debt payment instructions
+    - Article 5: Specific bequests
+    - Article 6: Residue distribution with contingent beneficiaries
+    - Article 7: Additional provisions (digital assets, funeral preferences)
+    - Signature section for testator
+    - Witness section with spaces for 2 witnesses
+    - Legal disclaimers in footer
+  * `generateAssessmentPDF()` - Produces legal assessment document with:
+    - Header with user/jurisdiction info
+    - Important legal notice and disclaimers
+    - Compliance statement for jurisdiction
+    - AI-generated assessment and next steps
+    - Full Q&A summary from all questionnaire rounds
+  * `storage.js` - Manages Supabase Storage operations:
+    - Auto-creates 'will-documents' bucket if not exists
+    - Uploads PDFs with upsert (overwrites old versions)
+    - Generates signed URLs for secure downloads (1-hour expiry)
+    - Organizes files by user_id/will_id structure
+  * API endpoints in `wills.js`:
+    - `POST /wills/:willId/generate-pdfs` - Generates both PDFs, uploads to storage, updates database
+    - `GET /wills/:willId/download-pdfs` - Retrieves signed download URLs for existing PDFs
+- **Frontend Implementation:**
+  * `WillSummary.jsx` updated with:
+    - Dynamic button states: "Generate PDF Documents" → "Download PDF Documents"
+    - Loading states during generation/download
+    - Error handling with user-friendly messages
+    - Auto-download on successful generation (both PDFs open in new tabs)
+    - Success/error feedback messaging
+- **Database Updates:**
+  * `will_pdf_path` stores Supabase Storage path for will document
+  * `assessment_pdf_path` stores path for assessment document
+  * Status updates to 'completed' after PDF generation
+- **Security & Storage:**
+  * Private Supabase Storage bucket (non-public)
+  * Signed URLs expire after 1 hour for security
+  * Files organized by user_id for isolation
+  * 10MB file size limit per PDF
 ```
