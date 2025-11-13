@@ -6,7 +6,7 @@ import axios from 'axios';
 import './Dashboard.css';
 
 function Dashboard() {
-  const { user, profile, updateProfile, logout } = useAuth();
+  const { user, profile, updateProfile, logout, getSessionToken } = useAuth();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -71,10 +71,19 @@ function Dashboard() {
       setDeletingData(true);
       setDeleteError(null);
 
+      console.log('[Delete Account] Getting session token...');
+      const token = await getSessionToken();
+      
+      if (!token) {
+        throw new Error('Unable to authenticate. Please log in again.');
+      }
+
       console.log('[Delete Account] Sending deletion request...');
       
       const response = await axios.delete(`${API_URL}/users/${user.id}/data`, {
-        data: { requestingUserId: user.id }
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
       
       console.log('[Delete Account] Deletion successful:', response.data);

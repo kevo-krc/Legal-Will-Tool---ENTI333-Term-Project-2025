@@ -246,6 +246,17 @@ export const AuthProvider = ({ children }) => {
     return `WL${timestamp}${random}`;
   };
 
+  const getSessionToken = async () => {
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) throw error;
+      return session?.access_token || null;
+    } catch (error) {
+      console.error('Error getting session token:', error);
+      return null;
+    }
+  };
+
   const value = {
     user,
     profile,
@@ -255,7 +266,9 @@ export const AuthProvider = ({ children }) => {
     signIn,
     signOut,
     updateProfile,
-    fetchProfile
+    fetchProfile,
+    getSessionToken,
+    logout: signOut
   };
 
   return (

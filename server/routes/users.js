@@ -3,18 +3,15 @@ const router = express.Router();
 const { supabase } = require('../lib/supabase');
 const { deleteAllUserFiles } = require('../lib/storage');
 const { sendWillDocumentsEmail } = require('../lib/emailService');
+const { authenticateUser } = require('../middleware/auth');
 
-router.delete('/:userId/data', async (req, res) => {
+router.delete('/:userId/data', authenticateUser, async (req, res) => {
   try {
     const { userId } = req.params;
-    const { requestingUserId } = req.body;
+    const authenticatedUserId = req.authenticatedUserId;
     
-    if (!requestingUserId) {
-      return res.status(400).json({ error: 'Missing requestingUserId in request body' });
-    }
-    
-    if (userId !== requestingUserId) {
-      console.error(`[Data Deletion] Authorization failed: userId ${userId} !== requestingUserId ${requestingUserId}`);
+    if (userId !== authenticatedUserId) {
+      console.error(`[Data Deletion] Authorization failed: userId ${userId} !== authenticatedUserId ${authenticatedUserId}`);
       return res.status(403).json({ error: 'Unauthorized: You can only delete your own account' });
     }
     
@@ -71,19 +68,7 @@ router.delete('/:userId/data', async (req, res) => {
     console.log('[Data Deletion] Profile deleted successfully');
     
     console.log(`[Data Deletion] Step 4: Deleting Supabase Auth user...`);
-    const { createClient } = require('@supabase/supabase-js');
-    const supabaseAdmin = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY,
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false
-        }
-      }
-    );
-    
-    const { error: authDeleteError } = await supabaseAdmin.auth.admin.deleteUser(userId);
+    const { error: authDeleteError } = await supabase.auth.admin.deleteUser(userId);
     
     if (authDeleteError) {
       console.error('[Data Deletion] Error deleting auth user:', authDeleteError);
