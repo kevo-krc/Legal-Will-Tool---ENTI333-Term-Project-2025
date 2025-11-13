@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { API_URL } from '../config/api';
 import axios from 'axios';
 import './Questionnaire.css';
-
-const API_URL = 'http://localhost:3001/api';
 
 function Questionnaire() {
   const { willId } = useParams();

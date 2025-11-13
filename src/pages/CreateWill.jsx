@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { JURISDICTIONS, getJurisdictions } from '../data/jurisdictions';
+import { API_URL } from '../config/api';
 import axios from 'axios';
 import './CreateWill.css';
-
-const API_URL = 'http://localhost:3001/api';
 
 function CreateWill() {
   const { user, profile } = useAuth();

@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { API_URL } from '../config/api';
 import axios from 'axios';
 import './WillSummary.css';
-
-const API_URL = 'http://localhost:3001/api';
 
 function WillSummary() {
   const { willId } = useParams();
