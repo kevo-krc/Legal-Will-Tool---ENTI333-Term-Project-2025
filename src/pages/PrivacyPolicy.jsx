@@ -1,73 +1,208 @@
 import React from 'react';
+import './PrivacyPolicy.css';
 
 function PrivacyPolicy() {
   return (
-    <div className="privacy-policy">
+    <div className="privacy-policy-page">
       <div className="container">
-        <div className="card" style={{ maxWidth: '900px', margin: '2rem auto', padding: '2.5rem' }}>
-          <h1 className="mb-4">ACADEMIC PROJECT PRIVACY NOTICE & DISCLAIMER</h1>
-          <p><strong>Effective Date:</strong> November 11, 2025</p>
+        <div className="privacy-policy-content">
+          <h1>Academic Project Privacy Notice & Disclaimer</h1>
+          
+          <div className="policy-meta">
+            <p><strong>Effective Date:</strong> November 13, 2025</p>
+            <p><strong>Last Updated:</strong> November 13, 2025</p>
+          </div>
 
-          <hr style={{ margin: '2rem 0', border: 'none', borderTop: '1px solid var(--color-border)' }} />
+          <section className="policy-section">
+            <h2>1. Academic Project Status & Legal Disclaimer</h2>
+            <p>
+              This application, <strong>Legal Will Generation Tool</strong>, is a <strong>student academic project</strong> created 
+              for the course <strong>ENTI333</strong> at the University of Calgary by Kevin Cooney.
+            </p>
+            <p className="disclaimer-text">
+              <strong>THIS IS NOT A PRODUCTION SERVICE AND DOES NOT CONSTITUTE LEGAL ADVICE.</strong> The application is intended 
+              solely for demonstrating AI-driven legal document creation functionality and meeting academic requirements.
+            </p>
 
-          <h2>1. ACADEMIC PROJECT STATUS & LEGAL DISCLAIMER</h2>
-          <p>
-            This application, <strong>Legal Will Generation Tool</strong>, is a <strong>student academic project</strong> created 
-            for the course <strong>ENTI333</strong> at the University of Calgary.
-          </p>
-          <p className="text-accent" style={{ fontWeight: 'bold' }}>
-            THIS IS NOT A PRODUCTION SERVICE AND DOES NOT CONSTITUTE LEGAL ADVICE.
-          </p>
-          <p>
-            The application is intended solely for demonstrating AI-driven product functionality and meeting academic requirements.
-          </p>
-          <p>
-            <strong>This document is a placeholder.</strong> It is intended to fulfill the technical requirement of displaying 
-            a Privacy Policy link within the application's user interface. It is not a legally binding agreement and should 
-            not be relied upon as such.
-          </p>
+            <h3>Important Limitations</h3>
+            <ul>
+              <li><strong>Not Legal Advice:</strong> This tool does not provide legal advice. It generates draft legal documents based on user input and AI analysis.</li>
+              <li><strong>No Attorney-Client Relationship:</strong> Use of this application does not create an attorney-client relationship.</li>
+              <li><strong>No Liability:</strong> The application owners, developers, and the University of Calgary assume <strong>NO legal liability</strong> for the validity, enforceability, or legal consequences of any documents generated using this tool.</li>
+              <li><strong>Professional Review Recommended:</strong> All generated documents should be reviewed by a qualified legal professional before use.</li>
+              <li><strong>Academic Purpose Only:</strong> This application is designed for academic evaluation and demonstration purposes.</li>
+            </ul>
+          </section>
 
-          <h2 className="mt-4">2. INFORMATION COLLECTION AND USE</h2>
-          <p>
-            This application collects and processes <strong>highly sensitive personal data</strong> (names, addresses, 
-            asset information, guardian information) strictly for the purpose of generating the legal will document 
-            and the final assessment.
-          </p>
-          <ul>
-            <li><strong>Data Collected:</strong> User inputs (Q&A data), home address, date of birth (DOB), and asset details.</li>
-            <li><strong>Purpose:</strong> To dynamically generate the Legal Will Document and Assessment Document, and to 
-            perform region/age-based compliance checks.</li>
-            <li><strong>Third-Party Sharing:</strong> <strong>NO personal data is shared, sold, or distributed to any external 
-            third parties</strong>, including advertising partners or analytics providers. The only external service utilized 
-            is Supabase for secure storage, which is governed by the service's own privacy policies.</li>
-          </ul>
+          <section className="policy-section">
+            <h2>2. Information Collection and Use</h2>
+            <p>
+              This application collects and processes <strong>highly sensitive personal data</strong> strictly for the purpose of 
+              generating legal will documents and assessments. We take data privacy very seriously.
+            </p>
 
-          <h2 className="mt-4">3. DATA RETENTION AND DELETION</h2>
-          <p>We recognize the highly sensitive nature of the data involved in will creation.</p>
-          <ul>
-            <li><strong>Storage Location:</strong> All Q&A data and generated documents are stored securely in a 
-            dedicated <strong>Supabase</strong> database.</li>
-            <li><strong>Retention:</strong> Data is retained only with explicit user consent, as acknowledged when 
-            accepting the initial disclaimer.</li>
-            <li><strong>Deletion:</strong> Users have the right to request the complete deletion of their account and 
-            all associated personal and document data at any time via the user account management screen.</li>
-          </ul>
+            <h3>2.1 Data We Collect</h3>
+            <ul>
+              <li><strong>Personal Information:</strong> Full name, email address, phone number, home address, date of birth</li>
+              <li><strong>Legal Information:</strong> Marital status, spouse name, children details (names and ages)</li>
+              <li><strong>Estate Planning Data:</strong>
+                <ul>
+                  <li>Executor and alternate executor information</li>
+                  <li>Beneficiary details and distribution percentages</li>
+                  <li>Guardian information for minor children</li>
+                  <li>Asset information (real estate, financial assets, digital assets)</li>
+                  <li>Specific bequests and funeral preferences</li>
+                </ul>
+              </li>
+              <li><strong>Legal Documents:</strong> Generated will PDFs and assessment documents</li>
+              <li><strong>Account Data:</strong> Questionnaire responses, consent acknowledgments, disclaimer acceptance</li>
+              <li><strong>Technical Data:</strong> Account numbers (auto-generated), authentication tokens, session data</li>
+            </ul>
 
-          <h2 className="mt-4">4. SECURITY MEASURES</h2>
-          <p>The application employs the following technical safeguards, implemented via the Node.js backend:</p>
-          <ul>
-            <li><strong>Encryption:</strong> Data is stored using encryption-at-rest provided by the Supabase service.</li>
-            <li><strong>Access Control:</strong> Row-Level Security (RLS) is used to ensure users can only access their own data.</li>
-            <li><strong>Secure Transport:</strong> All communication between the front-end (React) and back-end 
-            (Node.js/Supabase) is secured via HTTPS/SSL.</li>
-          </ul>
+            <h3>2.2 How We Use Your Data</h3>
+            <ul>
+              <li><strong>Document Generation:</strong> Create personalized legal will and assessment documents</li>
+              <li><strong>Compliance Verification:</strong> Perform jurisdiction-specific legal compliance checks</li>
+              <li><strong>AI Processing:</strong> Generate region-specific questions using Google Gemini AI</li>
+              <li><strong>Communication:</strong> Send generated documents via email when requested</li>
+              <li><strong>Data Management:</strong> Provide access to stored information via the dashboard</li>
+            </ul>
 
-          <h2 className="mt-4">5. CONTACT INFORMATION</h2>
-          <p>For all questions regarding this privacy notice or the security of the application, please contact the project developer:</p>
-          <ul>
-            <li><strong>Project Developer:</strong> Kevin Cooney</li>
-            <li><strong>Contact Email:</strong> kevin.cooney@ucalgary.ca</li>
-          </ul>
+            <h3>2.3 Third-Party Services</h3>
+            <p>
+              <strong>NO personal data is shared, sold, or distributed to advertising partners or analytics providers.</strong> We use:
+            </p>
+            <ul>
+              <li><strong>Supabase:</strong> Database and authentication services</li>
+              <li><strong>Google Gemini AI:</strong> Question generation and legal analysis (API calls only)</li>
+              <li><strong>SendGrid:</strong> Email delivery service for document sharing</li>
+              <li><strong>Replit:</strong> Application hosting platform</li>
+            </ul>
+          </section>
+
+          <section className="policy-section">
+            <h2>3. Data Retention and Deletion</h2>
+
+            <h3>3.1 Storage Location</h3>
+            <ul>
+              <li><strong>Database:</strong> Supabase PostgreSQL database (encrypted at rest)</li>
+              <li><strong>File Storage:</strong> Supabase Storage with private access controls</li>
+            </ul>
+
+            <h3>3.2 Retention Policy</h3>
+            <ul>
+              <li><strong>User Consent Required:</strong> Data stored only after accepting legal disclaimer</li>
+              <li><strong>Indefinite Storage:</strong> Data retained indefinitely unless you request deletion</li>
+              <li><strong>No Automatic Expiration:</strong> Documents remain accessible until you delete them</li>
+            </ul>
+
+            <h3>3.3 Your Right to Delete</h3>
+            <p>You have <strong>complete control</strong> over your data:</p>
+            <ul>
+              <li><strong>How to Delete:</strong> Access "Danger Zone" in Dashboard</li>
+              <li><strong>What Gets Deleted:</strong> Profile, will documents, PDFs, questionnaire responses, auth credentials</li>
+              <li><strong>Confirmation:</strong> Email confirmation sent after deletion</li>
+              <li><strong>Permanence:</strong> Deletion is <strong>permanent and irreversible</strong></li>
+            </ul>
+          </section>
+
+          <section className="policy-section">
+            <h2>4. Security Measures</h2>
+
+            <h3>4.1 Data Protection</h3>
+            <ul>
+              <li><strong>Encryption at Rest:</strong> All database records and files encrypted</li>
+              <li><strong>Encryption in Transit:</strong> HTTPS/SSL (TLS 1.2+)</li>
+              <li><strong>Secure Authentication:</strong> JWT-based authentication</li>
+              <li><strong>Password Security:</strong> Hashed and salted (never stored in plain text)</li>
+            </ul>
+
+            <h3>4.2 Access Controls</h3>
+            <ul>
+              <li><strong>Row-Level Security:</strong> Users can only access their own data</li>
+              <li><strong>Authentication Required:</strong> All endpoints require valid tokens</li>
+              <li><strong>Authorization Checks:</strong> Server-side validation for all operations</li>
+              <li><strong>Service-Role Keys:</strong> Separate credentials for admin operations</li>
+            </ul>
+
+            <h3>4.3 Application Security</h3>
+            <ul>
+              <li><strong>Input Validation:</strong> All inputs validated and sanitized</li>
+              <li><strong>Rate Limiting:</strong> Email sharing limited to 5 per hour per user</li>
+              <li><strong>CORS Protection:</strong> Restricted to authorized domains</li>
+              <li><strong>Audit Logging:</strong> Critical operations logged for accountability</li>
+            </ul>
+
+            <h3>4.4 Privacy by Design</h3>
+            <ul>
+              <li><strong>Minimal Data Collection:</strong> Only necessary information collected</li>
+              <li><strong>No Tracking:</strong> No analytics or tracking beyond essential functionality</li>
+              <li><strong>Private Storage:</strong> PDFs with signed URLs (1-hour expiration)</li>
+              <li><strong>User Control:</strong> You control when and how documents are shared</li>
+            </ul>
+          </section>
+
+          <section className="policy-section">
+            <h2>5. Your Rights and Choices</h2>
+
+            <h3>5.1 Access and Control</h3>
+            <ul>
+              <li><strong>View Your Data:</strong> Access all information via Dashboard</li>
+              <li><strong>Download Documents:</strong> Download PDFs at any time</li>
+              <li><strong>Update Information:</strong> Edit profile through Dashboard</li>
+              <li><strong>Delete Account:</strong> Permanently delete via "Danger Zone"</li>
+            </ul>
+
+            <h3>5.2 Email Communications</h3>
+            <ul>
+              <li><strong>Document Delivery Only:</strong> Emails sent only when you request</li>
+              <li><strong>No Marketing:</strong> No promotional emails</li>
+              <li><strong>Confirmation Emails:</strong> Account deletion confirmations</li>
+            </ul>
+          </section>
+
+          <section className="policy-section">
+            <h2>6. Jurisdictional Compliance</h2>
+
+            <h3>Supported Jurisdictions</h3>
+            <ul>
+              <li><strong>Canada:</strong> All 13 provinces and territories</li>
+              <li><strong>United States:</strong> All 50 states</li>
+            </ul>
+
+            <h3>Privacy Law Compliance</h3>
+            <p>While this is an academic project, we follow privacy best practices:</p>
+            <ul>
+              <li><strong>Canadian Compliance:</strong> PIPEDA principles</li>
+              <li><strong>US Compliance:</strong> State privacy law principles</li>
+              <li><strong>Data Minimization:</strong> Only necessary information collected</li>
+              <li><strong>Transparency:</strong> Clear disclosure of practices</li>
+            </ul>
+          </section>
+
+          <section className="policy-section">
+            <h2>7. Contact Information</h2>
+            <p>For questions or concerns regarding this privacy policy:</p>
+            <ul>
+              <li><strong>Project Developer:</strong> Kevin Cooney</li>
+              <li><strong>Email:</strong> kevin.cooney@ucalgary.ca</li>
+              <li><strong>Institution:</strong> University of Calgary</li>
+              <li><strong>Course:</strong> ENTI333 - Final Project</li>
+            </ul>
+          </section>
+
+          <section className="policy-section acknowledgment">
+            <h2>8. Acknowledgment</h2>
+            <p>By using the Legal Will Generation Tool, you acknowledge that:</p>
+            <ol>
+              <li>You have read and understood this Privacy Policy</li>
+              <li>You understand this is an academic project, not a production service</li>
+              <li>You consent to the collection and processing of your data as described</li>
+              <li>You understand generated documents should be reviewed by legal professionals</li>
+              <li>You acknowledge developers assume no legal liability for document validity</li>
+            </ol>
+            <p className="review-date"><strong>Last Review Date:</strong> November 13, 2025</p>
+          </section>
         </div>
       </div>
     </div>
