@@ -1,64 +1,32 @@
 const sgMail = require('@sendgrid/mail');
 
-let connectionSettings;
-
-async function getCredentials() {
-  const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
-  const xReplitToken = process.env.REPL_IDENTITY 
-    ? 'repl ' + process.env.REPL_IDENTITY 
-    : process.env.WEB_REPL_RENEWAL 
-    ? 'depl ' + process.env.WEB_REPL_RENEWAL 
-    : null;
-
-  console.log('[SendGrid] Fetching credentials from connector...');
-  console.log('[SendGrid] Hostname:', hostname);
-  console.log('[SendGrid] Token present:', !!xReplitToken);
-
-  if (!xReplitToken) {
-    throw new Error('X_REPLIT_TOKEN not found for repl/depl');
-  }
-
-  const response = await fetch(
-    'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=sendgrid',
-    {
-      headers: {
-        'Accept': 'application/json',
-        'X_REPLIT_TOKEN': xReplitToken
-      }
-    }
-  );
+async function getSendGridClient() {
+  const apiKey = process.env.SENDGRID_API_KEY;
+  const fromEmail = process.env.SENDGRID_FROM_EMAIL || 'kevin.cooney@ucalgary.ca';
   
-  const data = await response.json();
-  console.log('[SendGrid] Connector response:', JSON.stringify(data, null, 2));
-  
-  connectionSettings = data.items?.[0];
-
-  if (!connectionSettings || (!connectionSettings.settings?.api_key || !connectionSettings.settings?.from_email)) {
-    console.error('[SendGrid] Connection settings:', connectionSettings);
-    throw new Error('SendGrid not connected or missing credentials');
+  if (!apiKey) {
+    throw new Error('SENDGRID_API_KEY environment variable not set');
   }
   
-  console.log('[SendGrid] API key starts with:', connectionSettings.settings.api_key?.substring(0, 3));
-  console.log('[SendGrid] From email:', connectionSettings.settings.from_email);
+  if (!apiKey.startsWith('SG.')) {
+    throw new Error('Invalid SendGrid API key format. API key must start with "SG."');
+  }
   
-  return {
-    apiKey: connectionSettings.settings.api_key, 
-    email: connectionSettings.settings.from_email
-  };
-}
-
-async function getUncachableSendGridClient() {
-  const {apiKey, email} = await getCredentials();
+  console.log('[SendGrid] Using API key from environment variable');
+  console.log('[SendGrid] API key starts with:', apiKey.substring(0, 3));
+  console.log('[SendGrid] From email:', fromEmail);
+  
   sgMail.setApiKey(apiKey);
+  
   return {
     client: sgMail,
-    fromEmail: email
+    fromEmail: fromEmail
   };
 }
 
 async function sendWillDocumentsEmail(recipientEmail, userName, willPDFBuffer, assessmentPDFBuffer) {
   try {
-    const {client, fromEmail} = await getUncachableSendGridClient();
+    const {client, fromEmail} = await getSendGridClient();
     
     const msg = {
       to: recipientEmail,
