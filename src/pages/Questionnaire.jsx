@@ -46,11 +46,13 @@ function Questionnaire() {
 
       if (!willData.disclaimer_accepted) {
         setShowConsentScreen(true);
+        setConsentAccepted(false);
         setLoading(false);
         return;
       }
 
       setConsentAccepted(true);
+      setShowConsentScreen(false);
 
       if (roundNumber === 1 && qaData.length === 0) {
         await loadInitialQuestions(willData);
@@ -112,7 +114,19 @@ function Questionnaire() {
       const updatedWill = { ...will, disclaimer_accepted: true };
       setWill(updatedWill);
       
-      await loadInitialQuestions(updatedWill);
+      const qaData = updatedWill.qa_data || [];
+      const roundNumber = updatedWill.questionnaire_round || 1;
+      
+      if (qaData.length === 0 && roundNumber === 1) {
+        await loadInitialQuestions(updatedWill);
+      } else if (qaData.length > 0) {
+        if (qaData.length < roundNumber) {
+          await loadFollowUpQuestionsForResume(qaData, updatedWill, roundNumber);
+        } else {
+          const lastRoundQuestions = qaData[qaData.length - 1]?.questions || [];
+          setQuestions(lastRoundQuestions);
+        }
+      }
       
       setSubmitting(false);
     } catch (err) {
