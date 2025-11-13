@@ -168,11 +168,23 @@ router.post('/:willId/generate-pdfs', async (req, res) => {
       });
     }
     
+    // Fetch user profile for full_name
+    console.log('[PDF Generation] Fetching user profile...');
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('full_name')
+      .eq('user_id', will.user_id)
+      .single();
+    
+    if (profileError) {
+      console.error('[PDF Generation] Error fetching profile:', profileError);
+    }
+    
     console.log('[PDF Generation] Generating Will PDF...');
-    const willPDFBuffer = await generateWillPDF(will);
+    const willPDFBuffer = await generateWillPDF(will, profile);
     
     console.log('[PDF Generation] Generating Assessment PDF...');
-    const assessmentPDFBuffer = await generateAssessmentPDF(will);
+    const assessmentPDFBuffer = await generateAssessmentPDF(will, profile);
     
     // Generate file paths
     const timestamp = Date.now();

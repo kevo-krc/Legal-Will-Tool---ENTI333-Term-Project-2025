@@ -20,7 +20,7 @@ function extractAnswers(qaData) {
   return allAnswers;
 }
 
-async function generateWillPDF(willData) {
+async function generateWillPDF(willData, userProfile) {
   return new Promise((resolve, reject) => {
     try {
       const doc = new PDFDocument({ 
@@ -34,7 +34,7 @@ async function generateWillPDF(willData) {
       doc.on('error', reject);
       
       const answers = extractAnswers(willData.qa_data);
-      const userName = answers.full_name || 'Unknown';
+      const userName = userProfile?.full_name || 'Unknown';
       const jurisdiction = willData.jurisdiction_full_name || willData.jurisdiction;
       const country = willData.country === 'CA' ? 'Canada' : 'United States';
       
@@ -76,31 +76,27 @@ async function generateWillPDF(willData) {
       doc.moveDown(0.5);
       doc.fontSize(11).font('Helvetica');
       
-      if (answers.executor_name) {
-        doc.text(`2.1 I appoint ${answers.executor_name}${answers.executor_relationship ? ', my ' + answers.executor_relationship : ''}${answers.executor_age ? ', age ' + answers.executor_age : ''}, as my Personal Representative (Executor) to administer my estate.`);
+      if (answers.executor_details) {
+        doc.text(`2.1 I appoint ${answers.executor_details} as my Personal Representative (Executor) to administer my estate.`);
       }
       
       if (answers.executor_compensation) {
         doc.text(`2.2 Compensation: ${answers.executor_compensation}`);
       }
       
-      if (answers.alternate_executor_name) {
-        doc.text(`2.3 Alternate Representative: If my primary Personal Representative is unable or unwilling to serve, I appoint ${answers.alternate_executor_name}${answers.alternate_executor_relationship ? ', my ' + answers.alternate_executor_relationship : ''} as alternate Personal Representative.`);
+      if (answers.alternate_executor) {
+        doc.text(`2.3 Alternate Representative: If my primary Personal Representative is unable or unwilling to serve, I appoint ${answers.alternate_executor} as alternate Personal Representative.`);
       }
       
       doc.text(`2.4 Powers: I grant my Personal Representative full power and authority to administer my estate, including but not limited to: selling property, paying debts and taxes, distributing assets, and taking all actions necessary for proper estate administration.`);
       doc.moveDown(1.5);
       
       // Article 3 - Guardian for Minors
-      if (answers.guardian_name) {
+      if (answers.guardian_for_minors && answers.guardian_for_minors.toLowerCase() !== 'n/a' && answers.guardian_for_minors.toLowerCase() !== 'none') {
         doc.fontSize(12).font('Helvetica-Bold').text('ARTICLE 3: GUARDIAN FOR MINOR CHILDREN');
         doc.moveDown(0.5);
         doc.fontSize(11).font('Helvetica');
-        doc.text(`3.1 If I have any children who are minors at the time of my death, I appoint ${answers.guardian_name}${answers.guardian_relationship ? ', my ' + answers.guardian_relationship : ''} as guardian of the person and property of my minor children.`);
-        
-        if (answers.alternate_guardian_name) {
-          doc.text(`3.2 Alternate Guardian: If my primary guardian is unable or unwilling to serve, I appoint ${answers.alternate_guardian_name} as alternate guardian.`);
-        }
+        doc.text(`3.1 If I have any children who are minors at the time of my death, I appoint ${answers.guardian_for_minors} as guardian of the person and property of my minor children.`);
         doc.moveDown(1.5);
       }
       
@@ -182,27 +178,29 @@ async function generateWillPDF(willData) {
       doc.moveDown(1.5);
       
       // First Witness
-      doc.text('Witness #1:');
+      doc.fontSize(11).font('Helvetica-Bold').text('Witness #1:');
       doc.moveDown(0.5);
-      doc.text('Name: _'.repeat(40));
+      doc.fontSize(10).font('Helvetica');
+      doc.text('Name: __________________________________________');
       doc.moveDown(0.5);
-      doc.text('Signature: _'.repeat(40));
+      doc.text('Signature: __________________________________________');
       doc.moveDown(0.5);
-      doc.text('Address: _'.repeat(40));
+      doc.text('Address: __________________________________________');
       doc.moveDown(0.3);
-      doc.text('         _'.repeat(40));
+      doc.text('         __________________________________________');
       doc.moveDown(1);
       
       // Second Witness
-      doc.text('Witness #2:');
+      doc.fontSize(11).font('Helvetica-Bold').text('Witness #2:');
       doc.moveDown(0.5);
-      doc.text('Name: _'.repeat(40));
+      doc.fontSize(10).font('Helvetica');
+      doc.text('Name: __________________________________________');
       doc.moveDown(0.5);
-      doc.text('Signature: _'.repeat(40));
+      doc.text('Signature: __________________________________________');
       doc.moveDown(0.5);
-      doc.text('Address: _'.repeat(40));
+      doc.text('Address: __________________________________________');
       doc.moveDown(0.3);
-      doc.text('         _'.repeat(40));
+      doc.text('         __________________________________________');
       doc.moveDown(2);
       
       // Footer disclaimer
@@ -218,7 +216,7 @@ async function generateWillPDF(willData) {
   });
 }
 
-async function generateAssessmentPDF(willData) {
+async function generateAssessmentPDF(willData, userProfile) {
   return new Promise((resolve, reject) => {
     try {
       const doc = new PDFDocument({ 
@@ -232,7 +230,7 @@ async function generateAssessmentPDF(willData) {
       doc.on('error', reject);
       
       const answers = extractAnswers(willData.qa_data);
-      const userName = answers.full_name || 'Unknown';
+      const userName = userProfile?.full_name || 'Unknown';
       const jurisdiction = willData.jurisdiction_full_name || willData.jurisdiction;
       const country = willData.country === 'CA' ? 'Canada' : 'United States';
       
