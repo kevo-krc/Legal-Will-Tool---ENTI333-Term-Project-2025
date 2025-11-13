@@ -1,13 +1,20 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './Auth.css';
 
 function Register() {
   const [formData, setFormData] = useState({
+    fullName: '',
     email: '',
+    phone: '',
     password: '',
     confirmPassword: ''
   });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { signUp } = useAuth();
 
   const handleChange = (e) => {
     setFormData({
@@ -16,13 +23,48 @@ function Register() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match');
+      setError('Passwords do not match');
       return;
     }
-    console.log('Registration attempt:', formData);
+
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return;
+    }
+
+    if (!formData.fullName.trim()) {
+      setError('Full name is required');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const { data, error: signUpError } = await signUp(
+        formData.email,
+        formData.password,
+        {
+          fullName: formData.fullName,
+          phone: formData.phone
+        }
+      );
+
+      if (signUpError) {
+        setError(signUpError.message || 'Failed to create account');
+        setLoading(false);
+        return;
+      }
+
+      navigate('/dashboard');
+    } catch (err) {
+      setError('An unexpected error occurred');
+      setLoading(false);
+    }
   };
 
   return (
@@ -35,7 +77,33 @@ function Register() {
               Get started with your legal will creation
             </p>
 
+            {error && (
+              <div style={{
+                backgroundColor: '#FEE2E2',
+                border: '1px solid #EF4444',
+                color: '#991B1B',
+                padding: '12px',
+                borderRadius: '8px',
+                marginBottom: '20px'
+              }}>
+                {error}
+              </div>
+            )}
+
             <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label htmlFor="fullName">Full Name</label>
+                <input
+                  type="text"
+                  id="fullName"
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  required
+                  placeholder="John Doe"
+                />
+              </div>
+
               <div className="form-group">
                 <label htmlFor="email">Email Address</label>
                 <input
@@ -46,6 +114,18 @@ function Register() {
                   onChange={handleChange}
                   required
                   placeholder="your.email@example.com"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="phone">Phone Number (Optional)</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  placeholder="+1 234 567 8900"
                 />
               </div>
 
@@ -77,8 +157,8 @@ function Register() {
                 />
               </div>
 
-              <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
-                Create Account
+              <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={loading}>
+                {loading ? 'Creating Account...' : 'Create Account'}
               </button>
             </form>
 
