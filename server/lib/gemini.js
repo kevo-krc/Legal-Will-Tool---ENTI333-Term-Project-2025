@@ -500,7 +500,7 @@ Be DIRECT and SPECIFIC. Return ONLY valid JSON array, no extra text.`;
           parsed = JSON.parse(cleaned);
         } catch (secondError) {
           console.error('Failed to parse even after cleaning:', cleaned);
-          throw new Error(`Invalid JSON from AI: ${parseError.message}`);
+          throw new EmptyGeminiResponseError(`AI returned malformed JSON - ${parseError.message}`);
         }
       }
       

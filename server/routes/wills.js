@@ -145,6 +145,32 @@ router.delete('/:willId', async (req, res) => {
   try {
     const { willId } = req.params;
 
+    const { data: will, error: fetchError } = await supabase
+      .from('wills')
+      .select('*')
+      .eq('id', willId)
+      .single();
+
+    if (fetchError) {
+      if (fetchError.code === 'PGRST116') {
+        return res.status(404).json({ error: 'Will not found' });
+      }
+      throw fetchError;
+    }
+
+    if (will.will_pdf_path || will.assessment_pdf_path) {
+      return res.status(400).json({ 
+        error: 'Cannot delete will with generated PDFs. Please delete your entire account if you need to remove this will.' 
+      });
+    }
+
+    if (will.will_pdf_path) {
+      await deletePDF(will.will_pdf_path);
+    }
+    if (will.assessment_pdf_path) {
+      await deletePDF(will.assessment_pdf_path);
+    }
+
     const { error } = await supabase
       .from('wills')
       .delete()

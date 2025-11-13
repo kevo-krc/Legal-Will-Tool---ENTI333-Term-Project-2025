@@ -40,6 +40,24 @@ function Dashboard() {
     }
   };
 
+  const handleDeleteWill = async (willId) => {
+    if (!window.confirm('Are you sure you want to delete this will? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      await axios.delete(`${API_URL}/wills/${willId}`);
+      setMessage('Will deleted successfully');
+      setTimeout(() => setMessage(''), 3000);
+      loadWills();
+    } catch (err) {
+      console.error('Error deleting will:', err);
+      const errorMessage = err.response?.data?.error || 'Failed to delete will';
+      setMessage(errorMessage);
+      setTimeout(() => setMessage(''), 5000);
+    }
+  };
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -248,6 +266,15 @@ function Dashboard() {
                         onClick={() => navigate(`/questionnaire/${will.id}`)}
                       >
                         Continue Questionnaire
+                      </button>
+                    )}
+                    {!will.will_pdf_path && !will.assessment_pdf_path && (
+                      <button 
+                        className="btn btn-danger"
+                        onClick={() => handleDeleteWill(will.id)}
+                        style={{ marginLeft: '10px' }}
+                      >
+                        Delete
                       </button>
                     )}
                   </div>
