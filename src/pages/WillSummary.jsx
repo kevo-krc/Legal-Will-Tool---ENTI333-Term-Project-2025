@@ -10,6 +10,9 @@ function WillSummary() {
   
   const [will, setWill] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [generatingPDFs, setGeneratingPDFs] = useState(false);
+  const [pdfError, setPdfError] = useState(null);
+  const [downloadUrls, setDownloadUrls] = useState(null);
 
   useEffect(() => {
     loadWill();
@@ -23,6 +26,67 @@ function WillSummary() {
     } catch (err) {
       console.error('Error loading will:', err);
       setLoading(false);
+    }
+  };
+  
+  const handleGeneratePDFs = async () => {
+    try {
+      setGeneratingPDFs(true);
+      setPdfError(null);
+      
+      console.log('[PDF Generation] Requesting PDF generation for will:', willId);
+      
+      const response = await axios.post(`${API_URL}/wills/${willId}/generate-pdfs`);
+      
+      console.log('[PDF Generation] PDFs generated successfully:', response.data);
+      
+      setDownloadUrls(response.data.downloadUrls);
+      setWill(response.data.will);
+      
+      // Auto-download both PDFs
+      if (response.data.downloadUrls.willPdf) {
+        window.open(response.data.downloadUrls.willPdf, '_blank');
+      }
+      
+      if (response.data.downloadUrls.assessmentPdf) {
+        setTimeout(() => {
+          window.open(response.data.downloadUrls.assessmentPdf, '_blank');
+        }, 500);
+      }
+      
+    } catch (err) {
+      console.error('[PDF Generation] Error:', err);
+      setPdfError(err.response?.data?.error || 'Failed to generate PDFs. Please try again.');
+    } finally {
+      setGeneratingPDFs(false);
+    }
+  };
+  
+  const handleDownloadPDFs = async () => {
+    try {
+      setGeneratingPDFs(true);
+      setPdfError(null);
+      
+      const response = await axios.get(`${API_URL}/wills/${willId}/download-pdfs`);
+      
+      setDownloadUrls(response.data.downloadUrls);
+      
+      // Auto-download both PDFs
+      if (response.data.downloadUrls.willPdf) {
+        window.open(response.data.downloadUrls.willPdf, '_blank');
+      }
+      
+      if (response.data.downloadUrls.assessmentPdf) {
+        setTimeout(() => {
+          window.open(response.data.downloadUrls.assessmentPdf, '_blank');
+        }, 500);
+      }
+      
+    } catch (err) {
+      console.error('[PDF Download] Error:', err);
+      setPdfError(err.response?.data?.error || 'Failed to download PDFs. Please try again.');
+    } finally {
+      setGeneratingPDFs(false);
     }
   };
 
@@ -79,15 +143,47 @@ function WillSummary() {
 
             <div className="next-steps-section">
               <h3>Next Steps</h3>
-              <p className="text-light mb-3">
-                Your questionnaire is complete! In Phase 4, you'll be able to:
-              </p>
-              <ul className="next-steps-list">
-                <li>Generate your official will document (PDF)</li>
-                <li>Generate your legal assessment document (PDF)</li>
-                <li>Download and email your documents</li>
-                <li>Manage and update your will</li>
-              </ul>
+              
+              {pdfError && (
+                <div className="error-message" style={{ 
+                  padding: '12px', 
+                  marginBottom: '16px', 
+                  backgroundColor: '#fee', 
+                  border: '1px solid #fcc',
+                  borderRadius: '4px',
+                  color: '#c33'
+                }}>
+                  {pdfError}
+                </div>
+              )}
+              
+              {will && !will.will_pdf_path && (
+                <>
+                  <p className="text-light mb-3">
+                    Your questionnaire is complete! Generate your official legal documents:
+                  </p>
+                  <ul className="next-steps-list">
+                    <li>Generate your official will document (PDF)</li>
+                    <li>Generate your legal assessment document (PDF)</li>
+                    <li>Download both documents for your records</li>
+                    <li>Review with a licensed attorney before execution</li>
+                  </ul>
+                </>
+              )}
+              
+              {will && will.will_pdf_path && (
+                <>
+                  <p className="text-light mb-3" style={{ color: '#0a0' }}>
+                    ✓ Your PDF documents have been generated successfully!
+                  </p>
+                  <ul className="next-steps-list">
+                    <li>Download your documents using the button below</li>
+                    <li>Review the will document carefully</li>
+                    <li>Consult with a licensed attorney before signing</li>
+                    <li>Follow the witness requirements for your jurisdiction</li>
+                  </ul>
+                </>
+              )}
               
               <div className="action-buttons">
                 <button 
@@ -96,13 +192,24 @@ function WillSummary() {
                 >
                   Return to Dashboard
                 </button>
-                <button 
-                  className="btn btn-primary" 
-                  disabled
-                  title="Coming in Phase 4"
-                >
-                  Generate PDF Documents
-                </button>
+                
+                {will && !will.will_pdf_path ? (
+                  <button 
+                    onClick={handleGeneratePDFs}
+                    className="btn btn-primary" 
+                    disabled={generatingPDFs}
+                  >
+                    {generatingPDFs ? 'Generating PDFs...' : 'Generate PDF Documents'}
+                  </button>
+                ) : (
+                  <button 
+                    onClick={handleDownloadPDFs}
+                    className="btn btn-primary" 
+                    disabled={generatingPDFs}
+                  >
+                    {generatingPDFs ? 'Loading...' : 'Download PDF Documents'}
+                  </button>
+                )}
               </div>
             </div>
 
