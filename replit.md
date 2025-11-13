@@ -133,12 +133,20 @@ The application is a full-stack React + Node.js project with:
 **Model:** `gemini-2.5-flash` (paid tier for higher limits)
 
 ## Recent Changes
+- **2025-11-13 (Model Update):**
+  - Updated Google Gemini model from `gemini-2.0-flash-exp` to `gemini-2.5-flash` for paid tier
+
 - **2025-11-13 (Authentication Timeout Fix):**
-  - Added 10-second timeout guard on Supabase session/profile fetches
+  - Implemented comprehensive 10-second timeout guards on ALL Supabase operations
+  - Created `withTimeout` helper function that creates separate timeouts with proper cleanup
+  - Guarded all Supabase calls: getSession, fetchProfile, signIn, signUp, signOut, updateProfile
   - Implemented authError state for handling connection/auth failures
   - Enhanced ProtectedRoute with error UI (Retry and Go to Login buttons)
   - Fixed persistent "Loading..." issue when Supabase requests hang
+  - Fixed onAuthStateChange race condition that was clearing timeout errors
+  - Added telemetry logging for all timeout events ([Auth Timeout] markers)
   - Added helpful message during loading state
+  - Ensured timeout errors persist until user explicitly retries
 
 - **2025-11-13 (Phase 3 - Rate Limiting Update):**
   - Implemented Gemini API rate limiting with promise chain queue (10 RPM enforced)
