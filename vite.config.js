@@ -8,7 +8,8 @@ export default defineConfig({
     port: 5000,
     strictPort: true,
     hmr: {
-      clientPort: 5000
+      clientPort: 5000,
+      host: process.env.REPLIT_DEV_DOMAIN
     }
   },
   build: {
