@@ -96,10 +96,64 @@ async function deletePDF(filePath) {
   }
 }
 
+async function deleteAllUserFiles(userId) {
+  try {
+    const { data: files, error: listError } = await supabase.storage
+      .from(BUCKET_NAME)
+      .list(userId);
+    
+    if (listError) {
+      console.error('Error listing user files:', listError);
+      throw listError;
+    }
+    
+    if (!files || files.length === 0) {
+      console.log(`No files found for user ${userId}`);
+      return true;
+    }
+    
+    const filePaths = [];
+    for (const file of files) {
+      const { data: subFiles, error: subListError } = await supabase.storage
+        .from(BUCKET_NAME)
+        .list(`${userId}/${file.name}`);
+      
+      if (subListError) {
+        console.error('Error listing subfolder files:', subListError);
+        continue;
+      }
+      
+      if (subFiles) {
+        subFiles.forEach(subFile => {
+          filePaths.push(`${userId}/${file.name}/${subFile.name}`);
+        });
+      }
+    }
+    
+    if (filePaths.length > 0) {
+      console.log(`Deleting ${filePaths.length} files for user ${userId}`);
+      const { error: deleteError } = await supabase.storage
+        .from(BUCKET_NAME)
+        .remove(filePaths);
+      
+      if (deleteError) {
+        console.error('Error deleting user files:', deleteError);
+        throw deleteError;
+      }
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error in deleteAllUserFiles:', error);
+    throw error;
+  }
+}
+
 module.exports = {
   ensureBucketExists,
   uploadPDF,
   getSignedUrl,
   deletePDF,
+  deleteAllUserFiles,
   BUCKET_NAME
 };

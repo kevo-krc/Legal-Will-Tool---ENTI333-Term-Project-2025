@@ -6,7 +6,7 @@ import axios from 'axios';
 import './Dashboard.css';
 
 function Dashboard() {
-  const { user, profile, updateProfile } = useAuth();
+  const { user, profile, updateProfile, logout } = useAuth();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -16,6 +16,10 @@ function Dashboard() {
   const [message, setMessage] = useState('');
   const [wills, setWills] = useState([]);
   const [loadingWills, setLoadingWills] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState('');
+  const [deletingData, setDeletingData] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
 
   useEffect(() => {
     if (user) {
@@ -55,6 +59,37 @@ function Dashboard() {
     }
 
     setTimeout(() => setMessage(''), 3000);
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmation !== 'DELETE') {
+      setDeleteError('Please type DELETE to confirm');
+      return;
+    }
+
+    try {
+      setDeletingData(true);
+      setDeleteError(null);
+
+      console.log('[Delete Account] Sending deletion request...');
+      
+      const response = await axios.delete(`${API_URL}/users/${user.id}/data`, {
+        data: { requestingUserId: user.id }
+      });
+      
+      console.log('[Delete Account] Deletion successful:', response.data);
+      
+      alert(`Account deleted successfully! A confirmation email has been sent to ${response.data.email}`);
+      
+      await logout();
+      navigate('/');
+      
+    } catch (err) {
+      console.error('[Delete Account] Error:', err);
+      setDeleteError(err.response?.data?.error || 'Failed to delete account. Please try again.');
+    } finally {
+      setDeletingData(false);
+    }
   };
 
   return (
@@ -212,6 +247,121 @@ function Dashboard() {
             </div>
           )}
         </div>
+
+        <div className="danger-zone mt-4">
+          <div className="card" style={{ borderColor: '#EF4444' }}>
+            <h2 style={{ color: '#EF4444', marginBottom: '15px' }}>⚠️ Danger Zone</h2>
+            <p className="text-light mb-3">
+              Permanently delete your account and all associated data. This action cannot be undone.
+            </p>
+            <button 
+              className="btn"
+              style={{
+                backgroundColor: '#EF4444',
+                color: 'white',
+                border: 'none',
+                padding: '12px 24px',
+                fontWeight: 'bold'
+              }}
+              onClick={() => setShowDeleteModal(true)}
+            >
+              Delete My Account & All Data
+            </button>
+          </div>
+        </div>
+
+        {showDeleteModal && (
+          <div className="modal-overlay" onClick={() => setShowDeleteModal(false)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <h2 style={{ color: '#EF4444', marginBottom: '20px' }}>
+                ⚠️ Permanent Account Deletion
+              </h2>
+              
+              <div style={{
+                backgroundColor: '#FEE2E2',
+                border: '2px solid #EF4444',
+                color: '#991B1B',
+                padding: '20px',
+                borderRadius: '8px',
+                marginBottom: '20px',
+                fontWeight: 'bold'
+              }}>
+                <p style={{ margin: '0 0 10px 0', fontSize: '16px' }}>
+                  WARNING: This action CANNOT be undone!
+                </p>
+                <p style={{ margin: 0, fontWeight: 'normal' }}>
+                  All of your data will be permanently deleted, including:
+                </p>
+                <ul style={{ margin: '10px 0 0 20px', fontWeight: 'normal' }}>
+                  <li>Your account and profile information</li>
+                  <li>All created wills and assessments</li>
+                  <li>All questionnaire responses</li>
+                  <li>All generated PDF documents</li>
+                </ul>
+              </div>
+
+              <p style={{ marginBottom: '20px', color: '#64748B' }}>
+                To confirm deletion, type <strong style={{ color: '#EF4444' }}>DELETE</strong> in the box below:
+              </p>
+
+              {deleteError && (
+                <div style={{
+                  backgroundColor: '#FEE2E2',
+                  border: '1px solid #EF4444',
+                  color: '#991B1B',
+                  padding: '12px',
+                  borderRadius: '4px',
+                  marginBottom: '15px'
+                }}>
+                  {deleteError}
+                </div>
+              )}
+
+              <input
+                type="text"
+                placeholder="Type DELETE to confirm"
+                value={deleteConfirmation}
+                onChange={(e) => setDeleteConfirmation(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  marginBottom: '20px',
+                  border: '2px solid #E5E7EB',
+                  borderRadius: '4px',
+                  fontSize: '16px'
+                }}
+                disabled={deletingData}
+              />
+
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                <button
+                  onClick={() => {
+                    setShowDeleteModal(false);
+                    setDeleteConfirmation('');
+                    setDeleteError(null);
+                  }}
+                  className="btn btn-secondary"
+                  disabled={deletingData}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteAccount}
+                  className="btn"
+                  style={{
+                    backgroundColor: '#EF4444',
+                    color: 'white',
+                    border: 'none',
+                    fontWeight: 'bold'
+                  }}
+                  disabled={deletingData || deleteConfirmation !== 'DELETE'}
+                >
+                  {deletingData ? 'Deleting...' : 'Permanently Delete Everything'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
