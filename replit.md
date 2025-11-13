@@ -142,4 +142,11 @@ The application is a full-stack React (Vite) and Node.js (Express) project.
   * Signed URLs expire after 1 hour for security
   * Files organized by user_id for isolation
   * 10MB file size limit per PDF
+- **PDF Content Fixes (November 13, 2025):**
+  * Fixed "Unknown" testator name - now fetches full_name from user profile table
+  * Corrected Article 2 field names: `executor_details`, `alternate_executor` (matches questionnaire structure)
+  * Corrected Article 3 field name: `guardian_for_minors` (matches questionnaire structure)
+  * Improved witness section formatting with fixed-length underscores instead of repeated characters
+  * Both PDF generators now accept userProfile parameter for accurate name extraction
+  * Frontend secrets fixed: Added `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` to resolve authentication timeouts
 ```
