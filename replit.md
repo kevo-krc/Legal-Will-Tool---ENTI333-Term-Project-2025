@@ -178,4 +178,40 @@ The application is a full-stack React (Vite) and Node.js (Express) project.
   * Server-side email validation prevents malformed addresses
   * Privacy warnings inform users about email security limitations
   * Audit logging for compliance and tracking
+
+### User Data Deletion Feature (Completed November 13, 2025)
+- **Authentication & Authorization:**
+  * JWT-based authentication middleware (`server/middleware/auth.js`)
+  * Validates bearer tokens using shared service-role Supabase client
+  * Extracts verified user ID from JWT (no client-provided IDs trusted)
+  * Returns 401 for missing/invalid/expired tokens
+  * Enforces userId === authenticatedUserId authorization check
+- **Backend Implementation:**
+  * DELETE `/api/users/:userId/data` endpoint with authentication middleware
+  * Shared service-role Supabase client reused across middleware and routes
+  * 5-step complete deletion process:
+    1. Fetch user email/name for confirmation
+    2. Delete all PDF files from Supabase Storage (`deleteAllUserFiles()`)
+    3. Delete all wills from database
+    4. Delete profile from database
+    5. Delete Supabase Auth user account (using admin client)
+  * Sends HTML/text confirmation email after successful deletion
+  * Email send failures are non-blocking (logs warning but continues)
+  * Comprehensive error handling and audit logging
+- **Frontend Implementation:**
+  * "Danger Zone" section added to Dashboard with delete button
+  * Confirmation modal with strong "CANNOT be undone" warnings
+  * Lists all data to be deleted (profile, wills, PDFs, questionnaires)
+  * Requires typing "DELETE" to confirm (stronger than button confirmation)
+  * Retrieves JWT token via `getSessionToken()` from AuthContext
+  * Sends token in Authorization header for authentication
+  * Error handling with user-friendly messages
+  * Logs user out and redirects to home after successful deletion
+- **Security Measures:**
+  * JWT-based authentication (no unauthenticated access)
+  * Authorization check ensures users can only delete own account
+  * Service-role key used for admin operations (auth user deletion)
+  * Strong confirmation workflow prevents accidental deletion
+  * Comprehensive audit logging for compliance
+  * Non-blocking email confirmation (deletion succeeds even if email fails)
 ```
