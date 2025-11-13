@@ -395,10 +395,13 @@ Be BRIEF. Return ONLY valid JSON array, no extra text.`;
   const { result } = await executeWithRetry(
     async () => {
       const response = await model.generateContent(prompt);
-      const text = (await response.response).text().trim();
+      let text = (await response.response).text().trim();
       
       console.log('[Follow-up Questions] Raw Gemini response:', text);
-      console.log('[Follow-up Questions] Response length:', text.length);
+      
+      text = text.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+      
+      console.log('[Follow-up Questions] After removing code fences:', text);
       
       const jsonMatch = text.match(/\[[\s\S]*\]/);
       if (!jsonMatch) {
