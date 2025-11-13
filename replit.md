@@ -116,7 +116,30 @@ The application is a full-stack React + Node.js project with:
 - **Canada**: All 13 provinces/territories (province-specific laws)
 - **USA**: All 50 states (state-specific laws)
 
+## Gemini API Rate Limiting & Error Handling
+**Free Tier Limits:**
+- **10 requests per minute (RPM)** - Hard limit, enforced via promise chain queue
+- **250 requests per day (RPD)** - Resets at midnight Pacific Time
+
+**Implementation:**
+- `RateLimiter` class with promise chain queue serializes all Gemini API calls
+- Enforces 6-second minimum delay between requests (10 RPM)
+- `GeminiQuotaError` custom error class distinguishes RPM vs RPD quota errors
+- Comprehensive error parsing from 429 responses with retry-after timing
+- All AI routes return 429 status with errorType (RPM/RPD/UNKNOWN) and retryAfter
+- Frontend shows specific user-friendly messages for quota errors
+- Backend logging tracks request timing for debugging
+
+**Model:** `gemini-2.0-flash-exp` (free tier)
+
 ## Recent Changes
+- **2025-11-13 (Phase 3 - Rate Limiting Update):**
+  - Implemented Gemini API rate limiting with promise chain queue (10 RPM enforced)
+  - Added comprehensive quota error handling (RPM vs RPD detection)
+  - Updated frontend to show user-friendly quota error messages
+  - Backend logs track serialized request timing for debugging
+  - Model updated to `gemini-2.0-flash-exp` (free tier)
+
 - **2025-11-13 (Phase 3):**
   - Implemented Google Gemini AI integration for question generation and legal compliance
   - Created wills database table with JSONB Q&A storage and RLS policies
