@@ -135,7 +135,7 @@ router.put('/:willId', async (req, res) => {
           assessmentContent: updates.assessment_content
         });
 
-        const storagePath = `will-documents/user_${data.user_id}/will_${data.id}`;
+        const storagePath = `user_${data.user_id}/will_${data.id}`;
         const filename = 'draft.pdf';
         const fullPath = `${storagePath}/${filename}`;
 

@@ -65,7 +65,7 @@ The application is a full-stack React + Node.js project with:
 - **PDF Generation Service:** `server/services/pdfService.js`
   - generateWillPdf: Creates formatted PDF with will content, Q&A responses, assessment, and legal disclaimers
   - Automatic generation on questionnaire completion
-  - Upload to Supabase Storage with path: `will-documents/user_{user_id}/will_{will_id}/draft.pdf`
+  - Upload to Supabase Storage with path: `user_{user_id}/will_{will_id}/draft.pdf`
 - **API endpoints:**
   - `GET /api/health` - Health check
   - `GET /api/config/check` - Verify secrets configuration
@@ -101,7 +101,7 @@ The application is a full-stack React + Node.js project with:
   - `003_create_storage_bucket.sql` - Storage bucket with RLS policies (Phase 4)
   - `004_add_storage_fields_to_wills.sql` - Add storage_base_path and pdf_filename columns (Phase 4)
 - **Supabase Storage Bucket:** `will-documents` (Implemented in Phase 4)
-  - Path structure: `will-documents/user_{user_id}/will_{will_id}/draft.pdf`
+  - Path structure: `user_{user_id}/will_{will_id}/draft.pdf`
   - RLS policies ensure users can only access their own documents
 - Storage for:
   - User profiles (implemented)
@@ -207,7 +207,7 @@ All sensitive credentials are stored in Replit Secrets:
 - RLS Policies: SELECT, INSERT, UPDATE, DELETE (users access only their own wills)
 
 **Storage Bucket:** `will-documents` (Implemented in Phase 4 - `003_create_storage_bucket.sql`)
-- Path structure: `will-documents/user_{user_id}/will_{will_id}/draft.pdf`
+- Path structure: `user_{user_id}/will_{will_id}/draft.pdf`
 - RLS Policies: Users can upload, view, update, and delete only their own documents
 
 ## User Preferences
