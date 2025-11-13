@@ -53,10 +53,27 @@ export const NotificationProvider = ({ children }) => {
       });
 
       setNotifications(response.data);
-      const unread = response.data.filter((n) => !n.is_read).length;
-      setUnreadCount(unread);
     } catch (error) {
       console.error('[Notifications] Error fetching notifications:', error);
+    }
+  }, [user, apiUrl, getSessionToken]);
+
+  const fetchUnreadCount = useCallback(async () => {
+    if (!user) return;
+
+    try {
+      const token = await getSessionToken();
+      if (!token) return;
+
+      const response = await axios.get(`${apiUrl}/api/notifications/unread-count`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      setUnreadCount(response.data.count || 0);
+    } catch (error) {
+      console.error('[Notifications] Error fetching unread count:', error);
     }
   }, [user, apiUrl, getSessionToken]);
 
@@ -78,11 +95,11 @@ export const NotificationProvider = ({ children }) => {
       setNotifications((prev) =>
         prev.map((n) => (n.id === notificationId ? { ...n, is_read: true } : n))
       );
-      setUnreadCount((prev) => Math.max(0, prev - 1));
+      fetchUnreadCount();
     } catch (error) {
       console.error('[Notifications] Error marking as read:', error);
     }
-  }, [apiUrl, getSessionToken]);
+  }, [apiUrl, getSessionToken, fetchUnreadCount]);
 
   const markAllAsRead = useCallback(async () => {
     try {
@@ -100,11 +117,11 @@ export const NotificationProvider = ({ children }) => {
       );
 
       setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
-      setUnreadCount(0);
+      fetchUnreadCount();
     } catch (error) {
       console.error('[Notifications] Error marking all as read:', error);
     }
-  }, [apiUrl, getSessionToken]);
+  }, [apiUrl, getSessionToken, fetchUnreadCount]);
 
   const deleteNotification = useCallback(async (notificationId) => {
     try {
@@ -118,14 +135,11 @@ export const NotificationProvider = ({ children }) => {
       });
 
       setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
-      const deletedNotif = notifications.find((n) => n.id === notificationId);
-      if (deletedNotif && !deletedNotif.is_read) {
-        setUnreadCount((prev) => Math.max(0, prev - 1));
-      }
+      fetchUnreadCount();
     } catch (error) {
       console.error('[Notifications] Error deleting notification:', error);
     }
-  }, [apiUrl, getSessionToken, notifications]);
+  }, [apiUrl, getSessionToken, fetchUnreadCount]);
 
   const deleteAllNotifications = useCallback(async () => {
     try {
@@ -139,29 +153,44 @@ export const NotificationProvider = ({ children }) => {
       });
 
       setNotifications([]);
-      setUnreadCount(0);
+      fetchUnreadCount();
     } catch (error) {
       console.error('[Notifications] Error deleting all notifications:', error);
     }
-  }, [apiUrl, getSessionToken]);
+  }, [apiUrl, getSessionToken, fetchUnreadCount]);
 
   const retryAction = useCallback(async (notification) => {
     if (!notification.related_id) {
       addToast('error', 'Retry Failed', 'Unable to retry: missing will ID');
-      return;
+      return false;
     }
 
     const currentRetryCount = notification.retry_count || 0;
     if (currentRetryCount >= 3) {
       addToast('error', 'Maximum Retries Reached', 'You have reached the maximum number of retry attempts (3).');
-      return;
+      return false;
     }
 
+    const token = await getSessionToken();
+    if (!token) {
+      addToast('error', 'Authentication Required', 'Please log in again to retry this action.');
+      return false;
+    }
+
+    const headers = {
+      Authorization: `Bearer ${token}`
+    };
+
     try {
+
       if (notification.action_type === 'retry_pdf') {
         addToast('info', 'Retrying...', 'Attempting to regenerate PDF documents...');
         
-        const response = await axios.post(`${apiUrl}/wills/${notification.related_id}/generate-pdfs`);
+        const response = await axios.post(
+          `${apiUrl}/api/wills/${notification.related_id}/generate-pdfs`,
+          {},
+          { headers }
+        );
         
         await deleteNotification(notification.id);
         
@@ -186,10 +215,14 @@ export const NotificationProvider = ({ children }) => {
 
         addToast('info', 'Retrying...', `Attempting to send email to ${recipientEmail}...`);
         
-        await axios.post(`${apiUrl}/wills/${notification.related_id}/share-email`, {
-          recipientEmail,
-          userId: user.id
-        });
+        await axios.post(
+          `${apiUrl}/api/wills/${notification.related_id}/share-email`,
+          {
+            recipientEmail,
+            userId: user.id
+          },
+          { headers }
+        );
         
         await deleteNotification(notification.id);
         
@@ -200,32 +233,65 @@ export const NotificationProvider = ({ children }) => {
     } catch (error) {
       console.error('[Retry] Error:', error);
       
-      const newRetryCount = currentRetryCount + 1;
       const errorMessage = error.response?.data?.error || error.message;
       
-      addToast(
-        'error',
-        'Retry Failed',
-        `Attempt ${newRetryCount}/3 failed: ${errorMessage}`,
-        newRetryCount < 3 ? notification.action_type : 'none',
-        notification.related_id
-      );
-      
-      return false;
+      try {
+        const response = await axios.patch(
+          `${apiUrl}/api/notifications/${notification.id}/increment-retry`,
+          {},
+          { headers }
+        );
+        
+        const newRetryCount = response.data.retry_count || (currentRetryCount + 1);
+        
+        await fetchNotifications();
+        await fetchUnreadCount();
+        
+        const canRetryAgain = newRetryCount < 3;
+        
+        addToast(
+          'error',
+          'Retry Failed',
+          `Attempt ${newRetryCount}/3 failed: ${errorMessage}${canRetryAgain ? ' You can try again.' : ' Maximum retries reached.'}`,
+          canRetryAgain ? notification.action_type : 'none',
+          notification.related_id
+        );
+        
+        return false;
+      } catch (updateError) {
+        console.error('[Retry] Failed to increment retry count:', updateError);
+        const updateErrorMsg = updateError.response?.data?.error || 'Could not track retry attempt.';
+        const isMaxRetries = updateError.response?.data?.error?.includes('Maximum retry count');
+        
+        await fetchNotifications();
+        await fetchUnreadCount();
+        
+        addToast(
+          'error',
+          isMaxRetries ? 'Maximum Retries Reached' : 'Retry Tracking Failed',
+          `${updateErrorMsg} ${isMaxRetries ? 'No more retry attempts allowed.' : 'The retry was attempted but not counted. Please refresh and try again if needed.'}`,
+          'none',
+          notification.related_id
+        );
+        
+        return false;
+      }
     }
-  }, [apiUrl, user, addToast, deleteNotification]);
+  }, [apiUrl, user, addToast, deleteNotification, getSessionToken, fetchNotifications, fetchUnreadCount]);
 
   useEffect(() => {
     if (user) {
       fetchNotifications();
+      fetchUnreadCount();
 
       const interval = setInterval(() => {
         fetchNotifications();
+        fetchUnreadCount();
       }, 30000);
 
       return () => clearInterval(interval);
     }
-  }, [user, fetchNotifications]);
+  }, [user, fetchNotifications, fetchUnreadCount]);
 
   const value = {
     toasts,
