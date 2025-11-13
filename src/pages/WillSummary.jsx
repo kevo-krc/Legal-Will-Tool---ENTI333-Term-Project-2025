@@ -13,6 +13,11 @@ function WillSummary() {
   const [generatingPDFs, setGeneratingPDFs] = useState(false);
   const [pdfError, setPdfError] = useState(null);
   const [downloadUrls, setDownloadUrls] = useState(null);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [emailAddress, setEmailAddress] = useState('');
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [emailSuccess, setEmailSuccess] = useState(false);
+  const [emailError, setEmailError] = useState(null);
 
   useEffect(() => {
     loadWill();
@@ -87,6 +92,44 @@ function WillSummary() {
       setPdfError(err.response?.data?.error || 'Failed to download PDFs. Please try again.');
     } finally {
       setGeneratingPDFs(false);
+    }
+  };
+  
+  const handleShareEmail = () => {
+    setShowEmailModal(true);
+    setEmailSuccess(false);
+    setEmailError(null);
+    setEmailAddress('');
+  };
+  
+  const handleSendEmail = async () => {
+    if (!emailAddress || !emailAddress.includes('@')) {
+      setEmailError('Please enter a valid email address');
+      return;
+    }
+    
+    try {
+      setSendingEmail(true);
+      setEmailError(null);
+      
+      console.log('[Email Share] Sending will documents to:', emailAddress);
+      
+      const response = await axios.post(`${API_URL}/wills/${willId}/share-email`, {
+        recipientEmail: emailAddress
+      });
+      
+      console.log('[Email Share] Email sent successfully:', response.data);
+      
+      setEmailSuccess(true);
+      setTimeout(() => {
+        setShowEmailModal(false);
+      }, 2000);
+      
+    } catch (err) {
+      console.error('[Email Share] Error:', err);
+      setEmailError(err.response?.data?.error || 'Failed to send email. Please try again.');
+    } finally {
+      setSendingEmail(false);
     }
   };
 
@@ -202,16 +245,142 @@ function WillSummary() {
                     {generatingPDFs ? 'Generating PDFs...' : 'Generate PDF Documents'}
                   </button>
                 ) : (
-                  <button 
-                    onClick={handleDownloadPDFs}
-                    className="btn btn-primary" 
-                    disabled={generatingPDFs}
-                  >
-                    {generatingPDFs ? 'Loading...' : 'Download PDF Documents'}
-                  </button>
+                  <>
+                    <button 
+                      onClick={handleDownloadPDFs}
+                      className="btn btn-primary" 
+                      disabled={generatingPDFs}
+                    >
+                      {generatingPDFs ? 'Loading...' : 'Download PDF Documents'}
+                    </button>
+                    <button 
+                      onClick={handleShareEmail}
+                      className="btn btn-secondary" 
+                      style={{ marginLeft: '10px' }}
+                    >
+                      Share via Email
+                    </button>
+                  </>
                 )}
               </div>
             </div>
+            
+            {showEmailModal && (
+              <div style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 1000
+              }}>
+                <div style={{
+                  backgroundColor: 'white',
+                  padding: '30px',
+                  borderRadius: '8px',
+                  maxWidth: '500px',
+                  width: '90%'
+                }}>
+                  <h3 style={{ marginTop: 0, color: '#1E3A8A' }}>Share Will Documents via Email</h3>
+                  
+                  {emailSuccess ? (
+                    <div style={{
+                      backgroundColor: '#D1FAE5',
+                      border: '1px solid #10B981',
+                      color: '#065F46',
+                      padding: '15px',
+                      borderRadius: '4px',
+                      marginBottom: '20px'
+                    }}>
+                      ✓ Email sent successfully!
+                    </div>
+                  ) : (
+                    <>
+                      <p style={{ color: '#64748B', marginBottom: '20px' }}>
+                        Enter the email address where you would like to send your will documents. 
+                        Both the Will PDF and Assessment PDF will be included as attachments.
+                      </p>
+                      
+                      {emailError && (
+                        <div style={{
+                          backgroundColor: '#FEE2E2',
+                          border: '1px solid #EF4444',
+                          color: '#991B1B',
+                          padding: '12px',
+                          borderRadius: '4px',
+                          marginBottom: '15px'
+                        }}>
+                          {emailError}
+                        </div>
+                      )}
+                      
+                      <div style={{ marginBottom: '20px' }}>
+                        <label style={{
+                          display: 'block',
+                          marginBottom: '8px',
+                          fontWeight: 'bold',
+                          color: '#1E3A8A'
+                        }}>
+                          Recipient Email Address:
+                        </label>
+                        <input
+                          type="email"
+                          value={emailAddress}
+                          onChange={(e) => setEmailAddress(e.target.value)}
+                          placeholder="example@email.com"
+                          style={{
+                            width: '100%',
+                            padding: '10px',
+                            border: '1px solid #CBD5E1',
+                            borderRadius: '4px',
+                            fontSize: '16px'
+                          }}
+                          disabled={sendingEmail}
+                        />
+                      </div>
+                      
+                      <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                        <button
+                          onClick={() => setShowEmailModal(false)}
+                          style={{
+                            padding: '10px 20px',
+                            backgroundColor: '#E5E7EB',
+                            color: '#374151',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '16px'
+                          }}
+                          disabled={sendingEmail}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleSendEmail}
+                          style={{
+                            padding: '10px 20px',
+                            backgroundColor: '#1E3A8A',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: sendingEmail ? 'not-allowed' : 'pointer',
+                            fontSize: '16px',
+                            opacity: sendingEmail ? 0.6 : 1
+                          }}
+                          disabled={sendingEmail}
+                        >
+                          {sendingEmail ? 'Sending...' : 'Send Email'}
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
 
             <div className="qa-review-section">
               <h3>Your Responses</h3>
