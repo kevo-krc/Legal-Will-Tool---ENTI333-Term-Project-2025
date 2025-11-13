@@ -2,6 +2,7 @@ const express = require('express');
 const { supabase } = require('../lib/supabase');
 const { generateWillPDF, generateAssessmentPDF } = require('../lib/pdfGenerator');
 const { uploadPDF, getSignedUrl, deletePDF } = require('../lib/storage');
+const { sendWillDocumentsEmail } = require('../lib/emailService');
 const router = express.Router();
 
 router.post('/', async (req, res) => {
@@ -279,6 +280,79 @@ router.get('/:willId/download-pdfs', async (req, res) => {
     console.error('Error generating download URLs:', error);
     res.status(500).json({ 
       error: 'Failed to generate download URLs',
+      details: error.message 
+    });
+  }
+});
+
+router.post('/:willId/share-email', async (req, res) => {
+  try {
+    const { willId } = req.params;
+    const { recipientEmail } = req.body;
+    
+    if (!recipientEmail) {
+      return res.status(400).json({ error: 'Recipient email is required' });
+    }
+    
+    console.log(`[Email Share] Starting email share for will ID: ${willId} to ${recipientEmail}`);
+    
+    const { data: will, error: fetchError } = await supabase
+      .from('wills')
+      .select('*, profiles!inner(full_name)')
+      .eq('id', willId)
+      .single();
+    
+    if (fetchError) {
+      console.error('[Email Share] Error fetching will:', fetchError);
+      throw fetchError;
+    }
+    
+    if (!will) {
+      return res.status(404).json({ error: 'Will not found' });
+    }
+    
+    if (!will.will_pdf_path || !will.assessment_pdf_path) {
+      return res.status(400).json({ 
+        error: 'PDFs not yet generated. Please generate PDFs first.' 
+      });
+    }
+    
+    console.log('[Email Share] Fetching user profile...');
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('full_name')
+      .eq('user_id', will.user_id)
+      .single();
+    
+    if (profileError) {
+      console.error('[Email Share] Error fetching profile:', profileError);
+    }
+    
+    console.log('[Email Share] Regenerating PDFs for email...');
+    const willPDFBuffer = await generateWillPDF(will, profile);
+    const assessmentPDFBuffer = await generateAssessmentPDF(will, profile);
+    
+    const userName = profile?.full_name || 'User';
+    
+    console.log('[Email Share] Sending email...');
+    await sendWillDocumentsEmail(
+      recipientEmail,
+      userName,
+      willPDFBuffer,
+      assessmentPDFBuffer
+    );
+    
+    console.log('[Email Share] Email sent successfully');
+    
+    res.json({
+      success: true,
+      message: `Will documents successfully sent to ${recipientEmail}`
+    });
+    
+  } catch (error) {
+    console.error('[Email Share] Error:', error);
+    res.status(500).json({ 
+      error: 'Failed to send email',
       details: error.message 
     });
   }
