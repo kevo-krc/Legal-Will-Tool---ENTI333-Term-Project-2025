@@ -103,7 +103,8 @@ function WillSummary() {
   };
   
   const handleSendEmail = async () => {
-    if (!emailAddress || !emailAddress.includes('@')) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailAddress || !emailRegex.test(emailAddress)) {
       setEmailError('Please enter a valid email address');
       return;
     }
@@ -115,7 +116,8 @@ function WillSummary() {
       console.log('[Email Share] Sending will documents to:', emailAddress);
       
       const response = await axios.post(`${API_URL}/wills/${willId}/share-email`, {
-        recipientEmail: emailAddress
+        recipientEmail: emailAddress,
+        userId: will.user_id
       });
       
       console.log('[Email Share] Email sent successfully:', response.data);
@@ -300,9 +302,22 @@ function WillSummary() {
                     </div>
                   ) : (
                     <>
+                      <div style={{
+                        backgroundColor: '#FEF3C7',
+                        border: '1px solid #F59E0B',
+                        color: '#92400E',
+                        padding: '12px',
+                        borderRadius: '4px',
+                        marginBottom: '15px',
+                        fontSize: '14px'
+                      }}>
+                        <strong>⚠️ Privacy Notice:</strong> Your will documents contain sensitive legal and personal information. 
+                        Only share with trusted recipients. Email is not encrypted.
+                      </div>
+                      
                       <p style={{ color: '#64748B', marginBottom: '20px' }}>
-                        Enter the email address where you would like to send your will documents. 
-                        Both the Will PDF and Assessment PDF will be included as attachments.
+                        Both the Will PDF and Assessment PDF will be sent as email attachments. 
+                        Please verify the email address carefully before sending.
                       </p>
                       
                       {emailError && (

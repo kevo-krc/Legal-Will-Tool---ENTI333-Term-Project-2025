@@ -285,21 +285,58 @@ router.get('/:willId/download-pdfs', async (req, res) => {
   }
 });
 
+const emailRateLimiter = new Map();
+
+function checkEmailRateLimit(userId, maxEmails = 5, windowMs = 3600000) {
+  const now = Date.now();
+  const userKey = userId;
+  
+  if (!emailRateLimiter.has(userKey)) {
+    emailRateLimiter.set(userKey, []);
+  }
+  
+  const timestamps = emailRateLimiter.get(userKey).filter(t => now - t < windowMs);
+  
+  if (timestamps.length >= maxEmails) {
+    return false;
+  }
+  
+  timestamps.push(now);
+  emailRateLimiter.set(userKey, timestamps);
+  return true;
+}
+
+function validateEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
 router.post('/:willId/share-email', async (req, res) => {
   try {
     const { willId } = req.params;
-    const { recipientEmail } = req.body;
+    const { recipientEmail, userId } = req.body;
     
-    if (!recipientEmail) {
-      return res.status(400).json({ error: 'Recipient email is required' });
+    if (!recipientEmail || !userId) {
+      return res.status(400).json({ error: 'Recipient email and user ID are required' });
+    }
+    
+    if (!validateEmail(recipientEmail)) {
+      return res.status(400).json({ error: 'Invalid email address format' });
+    }
+    
+    if (!checkEmailRateLimit(userId)) {
+      return res.status(429).json({ 
+        error: 'Rate limit exceeded. Maximum 5 emails per hour.' 
+      });
     }
     
     console.log(`[Email Share] Starting email share for will ID: ${willId} to ${recipientEmail}`);
     
     const { data: will, error: fetchError } = await supabase
       .from('wills')
-      .select('*, profiles!inner(full_name)')
+      .select('*')
       .eq('id', willId)
+      .eq('user_id', userId)
       .single();
     
     if (fetchError) {
@@ -308,7 +345,7 @@ router.post('/:willId/share-email', async (req, res) => {
     }
     
     if (!will) {
-      return res.status(404).json({ error: 'Will not found' });
+      return res.status(404).json({ error: 'Will not found or access denied' });
     }
     
     if (!will.will_pdf_path || !will.assessment_pdf_path) {
@@ -328,7 +365,7 @@ router.post('/:willId/share-email', async (req, res) => {
       console.error('[Email Share] Error fetching profile:', profileError);
     }
     
-    console.log('[Email Share] Regenerating PDFs for email...');
+    console.log('[Email Share] Regenerating PDFs from latest will data...');
     const willPDFBuffer = await generateWillPDF(will, profile);
     const assessmentPDFBuffer = await generateAssessmentPDF(will, profile);
     
@@ -342,7 +379,7 @@ router.post('/:willId/share-email', async (req, res) => {
       assessmentPDFBuffer
     );
     
-    console.log('[Email Share] Email sent successfully');
+    console.log(`[Email Share] Successfully sent will ${willId} to ${recipientEmail} for user ${userId}`);
     
     res.json({
       success: true,

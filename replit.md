@@ -149,4 +149,33 @@ The application is a full-stack React (Vite) and Node.js (Express) project.
   * Improved witness section formatting with fixed-length underscores instead of repeated characters
   * Both PDF generators now accept userProfile parameter for accurate name extraction
   * Frontend secrets fixed: Added `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` to resolve authentication timeouts
+
+### Email Sharing Feature (Completed November 13, 2025)
+- **SendGrid Integration:**
+  * Uses Replit SendGrid connector for API key management and authentication
+  * `emailService.js` - Service module using connector pattern with `getUncachableSendGridClient()`
+  * Email template includes both HTML and plain text versions
+  * Strong legal disclaimers embedded in email body
+  * PDFs attached as base64-encoded files (will.pdf and assessment.pdf)
+- **Backend API:**
+  * `POST /wills/:willId/share-email` endpoint with security controls:
+    - Server-side email validation (RFC-compliant regex)
+    - User authorization check (userId must match will.user_id)
+    - Rate limiting: 5 emails per hour per user (in-memory tracking)
+    - Audit logging with user ID, will ID, and recipient email
+  * Regenerates PDFs fresh from latest will data for each email
+  * Validates that PDFs have been generated before allowing sharing
+- **Frontend UI:**
+  * "Share via Email" button appears after PDFs are generated
+  * Modal dialog with email input and privacy warning
+  * Privacy notice about unencrypted email and sensitive content
+  * Client-side email validation (matches server-side regex)
+  * Success/error feedback with auto-close on success
+  * Rate limit error handling
+- **Security Measures:**
+  * Rate limiting prevents abuse (5 emails/hour/user)
+  * Authorization check ensures users can only share their own wills
+  * Server-side email validation prevents malformed addresses
+  * Privacy warnings inform users about email security limitations
+  * Audit logging for compliance and tracking
 ```
