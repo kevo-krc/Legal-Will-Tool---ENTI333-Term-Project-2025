@@ -20,6 +20,8 @@ function Dashboard() {
   useEffect(() => {
     if (user) {
       loadWills();
+    } else {
+      setLoadingWills(false);
     }
   }, [user]);
 
