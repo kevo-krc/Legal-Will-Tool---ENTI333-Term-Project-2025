@@ -283,74 +283,102 @@ Format as plain text, no markdown or tables.`;
   return result;
 }
 
-async function generateInitialQuestions(jurisdiction, country, userName) {
-  const prompt = `Generate 5-7 ESSENTIAL questions for a will in ${jurisdiction}, ${country === 'CA' ? 'Canada' : 'United States'}.
-
-CRITICAL - FOCUS ON MINIMUM REQUIREMENTS ONLY:
-- Ask ONLY what's legally required for a valid will
-- Keep questions SHORT and DIRECT
-- Avoid optional/nice-to-have information
-- Focus: beneficiaries, executor, guardians (if minor children), major assets
-
-Return JSON array ONLY. Format:
-[
-  {
-    "id": "q1",
-    "question": "Marital status?",
-    "type": "select",
-    "required": true,
-    "options": ["Single", "Married", "Divorced", "Widowed", "Common-law"]
-  }
-]
-
-Keep questions concise. Return ONLY JSON, no extra text.`;
-
-  const { result } = await executeWithRetry(
-    async () => {
-      const response = await model.generateContent(prompt);
-      const text = (await response.response).text().trim();
-      
-      const jsonMatch = text.match(/\[[\s\S]*\]/);
-      if (!jsonMatch) {
-        throw new Error('No JSON array found in response');
-      }
-      
-      return JSON.parse(jsonMatch[0]);
+function getStaticInitialQuestions(jurisdiction, country) {
+  return [
+    {
+      id: "marital_status",
+      question: "What is your current marital status?",
+      type: "select",
+      required: true,
+      options: ["Single", "Married", "Divorced", "Widowed", "Common-law/Domestic Partnership", "Separated"]
     },
-    'generateInitialQuestions'
-  );
-  
-  return result;
+    {
+      id: "has_children",
+      question: "Do you have any children or dependents under 18?",
+      type: "select",
+      required: true,
+      options: ["Yes", "No"]
+    },
+    {
+      id: "executor_name",
+      question: "Who do you wish to appoint as your Personal Representative (Executor) to manage your estate? Provide their full legal name.",
+      type: "text",
+      required: true
+    },
+    {
+      id: "executor_relationship",
+      question: "What is the Personal Representative's relationship to you?",
+      type: "text",
+      required: true
+    },
+    {
+      id: "alternate_executor",
+      question: "Who should be the alternate Personal Representative if your first choice cannot act? Provide their full name.",
+      type: "text",
+      required: false
+    },
+    {
+      id: "primary_beneficiary",
+      question: "Who should receive the majority (residue) of your estate after debts and expenses? Provide full name(s).",
+      type: "textarea",
+      required: true
+    },
+    {
+      id: "specific_gifts",
+      question: "Are there any specific items or amounts you want to leave to particular people or charities? (e.g., '$5,000 to my sister Jane Doe' or 'My car to John Smith')",
+      type: "textarea",
+      required: false
+    },
+    {
+      id: "major_assets",
+      question: "What are your major assets? (e.g., real estate, bank accounts, investments, life insurance). Brief summary is fine.",
+      type: "textarea",
+      required: true
+    }
+  ];
+}
+
+async function generateInitialQuestions(jurisdiction, country, userName) {
+  return getStaticInitialQuestions(jurisdiction, country);
 }
 
 async function generateFollowUpQuestions(previousAnswers, jurisdiction, country, roundNumber) {
   const summarized = summarizeAnswers(previousAnswers);
   
-  const prompt = `Generate ${roundNumber === 2 ? '3-5' : '2-3'} follow-up questions for a will in ${jurisdiction}, ${country === 'CA' ? 'Canada' : 'United States'}.
+  const prompt = `You are gathering information FROM a user TO CREATE a legal will. Based on their previous answers, generate ${roundNumber === 2 ? '3-5' : '2-3'} follow-up questions to clarify missing or ambiguous information.
 
 Previous answers (summarized):
 ${summarized}
 
-CRITICAL - BE BRIEF AND FOCUSED:
-- Ask ONLY essential clarifications based on previous answers
-- Keep questions SHORT and DIRECT
-- Focus on MINIMUM requirements for legal validity
-- Avoid unnecessary details
+Jurisdiction: ${jurisdiction}, ${country === 'CA' ? 'Canada' : 'United States'}
+Round ${roundNumber} of 3
 
-Round ${roundNumber} of 3.
+CRITICAL INSTRUCTIONS - ASK ONLY ABOUT MISSING/AMBIGUOUS DATA:
+- If they said "has_children: Yes", ask about guardianship (who should care for minor children)
+- If primary_beneficiary has multiple people, ask about distribution split (equal? percentages?)
+- If they mentioned children but didn't specify their share, ask if children inherit if primary beneficiary dies (per stirpes)
+- If specific_gifts was empty, ask if they're sure no specific items/amounts to anyone
+- If they have minor children or young adult beneficiaries, ask about trusts (hold inheritance until certain age?)
+- Ask about significant debts/liabilities if not mentioned
+- Clarify any vague executor or beneficiary names (need full legal names)
+
+DO NOT ASK:
+- Questions about the will document itself (it will be typed and printed by this tool)
+- Questions about witnesses (not user's responsibility)
+- Questions about signing or executing the will
 
 Return JSON array ONLY:
 [
   {
-    "id": "q{number}",
+    "id": "guardian_name",
     "question": "...",
-    "type": "text|textarea|select|multi-select",
+    "type": "text|textarea|select",
     "required": true|false,
-    "options": [...] (for select types only)
+    "options": [...] (for select only)
   }
 ]
 
-Return ONLY JSON, no extra text.`;
+Keep questions SHORT and DIRECT. Return ONLY JSON, no extra text.`;
 
   const { result } = await executeWithRetry(
     async () => {
@@ -373,30 +401,30 @@ Return ONLY JSON, no extra text.`;
 async function generateWillAssessment(allAnswers, jurisdiction, country) {
   const summarized = summarizeAnswers(allAnswers);
   
-  const prompt = `Create a BRIEF legal assessment for a will in ${jurisdiction}, ${country === 'CA' ? 'Canada' : 'United States'}.
+  const prompt = `You have gathered information FROM a user TO CREATE a legal will. Assess whether we have sufficient information to draft a legally valid will in ${jurisdiction}, ${country === 'CA' ? 'Canada' : 'United States'}.
 
-Questionnaire answers (summarized):
+Information gathered (summarized):
 ${summarized}
 
 CRITICAL - BE CONCISE AND FOCUSED:
 - Maximum 250-350 words
-- List ONLY the key decisions: beneficiaries, executor, guardians, major assets
-- Identify ONLY critical legal gaps (if any)
+- Enumerate the KEY DECISIONS we've captured: executor, beneficiaries, guardians (if applicable), assets
+- Assess if we have MINIMUM information needed for a legal will
+- Identify any CRITICAL GAPS that prevent will creation
 - Use short, direct sentences
-- NO unnecessary commentary
 
 Required sections (keep brief):
-1. Key Decisions Summary (3-4 sentences)
-2. Legal Completeness Check (2-3 sentences)
-3. Critical Gaps or Issues (if any - 2-3 sentences)
+1. Summary of Key Decisions (3-4 sentences listing: executor, primary beneficiaries, guardianship if applicable, major assets)
+2. Completeness Assessment (2-3 sentences: Do we have enough to create a basic valid will? What's missing if anything critical?)
+3. Critical Gaps or Warnings (if any - 2-3 sentences about missing executor, beneficiary, or guardian information)
 
 END WITH STRONG LIABILITY DISCLAIMER (3-4 sentences):
 - This is NOT legal advice
-- This tool and creators assume NO legal liability
-- Results may not meet all legal requirements
-- Users MUST consult a licensed attorney before executing a will
+- This tool and its creators assume NO legal liability whatsoever
+- The generated will may not meet all legal requirements
+- Users MUST consult a licensed attorney before signing or executing any will
 
-Format as plain text. BE BRIEF AND DIRECT.`;
+Format as plain text with clear section headers. BE BRIEF AND DIRECT.`;
 
   const { result } = await executeWithRetry(
     async () => {
