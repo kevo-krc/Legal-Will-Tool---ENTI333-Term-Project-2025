@@ -19,6 +19,84 @@ const model = genAI.getGenerativeModel({
   }
 });
 
+class RateLimiter {
+  constructor(requestsPerMinute = 10) {
+    this.requestsPerMinute = requestsPerMinute;
+    this.minDelayMs = Math.ceil((60 * 1000) / requestsPerMinute);
+    this.lastRequestTime = 0;
+    this.queue = Promise.resolve();
+  }
+
+  async waitIfNeeded() {
+    const next = this.queue.then(async () => {
+      const now = Date.now();
+      const timeSinceLastRequest = now - this.lastRequestTime;
+      
+      if (timeSinceLastRequest < this.minDelayMs) {
+        const waitTime = this.minDelayMs - timeSinceLastRequest;
+        console.log(`[Rate Limiter] Waiting ${waitTime}ms before next request (next available: ${new Date(this.lastRequestTime + this.minDelayMs).toISOString()})`);
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+      }
+      
+      this.lastRequestTime = Date.now();
+      console.log(`[Rate Limiter] Request allowed at ${new Date(this.lastRequestTime).toISOString()}`);
+    });
+    
+    this.queue = next;
+    return next;
+  }
+}
+
+const rateLimiter = new RateLimiter(10);
+
+class GeminiQuotaError extends Error {
+  constructor(message, type, retryAfter) {
+    super(message);
+    this.name = 'GeminiQuotaError';
+    this.type = type;
+    this.retryAfter = retryAfter;
+  }
+}
+
+function parseQuotaError(error) {
+  if (error.status === 429) {
+    const errorMessage = error.message || '';
+    
+    let retryAfter = null;
+    if (error.errorDetails) {
+      const retryInfo = error.errorDetails.find(d => d['@type']?.includes('RetryInfo'));
+      if (retryInfo?.retryDelay) {
+        const match = retryInfo.retryDelay.match(/(\d+)/);
+        retryAfter = match ? parseInt(match[1]) : null;
+      }
+    }
+    
+    if (errorMessage.includes('requests per minute') || errorMessage.includes('RPM')) {
+      return new GeminiQuotaError(
+        'Rate limit exceeded: Too many requests per minute (max 10/min). Please wait a moment.',
+        'RPM',
+        retryAfter || 60
+      );
+    }
+    
+    if (errorMessage.includes('requests per day') || errorMessage.includes('RPD') || errorMessage.includes('daily')) {
+      return new GeminiQuotaError(
+        'Daily quota exceeded: You have used all 250 requests for today. Quota resets at midnight Pacific Time.',
+        'RPD',
+        retryAfter
+      );
+    }
+    
+    return new GeminiQuotaError(
+      'Gemini API quota exceeded. Please try again later.',
+      'UNKNOWN',
+      retryAfter
+    );
+  }
+  
+  return error;
+}
+
 async function generateComplianceStatement(jurisdiction, country) {
   const prompt = `You are a legal expert specializing in estate planning law.
 
@@ -36,12 +114,20 @@ Keep the tone professional but accessible. The statement should be 200-300 words
 Format the output as plain text without markdown.`;
 
   try {
+    await rateLimiter.waitIfNeeded();
     const result = await model.generateContent(prompt);
     const response = await result.response;
     return response.text();
   } catch (error) {
     console.error('Error generating compliance statement:', error);
-    throw error;
+    const quotaError = parseQuotaError(error);
+    if (quotaError.name === 'GeminiQuotaError') {
+      console.error(`[QUOTA ERROR] ${quotaError.type}: ${quotaError.message}`);
+      if (quotaError.retryAfter) {
+        console.error(`Retry after: ${quotaError.retryAfter} seconds`);
+      }
+    }
+    throw quotaError;
   }
 }
 
@@ -83,6 +169,7 @@ Example format:
 IMPORTANT: Return ONLY the JSON array, no additional text or explanation.`;
 
   try {
+    await rateLimiter.waitIfNeeded();
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text().trim();
@@ -95,7 +182,14 @@ IMPORTANT: Return ONLY the JSON array, no additional text or explanation.`;
     return JSON.parse(jsonMatch[0]);
   } catch (error) {
     console.error('Error generating initial questions:', error);
-    throw error;
+    const quotaError = parseQuotaError(error);
+    if (quotaError.name === 'GeminiQuotaError') {
+      console.error(`[QUOTA ERROR] ${quotaError.type}: ${quotaError.message}`);
+      if (quotaError.retryAfter) {
+        console.error(`Retry after: ${quotaError.retryAfter} seconds`);
+      }
+    }
+    throw quotaError;
   }
 }
 
@@ -129,6 +223,7 @@ Format your response as a JSON array of question objects with the same structure
 IMPORTANT: Return ONLY the JSON array, no additional text or explanation.`;
 
   try {
+    await rateLimiter.waitIfNeeded();
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text().trim();
@@ -141,7 +236,14 @@ IMPORTANT: Return ONLY the JSON array, no additional text or explanation.`;
     return JSON.parse(jsonMatch[0]);
   } catch (error) {
     console.error('Error generating follow-up questions:', error);
-    throw error;
+    const quotaError = parseQuotaError(error);
+    if (quotaError.name === 'GeminiQuotaError') {
+      console.error(`[QUOTA ERROR] ${quotaError.type}: ${quotaError.message}`);
+      if (quotaError.retryAfter) {
+        console.error(`Retry after: ${quotaError.retryAfter} seconds`);
+      }
+    }
+    throw quotaError;
   }
 }
 
@@ -163,12 +265,20 @@ The assessment should be professional, clear, and 400-600 words.
 Format the output as plain text with clear sections.`;
 
   try {
+    await rateLimiter.waitIfNeeded();
     const result = await model.generateContent(prompt);
     const response = await result.response;
     return response.text();
   } catch (error) {
     console.error('Error generating assessment:', error);
-    throw error;
+    const quotaError = parseQuotaError(error);
+    if (quotaError.name === 'GeminiQuotaError') {
+      console.error(`[QUOTA ERROR] ${quotaError.type}: ${quotaError.message}`);
+      if (quotaError.retryAfter) {
+        console.error(`Retry after: ${quotaError.retryAfter} seconds`);
+      }
+    }
+    throw quotaError;
   }
 }
 

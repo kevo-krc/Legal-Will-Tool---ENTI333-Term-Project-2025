@@ -74,7 +74,20 @@ function CreateWill() {
       navigate(`/questionnaire/${will.id}`);
     } catch (err) {
       console.error('Error creating will:', err);
-      setError('Failed to create will. Please try again.');
+      
+      if (err.response?.status === 429) {
+        const errorData = err.response.data;
+        if (errorData.errorType === 'RPM') {
+          setError('Rate limit exceeded: Too many requests per minute (max 10/min). Please wait a moment and try again.');
+        } else if (errorData.errorType === 'RPD') {
+          setError('Daily quota exceeded: You have used all 250 AI requests for today. The quota resets at midnight Pacific Time. Please try again tomorrow.');
+        } else {
+          setError(`AI service quota exceeded: ${errorData.error || 'Please try again later.'}`);
+        }
+      } else {
+        setError('Failed to create will. Please try again.');
+      }
+      
       setLoading(false);
     }
   };

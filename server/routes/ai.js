@@ -33,6 +33,15 @@ router.post('/compliance', async (req, res) => {
     });
   } catch (error) {
     console.error('Error generating compliance statement:', error);
+    
+    if (error.name === 'GeminiQuotaError') {
+      return res.status(429).json({ 
+        error: error.message,
+        errorType: error.type,
+        retryAfter: error.retryAfter
+      });
+    }
+    
     res.status(500).json({ 
       error: 'Failed to generate compliance statement',
       message: error.message 
@@ -59,6 +68,15 @@ router.post('/questions/initial', async (req, res) => {
     });
   } catch (error) {
     console.error('Error generating initial questions:', error);
+    
+    if (error.name === 'GeminiQuotaError') {
+      return res.status(429).json({ 
+        error: error.message,
+        errorType: error.type,
+        retryAfter: error.retryAfter
+      });
+    }
+    
     res.status(500).json({ 
       error: 'Failed to generate questions',
       message: error.message 
@@ -96,6 +114,15 @@ router.post('/questions/followup', async (req, res) => {
     });
   } catch (error) {
     console.error('Error generating follow-up questions:', error);
+    
+    if (error.name === 'GeminiQuotaError') {
+      return res.status(429).json({ 
+        error: error.message,
+        errorType: error.type,
+        retryAfter: error.retryAfter
+      });
+    }
+    
     res.status(500).json({ 
       error: 'Failed to generate follow-up questions',
       message: error.message 
@@ -121,6 +148,15 @@ router.post('/assessment', async (req, res) => {
     });
   } catch (error) {
     console.error('Error generating assessment:', error);
+    
+    if (error.name === 'GeminiQuotaError') {
+      return res.status(429).json({ 
+        error: error.message,
+        errorType: error.type,
+        retryAfter: error.retryAfter
+      });
+    }
+    
     res.status(500).json({ 
       error: 'Failed to generate assessment',
       message: error.message 
