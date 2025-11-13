@@ -84,8 +84,10 @@ function CreateWill() {
         } else {
           setError(`AI service quota exceeded: ${errorData.error || 'Please try again later.'}`);
         }
+      } else if (err.response?.status === 503) {
+        setError('Google AI service is temporarily overloaded. This is a temporary issue on Google\'s end. Please wait 30-60 seconds and try again.');
       } else {
-        setError('Failed to create will. Please try again.');
+        setError('Failed to generate legal compliance statement. Please try again.');
       }
       
       setLoading(false);

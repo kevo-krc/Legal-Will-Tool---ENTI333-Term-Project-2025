@@ -42,6 +42,14 @@ router.post('/compliance', async (req, res) => {
       });
     }
     
+    if (error.status === 503 || error.statusText === 'Service Unavailable') {
+      return res.status(503).json({ 
+        error: 'AI service is temporarily overloaded. Please try again in a moment.',
+        errorType: 'SERVICE_UNAVAILABLE',
+        message: error.message 
+      });
+    }
+    
     res.status(500).json({ 
       error: 'Failed to generate compliance statement',
       message: error.message 
@@ -74,6 +82,14 @@ router.post('/questions/initial', async (req, res) => {
         error: error.message,
         errorType: error.type,
         retryAfter: error.retryAfter
+      });
+    }
+    
+    if (error.status === 503 || error.statusText === 'Service Unavailable') {
+      return res.status(503).json({ 
+        error: 'AI service is temporarily overloaded. Please try again in a moment.',
+        errorType: 'SERVICE_UNAVAILABLE',
+        message: error.message 
       });
     }
     
@@ -123,6 +139,14 @@ router.post('/questions/followup', async (req, res) => {
       });
     }
     
+    if (error.status === 503 || error.statusText === 'Service Unavailable') {
+      return res.status(503).json({ 
+        error: 'AI service is temporarily overloaded. Please try again in a moment.',
+        errorType: 'SERVICE_UNAVAILABLE',
+        message: error.message 
+      });
+    }
+    
     res.status(500).json({ 
       error: 'Failed to generate follow-up questions',
       message: error.message 
@@ -154,6 +178,14 @@ router.post('/assessment', async (req, res) => {
         error: error.message,
         errorType: error.type,
         retryAfter: error.retryAfter
+      });
+    }
+    
+    if (error.status === 503 || error.statusText === 'Service Unavailable') {
+      return res.status(503).json({ 
+        error: 'AI service is temporarily overloaded. Please try again in a moment.',
+        errorType: 'SERVICE_UNAVAILABLE',
+        message: error.message 
       });
     }
     
