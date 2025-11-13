@@ -47,4 +47,37 @@ The application is a full-stack React (Vite) and Node.js (Express) project.
 - **Email Service:** SendGrid (for future email delivery features)
 - **Hosting:** Replit
 - **Version Control:** GitHub
+
+## Recent Implementation Updates (November 13, 2025)
+
+### Consent Workflow & Disclaimer
+- Users must now explicitly accept legal disclaimer before accessing questionnaire
+- Consent screen shows compliance statement + strong liability warning ("NO legal liability whatsoever")
+- Consent stored in database (`disclaimer_accepted`, `disclaimer_accepted_at` fields)
+- Resume logic properly handles users with existing consent - bypasses consent screen
+- Fixed critical bug where users resuming in-progress wills would get stuck on consent screen
+
+### Lawyer-Style Follow-up Questions
+- Reframed AI as "lawyer gathering information FROM client TO CREATE legal will"
+- Focus on contingency "what if" scenarios:
+  * Beneficiary death scenarios and per stirpes inheritance
+  * Trusts for minors (age thresholds)
+  * Executor willingness and compensation
+  * Asset ownership clarifications (joint tenancy vs tenants in common)
+- Explicit "DO NOT ASK" section: no questions about will document format, witnesses, or signing
+
+### Enhanced JSON Parsing
+- Robust error handling for Gemini API responses
+- Automatic cleanup: removes control characters, trailing commas, adds quotes to unquoted keys
+- Logs raw text on parse errors for debugging
+- Retry with cleaned JSON if initial parse fails
+
+### Hybrid Questionnaire Architecture
+- **Round 1:** 8 static curated questions (no AI generation for speed/consistency)
+  * Marital status, children, executor (name & relationship), alternate executor, primary beneficiary, specific gifts, major assets
+  * Semantic IDs (marital_status, executor_name, etc.) for data organization
+  * Mix of required (5) and optional (3) fields
+- **Rounds 2-3:** Constrained AI follow-ups for missing/ambiguous data only
+- **Assessment:** Enumerates key decisions, assesses completeness, identifies critical gaps
+- All prompts emphasize brevity and minimum legal requirements only
 ```
