@@ -202,13 +202,23 @@ function WillSummary() {
                     {generatingPDFs ? 'Generating PDFs...' : 'Generate PDF Documents'}
                   </button>
                 ) : (
-                  <button 
-                    onClick={handleDownloadPDFs}
-                    className="btn btn-primary" 
-                    disabled={generatingPDFs}
-                  >
-                    {generatingPDFs ? 'Loading...' : 'Download PDF Documents'}
-                  </button>
+                  <>
+                    <button 
+                      onClick={handleDownloadPDFs}
+                      className="btn btn-primary" 
+                      disabled={generatingPDFs}
+                    >
+                      {generatingPDFs ? 'Loading...' : 'Download PDF Documents'}
+                    </button>
+                    <button 
+                      onClick={handleGeneratePDFs}
+                      className="btn btn-secondary" 
+                      disabled={generatingPDFs}
+                      style={{ marginLeft: '10px' }}
+                    >
+                      {generatingPDFs ? 'Regenerating...' : 'Regenerate PDFs'}
+                    </button>
+                  </>
                 )}
               </div>
             </div>
