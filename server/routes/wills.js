@@ -446,6 +446,19 @@ router.post('/:willId/share-email', async (req, res) => {
     
     console.log(`[Email Share] Successfully sent will ${willId} to ${recipientEmail} for user ${userId}`);
     
+    await createNotification(
+      userId,
+      'email_success',
+      'Email Sent Successfully',
+      `Will documents were successfully sent to ${recipientEmail}`,
+      'none',
+      willId,
+      { 
+        recipientEmail,
+        timestamp: new Date().toISOString() 
+      }
+    );
+    
     res.json({
       success: true,
       message: `Will documents successfully sent to ${recipientEmail}`

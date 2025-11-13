@@ -401,6 +401,8 @@ async function generateFollowUpQuestions(previousAnswers, jurisdiction, country,
   const summarized = summarizeAnswers(previousAnswers);
   
   const previouslyAskedQuestions = [];
+  const providedInformation = [];
+  
   previousAnswers.forEach(round => {
     if (round.questions && Array.isArray(round.questions)) {
       round.questions.forEach(q => {
@@ -409,10 +411,24 @@ async function generateFollowUpQuestions(previousAnswers, jurisdiction, country,
         }
       });
     }
+    
+    if (round.answers && typeof round.answers === 'object') {
+      Object.entries(round.answers).forEach(([key, value]) => {
+        if (value && value !== 'None' && value !== 'N/A' && value !== 'No preference') {
+          if (key.includes('name') || key.includes('executor') || key.includes('beneficiar') || key.includes('guardian')) {
+            providedInformation.push(`${key}: ${value}`);
+          }
+        }
+      });
+    }
   });
   
   const previousQuestionsText = previouslyAskedQuestions.length > 0 
-    ? `\n\nQUESTIONS ALREADY ASKED (DO NOT RE-ASK THESE OR SIMILAR VARIATIONS):\n${previouslyAskedQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}\n`
+    ? `\n\nQUESTIONS ALREADY ASKED (NEVER REPEAT OR REPHRASE THESE):\n${previouslyAskedQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}\n`
+    : '';
+  
+  const providedInfoText = providedInformation.length > 0
+    ? `\n\nINFORMATION ALREADY PROVIDED (DO NOT RE-ASK FOR THIS DATA):\n${providedInformation.map((info, i) => `${i + 1}. ${info}`).join('\n')}\n`
     : '';
   
   const prompt = `You are a lawyer gathering ESSENTIAL information TO CREATE a legally valid will. Review the client's answers and ask ${roundNumber === 2 ? '4-6' : '2-4' } follow-up questions to fill CRITICAL GAPS only.
@@ -420,10 +436,17 @@ async function generateFollowUpQuestions(previousAnswers, jurisdiction, country,
 Previous answers (summarized):
 ${summarized}
 ${previousQuestionsText}
+${providedInfoText}
 Jurisdiction: ${jurisdiction}, ${country === 'CA' ? 'Canada' : 'United States'}
 Round ${roundNumber} of 3
 
-CRITICAL: Do NOT re-ask questions that were already asked in previous rounds. The user cannot confirm information with executors/guardians "now" - they are filling out this questionnaire in one sitting. If they said "no" to confirming willingness, accept that answer and move on to other gaps.
+STRICT RULES TO PREVENT REDUNDANT QUESTIONS:
+1. NEVER ask for a person's "full legal name" if you already have their name in the answers above
+2. For PEOPLE: If you have a name, only ask for MISSING details (age, address, relationship) - NOT the name again
+3. For CHARITABLE ORGANIZATIONS: Ask for "registered charitable name and registration number" - NEVER "full legal name"
+4. NEVER repeat questions from previous rounds, even with different wording
+5. If the user answered "I do not know" or similar, accept it and DO NOT ask again
+6. The user cannot "confirm" things with others - this is a single-session form
 
 ${roundNumber === 2 ? 'ROUND 2 - ESSENTIAL WILL REQUIREMENTS (ask if missing):' : 'ROUND 3 - FINAL CRITICAL GAPS (ask ONLY if absolutely necessary):'}
 
@@ -449,13 +472,26 @@ PRIORITY 3 - ONLY IF CRITICAL:
 
 ${roundNumber === 3 ? 'IMPORTANT: Most information should be gathered by now. Only ask about truly CRITICAL missing pieces needed for a functional will. DO NOT repeat questions from Round 2.' : ''}
 
-DO NOT ASK ABOUT:
+ABSOLUTELY FORBIDDEN (DO NOT ASK):
 - Questions already asked in previous rounds (see list above)
+- Information already provided (see list above) - if you have a person's name, DON'T ask for their "full legal name" again
+- "Full legal name" of organizations - use "registered charitable name and registration number" instead
 - Whether they have "now" confirmed anything with anyone - this is a single-session questionnaire
+- Repeating a question because the user said "I do not know" - accept that answer
 - Witness names or signing procedures (we handle that in instructions)
 - Legal formalities or will format
 - Tax planning or estate planning strategies
-- Fringe "what if" scenarios unless directly relevant to will validity
+
+GOOD QUESTION EXAMPLES:
+✓ "What is the residential address for [person's name that you already have]?"
+✓ "What is [person's name]'s age?"
+✓ "What is the registered charitable name and registration number for [charity mentioned]?"
+✓ "Should your mortgage be paid off from estate assets or assumed by beneficiary?"
+
+BAD QUESTION EXAMPLES (NEVER ASK THESE):
+✗ "What is [name]'s full legal name?" (when you already have their name)
+✗ "What is the full legal name of [organization]?" (organizations don't have "full legal names")
+✗ Any question that's already in the "QUESTIONS ALREADY ASKED" list above
 
 Return ONLY a JSON array with this exact structure:
 [

@@ -19,7 +19,7 @@ export const NotificationProvider = ({ children }) => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+  const apiUrl = '/api';
 
   const addToast = useCallback((type, title, message, actionType = 'none', relatedId = null) => {
     const id = `toast-${Date.now()}-${Math.random()}`;
@@ -46,7 +46,7 @@ export const NotificationProvider = ({ children }) => {
       const token = await getSessionToken();
       if (!token) return;
 
-      const response = await axios.get(`${apiUrl}/api/notifications`, {
+      const response = await axios.get(`${apiUrl}/notifications`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -65,7 +65,7 @@ export const NotificationProvider = ({ children }) => {
       const token = await getSessionToken();
       if (!token) return;
 
-      const response = await axios.get(`${apiUrl}/api/notifications/unread-count`, {
+      const response = await axios.get(`${apiUrl}/notifications/unread-count`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -83,7 +83,7 @@ export const NotificationProvider = ({ children }) => {
       if (!token) return;
 
       await axios.patch(
-        `${apiUrl}/api/notifications/${notificationId}/read`,
+        `${apiUrl}/notifications/${notificationId}/read`,
         {},
         {
           headers: {
@@ -107,7 +107,7 @@ export const NotificationProvider = ({ children }) => {
       if (!token) return;
 
       await axios.patch(
-        `${apiUrl}/api/notifications/mark-all-read`,
+        `${apiUrl}/notifications/mark-all-read`,
         {},
         {
           headers: {
@@ -128,7 +128,7 @@ export const NotificationProvider = ({ children }) => {
       const token = await getSessionToken();
       if (!token) return;
 
-      await axios.delete(`${apiUrl}/api/notifications/${notificationId}`, {
+      await axios.delete(`${apiUrl}/notifications/${notificationId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -146,7 +146,7 @@ export const NotificationProvider = ({ children }) => {
       const token = await getSessionToken();
       if (!token) return;
 
-      await axios.delete(`${apiUrl}/api/notifications`, {
+      await axios.delete(`${apiUrl}/notifications`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -187,7 +187,7 @@ export const NotificationProvider = ({ children }) => {
         addToast('info', 'Retrying...', 'Attempting to regenerate PDF documents...');
         
         const response = await axios.post(
-          `${apiUrl}/api/wills/${notification.related_id}/generate-pdfs`,
+          `${apiUrl}/wills/${notification.related_id}/generate-pdfs`,
           {},
           { headers }
         );
@@ -216,7 +216,7 @@ export const NotificationProvider = ({ children }) => {
         addToast('info', 'Retrying...', `Attempting to send email to ${recipientEmail}...`);
         
         await axios.post(
-          `${apiUrl}/api/wills/${notification.related_id}/share-email`,
+          `${apiUrl}/wills/${notification.related_id}/share-email`,
           {
             recipientEmail,
             userId: user.id
@@ -237,7 +237,7 @@ export const NotificationProvider = ({ children }) => {
       
       try {
         const response = await axios.patch(
-          `${apiUrl}/api/notifications/${notification.id}/increment-retry`,
+          `${apiUrl}/notifications/${notification.id}/increment-retry`,
           {},
           { headers }
         );
