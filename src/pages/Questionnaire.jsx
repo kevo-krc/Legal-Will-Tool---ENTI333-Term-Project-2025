@@ -15,6 +15,9 @@ function Questionnaire() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   
+  const [showConsentScreen, setShowConsentScreen] = useState(false);
+  const [consentAccepted, setConsentAccepted] = useState(false);
+  
   const [currentRound, setCurrentRound] = useState(1);
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState({});
@@ -40,6 +43,14 @@ function Questionnaire() {
         navigate(`/will-summary/${willId}`);
         return;
       }
+
+      if (!willData.disclaimer_accepted) {
+        setShowConsentScreen(true);
+        setLoading(false);
+        return;
+      }
+
+      setConsentAccepted(true);
 
       if (roundNumber === 1 && qaData.length === 0) {
         await loadInitialQuestions(willData);
@@ -82,6 +93,32 @@ function Questionnaire() {
       } else {
         setError(`Failed to generate follow-up questions${retryMessage}`);
       }
+    }
+  };
+
+  const handleAcceptConsent = async () => {
+    try {
+      setSubmitting(true);
+      setError('');
+      
+      await axios.put(`${API_URL}/wills/${willId}`, {
+        disclaimer_accepted: true,
+        disclaimer_accepted_at: new Date().toISOString()
+      });
+      
+      setConsentAccepted(true);
+      setShowConsentScreen(false);
+      
+      const updatedWill = { ...will, disclaimer_accepted: true };
+      setWill(updatedWill);
+      
+      await loadInitialQuestions(updatedWill);
+      
+      setSubmitting(false);
+    } catch (err) {
+      console.error('Error accepting consent:', err);
+      setError('Failed to save consent. Please try again.');
+      setSubmitting(false);
     }
   };
 
@@ -313,6 +350,72 @@ function Questionnaire() {
     );
   }
 
+  if (showConsentScreen) {
+    return (
+      <div className="questionnaire-page">
+        <div className="container">
+          <div className="questionnaire-container">
+            <div className="card">
+              <div className="questionnaire-header">
+                <h2>Legal Compliance & Disclaimer</h2>
+                <p className="text-light">
+                  {will.jurisdiction_full_name}, {will.country === 'CA' ? 'Canada' : 'United States'}
+                </p>
+              </div>
+
+              <div className="compliance-box mb-4">
+                <h3>Requirements for a Valid Will in Your Jurisdiction</h3>
+                <div className="compliance-text" style={{ whiteSpace: 'pre-line', marginBottom: '2rem' }}>
+                  {will.compliance_statement}
+                </div>
+
+                <div style={{ 
+                  background: '#fff3cd', 
+                  border: '2px solid #856404', 
+                  padding: '1.5rem', 
+                  borderRadius: '8px',
+                  marginTop: '2rem'
+                }}>
+                  <h3 style={{ color: '#856404', marginTop: 0 }}>⚠️ Important Disclaimer</h3>
+                  <p style={{ margin: '0.5rem 0', fontWeight: 'bold' }}>
+                    This tool is for academic and informational purposes only. It is NOT a substitute for professional legal advice.
+                  </p>
+                  <ul style={{ marginBottom: 0 }}>
+                    <li>This tool and its creators assume <strong>NO legal liability whatsoever</strong></li>
+                    <li>The generated will may not meet all legal requirements in your jurisdiction</li>
+                    <li>Laws vary significantly by location and change over time</li>
+                    <li>You <strong>MUST consult a licensed attorney</strong> before signing or executing any will</li>
+                    <li>Do not rely on this tool for legal decisions affecting your estate</li>
+                  </ul>
+                </div>
+              </div>
+
+              {error && (
+                <div className="error-message mb-3">
+                  {error}
+                </div>
+              )}
+
+              <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+                <p style={{ fontSize: '1.1rem', marginBottom: '1.5rem' }}>
+                  By clicking "I Accept and Understand" below, you acknowledge that you have read and understood the legal requirements and disclaimer above.
+                </p>
+                <button
+                  onClick={handleAcceptConsent}
+                  className="btn btn-primary"
+                  disabled={submitting}
+                  style={{ fontSize: '1.1rem', padding: '1rem 2rem' }}
+                >
+                  {submitting ? 'Processing...' : 'I Accept and Understand - Begin Questionnaire'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="questionnaire-page">
       <div className="container">
@@ -323,13 +426,6 @@ function Questionnaire() {
               <p className="text-light">
                 {will.jurisdiction_full_name}, {will.country === 'CA' ? 'Canada' : 'United States'}
               </p>
-            </div>
-
-            <div className="compliance-box mb-4">
-              <h3>Legal Compliance Information</h3>
-              <div className="compliance-text">
-                {will.compliance_statement}
-              </div>
             </div>
 
             {error && (

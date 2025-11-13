@@ -345,7 +345,7 @@ async function generateInitialQuestions(jurisdiction, country, userName) {
 async function generateFollowUpQuestions(previousAnswers, jurisdiction, country, roundNumber) {
   const summarized = summarizeAnswers(previousAnswers);
   
-  const prompt = `You are gathering information FROM a user TO CREATE a legal will. Based on their previous answers, generate ${roundNumber === 2 ? '3-5' : '2-3'} follow-up questions to clarify missing or ambiguous information.
+  const prompt = `You are a lawyer gathering information FROM a client TO CREATE a legal will. Based on their previous answers, generate ${roundNumber === 2 ? '3-5' : '2-3'} brief, practical follow-up questions.
 
 Previous answers (summarized):
 ${summarized}
@@ -353,32 +353,44 @@ ${summarized}
 Jurisdiction: ${jurisdiction}, ${country === 'CA' ? 'Canada' : 'United States'}
 Round ${roundNumber} of 3
 
-CRITICAL INSTRUCTIONS - ASK ONLY ABOUT MISSING/AMBIGUOUS DATA:
-- If they said "has_children: Yes", ask about guardianship (who should care for minor children)
-- If primary_beneficiary has multiple people, ask about distribution split (equal? percentages?)
-- If they mentioned children but didn't specify their share, ask if children inherit if primary beneficiary dies (per stirpes)
-- If specific_gifts was empty, ask if they're sure no specific items/amounts to anyone
-- If they have minor children or young adult beneficiaries, ask about trusts (hold inheritance until certain age?)
-- Ask about significant debts/liabilities if not mentioned
-- Clarify any vague executor or beneficiary names (need full legal names)
+LAWYER-STYLE FOLLOW-UP QUESTIONS - Focus on CONTINGENCIES & CLARIFICATIONS:
+
+1. CONTINGENCY "WHAT IF" SCENARIOS (if applicable):
+   - If they named a spouse/single beneficiary: "What if your primary beneficiary dies before or at the same time as you? Who should inherit then?"
+   - If multiple children/beneficiaries: "If one beneficiary dies before you but has children, should their children inherit their parent's share (per stirpes) or should it go to the surviving beneficiaries?"
+   - If specific gifts mentioned: "What if you no longer own a specific item when you pass? Should the recipient get cash equivalent or nothing?"
+
+2. GUARDIAN FOR MINOR CHILDREN (if has_children = Yes):
+   - "Who should be the legal guardian of your minor children if both parents pass away? Include full name."
+   - "Who should be the alternate guardian if your first choice cannot serve?"
+
+3. TRUSTS FOR MINORS (if children or young beneficiaries):
+   - "Should inheritances for minor children be held in trust until they reach a certain age (e.g., 18, 21, 25)?"
+
+4. EXECUTOR DETAILS (if needed):
+   - "Is your executor willing and able to serve? Have you discussed this with them?"
+   - "Should your executor receive compensation for their work?"
+
+5. ASSET CLARIFICATIONS (if vague):
+   - Clarify ownership structure of major assets (joint tenancy vs tenants in common)
+   - Confirm beneficiary designations align with will
 
 DO NOT ASK:
-- Questions about the will document itself (it will be typed and printed by this tool)
-- Questions about witnesses (not user's responsibility)
-- Questions about signing or executing the will
+- About the will document format (we create that)
+- About witnesses or signing
+- About legal formalities
 
-Return JSON array ONLY:
+Return ONLY a JSON array with this exact structure:
 [
   {
-    "id": "guardian_name",
-    "question": "...",
-    "type": "text|textarea|select",
-    "required": true|false,
-    "options": [...] (for select only)
+    "id": "contingent_beneficiary",
+    "question": "Brief question here?",
+    "type": "text",
+    "required": true
   }
 ]
 
-Keep questions SHORT and DIRECT. Return ONLY JSON, no extra text.`;
+Be BRIEF. Return ONLY valid JSON array, no extra text.`;
 
   const { result } = await executeWithRetry(
     async () => {
@@ -390,7 +402,25 @@ Keep questions SHORT and DIRECT. Return ONLY JSON, no extra text.`;
         throw new Error('No JSON array found in response');
       }
       
-      return JSON.parse(jsonMatch[0]);
+      let parsed;
+      try {
+        parsed = JSON.parse(jsonMatch[0]);
+      } catch (parseError) {
+        console.error('JSON parse error. Raw text:', jsonMatch[0]);
+        const cleaned = jsonMatch[0]
+          .replace(/[\u0000-\u001F\u007F-\u009F]/g, '')
+          .replace(/,\s*([}\]])/g, '$1')
+          .replace(/([{,])\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":');
+        
+        try {
+          parsed = JSON.parse(cleaned);
+        } catch (secondError) {
+          console.error('Failed to parse even after cleaning:', cleaned);
+          throw new Error(`Invalid JSON from AI: ${parseError.message}`);
+        }
+      }
+      
+      return parsed;
     },
     'generateFollowUpQuestions'
   );
