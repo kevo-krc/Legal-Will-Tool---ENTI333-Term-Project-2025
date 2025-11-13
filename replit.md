@@ -3,7 +3,7 @@
 ## Overview
 This is a full-stack web application for creating legally valid wills for Canada and the USA using AI-assisted guidance. The project is an academic initiative demonstrating AI-driven legal document creation.
 
-**Current Status:** Phase 1 Complete - Foundation & Initial UI Implemented
+**Current Status:** Phase 2 Complete - Authentication & User Management Implemented
 
 ## Project Information
 - **Author:** Kevin Cooney
@@ -24,9 +24,10 @@ This is a full-stack web application for creating legally valid wills for Canada
 The application is a full-stack React + Node.js project with:
 - **Frontend**: React app with Vite dev server on port 5000
 - **Backend**: Express API server on port 3001
-- **Routing**: React Router for SPA navigation
+- **Routing**: React Router for SPA navigation with protected routes
 - **Styling**: Global CSS extracted from Brand Kit
-- **Authentication**: Placeholder UI (implementation pending)
+- **Authentication**: Fully functional Supabase authentication with auto-generated account numbers
+- **Database**: Supabase PostgreSQL with RLS policies (migration ready)
 - **Brand Assets**: Logo and brand kit files in public/ folder
 
 ## Architecture
@@ -34,36 +35,51 @@ The application is a full-stack React + Node.js project with:
 ### Frontend (Implemented)
 - React 18 + Vite for fast development
 - React Router for client-side routing
-- Component structure:
-  - `Header.jsx` - Logo and navigation
+- **Authentication System:**
+  - Supabase client configured with environment variables
+  - AuthContext providing session management and auth functions
+  - Auto-generated account numbers (format: WL{timestamp}{random})
+  - Protected routes for authenticated pages
+- **Component structure:**
+  - `Header.jsx` - Logo, navigation, user state display, logout
   - `Footer.jsx` - Privacy Policy link
   - `Home.jsx` - Landing page with hero and features
-  - `Login.jsx` / `Register.jsx` - Authentication placeholders
-  - `Dashboard.jsx` - User dashboard placeholder
+  - `Login.jsx` - Functional login with error handling
+  - `Register.jsx` - Full registration form (name, email, phone, password)
+  - `Dashboard.jsx` - User profile display and edit functionality
   - `PrivacyPolicy.jsx` - Privacy policy display
+  - `ProtectedRoute.jsx` - Authentication guard component
 - Global styling based on Brand Kit colors
 - Responsive design for web platforms
 
 ### Backend (Implemented)
 - Express.js server on port 3001 (bound to 0.0.0.0)
 - CORS enabled for frontend communication
+- Supabase admin client for future server-side operations
+- **Architecture Decision**: No auth proxy routes - frontend communicates directly with Supabase using RLS
 - API endpoints:
   - `GET /api/health` - Health check
   - `GET /api/config/check` - Verify secrets configuration
-- Future endpoints: auth, questionnaire, PDF generation, email
+- Future endpoints: AI/Gemini integration, PDF generation, email delivery
 
-### Database (To Be Implemented)
+### Database (Migration Ready)
 - Supabase (PostgreSQL)
-- Table: `wills` (to be created)
-- Storage Bucket: `will-documents` (to be created)
-- Row Level Security (RLS) policies
+- **Implemented Tables:**
+  - `profiles` - User profile data with account_number, full_name, email, phone (SQL migration ready)
+- **RLS Policies Implemented:**
+  - Users can view only their own profile
+  - Users can update only their own profile
+  - Users can insert only their own profile
+- **Future Tables:**
+  - `wills` - Will documents and Q&A data
+- **Future Storage Bucket:** `will-documents`
 - Storage for:
-  - User profiles and authentication
-  - Q&A data from questionnaires
-  - AI-generated legal assessments
-  - Consent and disclaimer acknowledgments
-  - Generated will documents (with user consent)
-  - Audit logs
+  - User profiles (implemented)
+  - Q&A data from questionnaires (Phase 3)
+  - AI-generated legal assessments (Phase 3)
+  - Consent and disclaimer acknowledgments (Phase 3)
+  - Generated will documents (Phase 4)
+  - Audit logs (Phase 5)
 
 ## Key Features (Planned)
 1. **User Authentication** - Secure registration and login
@@ -80,6 +96,20 @@ The application is a full-stack React + Node.js project with:
 - **USA**: All 50 states (state-specific laws)
 
 ## Recent Changes
+- **2025-11-13 (Phase 2):**
+  - Implemented Supabase authentication system
+  - Created AuthContext with session management and auth functions
+  - Built auto-generated account number system (WL{timestamp}{random})
+  - Implemented protected routes for authenticated pages
+  - Updated Register page with full form (name, email, phone, password)
+  - Updated Login page with error handling and loading states
+  - Enhanced Dashboard with profile display and edit functionality
+  - Modified Header to show user state and logout button
+  - Created SQL migration for profiles table with RLS policies
+  - **Security Architecture**: Frontend → Supabase direct (no backend proxy)
+  - Installed @supabase/supabase-js on frontend and backend
+  - Documented backend architecture decision in server/README.md
+
 - **2025-11-12 (Phase 1):** 
   - Created React + Vite frontend structure
   - Set up Express backend with health/config endpoints
