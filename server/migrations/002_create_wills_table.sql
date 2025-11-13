@@ -2,12 +2,6 @@
 CREATE TABLE IF NOT EXISTS wills (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
-  account_number VARCHAR(50) NOT NULL,
-  
-  -- User Information
-  user_name VARCHAR(255) NOT NULL,
-  email VARCHAR(255) NOT NULL,
-  phone VARCHAR(50),
   
   -- Jurisdiction Information
   country VARCHAR(10) NOT NULL CHECK (country IN ('CA', 'US')),
@@ -45,9 +39,6 @@ CREATE TABLE IF NOT EXISTS wills (
 
 -- Create index on user_id for faster lookups
 CREATE INDEX IF NOT EXISTS idx_wills_user_id ON wills(user_id);
-
--- Create index on account_number for faster lookups
-CREATE INDEX IF NOT EXISTS idx_wills_account_number ON wills(account_number);
 
 -- Create index on status for filtering
 CREATE INDEX IF NOT EXISTS idx_wills_status ON wills(status);
