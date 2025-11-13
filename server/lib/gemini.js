@@ -397,8 +397,12 @@ Be BRIEF. Return ONLY valid JSON array, no extra text.`;
       const response = await model.generateContent(prompt);
       const text = (await response.response).text().trim();
       
+      console.log('[Follow-up Questions] Raw Gemini response:', text);
+      console.log('[Follow-up Questions] Response length:', text.length);
+      
       const jsonMatch = text.match(/\[[\s\S]*\]/);
       if (!jsonMatch) {
+        console.error('[Follow-up Questions] No JSON array found. Full text:', text);
         throw new Error('No JSON array found in response');
       }
       
