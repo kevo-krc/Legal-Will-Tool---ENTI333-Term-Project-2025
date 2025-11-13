@@ -15,7 +15,7 @@ const model = genAI.getGenerativeModel({
     temperature: 0.7,
     topK: 40,
     topP: 0.95,
-    maxOutputTokens: 2048,
+    maxOutputTokens: 4096,
   }
 });
 
@@ -330,26 +330,20 @@ function getStaticInitialQuestions(jurisdiction, country) {
       required: true
     },
     {
+      id: "specific_bequests",
+      question: "Do you want to leave specific gifts to particular people or charities? (e.g., '$5,000 to my sister Jane Doe', 'My car to John Smith', 'My jewelry to my daughter'). If none, write 'None'.",
+      type: "textarea",
+      required: false
+    },
+    {
       id: "beneficiary_distribution",
-      question: "How should your estate be distributed after debts and expenses? Be specific (e.g., '100% to spouse', '50% to child A, 50% to child B', '1/3 to each of my 3 children').",
+      question: "After paying debts and distributing any specific gifts above, how should the remainder (residue) of your estate be divided? Be specific with percentages or fractions (e.g., '100% to my spouse Sarah Smith', '50% to child A, 50% to child B', '1/3 to each of my 3 children').",
       type: "textarea",
       required: true
     },
     {
       id: "contingent_beneficiaries",
-      question: "If your primary beneficiary/beneficiaries die before you, who should receive their share? Be specific.",
-      type: "textarea",
-      required: true
-    },
-    {
-      id: "specific_bequests",
-      question: "List any specific gifts (items or cash amounts) to particular people or charities. Format: 'Item/Amount to Full Name'. If none, write 'None'.",
-      type: "textarea",
-      required: false
-    },
-    {
-      id: "residue_clause",
-      question: "After specific gifts are distributed, who receives the remainder (residue) of your estate?",
+      question: "If any primary beneficiary dies before you, who should receive their share? Be specific about the replacement beneficiary or how shares should be redistributed.",
       type: "textarea",
       required: true
     },
