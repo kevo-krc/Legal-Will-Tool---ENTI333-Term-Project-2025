@@ -1,0 +1,141 @@
+.will-summary-page {
+  min-height: calc(100vh - 140px);
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #E0E7FF 0%, #F3F4F6 100%);
+}
+
+.summary-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.status-badge {
+  background-color: #10B981;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.info-section,
+.assessment-section,
+.next-steps-section,
+.qa-review-section {
+  margin-bottom: 30px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.info-section p,
+.next-steps-section p {
+  margin-bottom: 10px;
+}
+
+.assessment-content {
+  background-color: #F0F9FF;
+  border-left: 4px solid #3B82F6;
+  padding: 20px;
+  border-radius: 4px;
+  line-height: 1.6;
+  color: #1E40AF;
+  white-space: pre-wrap;
+}
+
+.next-steps-list {
+  list-style-type: none;
+  padding: 0;
+  margin-bottom: 30px;
+}
+
+.next-steps-list li {
+  padding: 12px;
+  background-color: #F9FAFB;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.next-steps-list li:before {
+  content: "✓ ";
+  color: #10B981;
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 15px;
+}
+
+.action-buttons button {
+  flex: 1;
+}
+
+.round-review {
+  margin-bottom: 25px;
+  padding: 20px;
+  background-color: #F9FAFB;
+  border-radius: 8px;
+}
+
+.round-review h4 {
+  color: #1E3A8A;
+  margin-bottom: 15px;
+}
+
+.qa-item {
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.qa-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+.question-text {
+  color: #374151;
+  margin-bottom: 5px;
+}
+
+.answer-text {
+  color: #6B7280;
+  margin-left: 20px;
+}
+
+.loading-state,
+.error-state {
+  text-align: center;
+  padding: 60px 20px;
+  font-size: 18px;
+  color: #6B7280;
+}
+
+@media (max-width: 768px) {
+  .will-summary-page {
+    padding: 20px 15px;
+  }
+
+  .summary-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .answer-text {
+    margin-left: 0;
+  }
+}

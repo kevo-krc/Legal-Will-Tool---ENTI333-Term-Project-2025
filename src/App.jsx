@@ -7,6 +7,9 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import CreateWill from './pages/CreateWill';
+import Questionnaire from './pages/Questionnaire';
+import WillSummary from './pages/WillSummary';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -24,6 +27,21 @@ function App() {
               <Route path="/dashboard" element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/create-will" element={
+                <ProtectedRoute>
+                  <CreateWill />
+                </ProtectedRoute>
+              } />
+              <Route path="/questionnaire/:willId" element={
+                <ProtectedRoute>
+                  <Questionnaire />
+                </ProtectedRoute>
+              } />
+              <Route path="/will-summary/:willId" element={
+                <ProtectedRoute>
+                  <WillSummary />
                 </ProtectedRoute>
               } />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />

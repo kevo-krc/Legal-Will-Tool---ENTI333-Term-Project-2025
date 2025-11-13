@@ -3,6 +3,9 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 
+const aiRoutes = require('./routes/ai');
+const willsRoutes = require('./routes/wills');
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -13,6 +16,9 @@ app.use(cors({
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use('/api/ai', aiRoutes);
+app.use('/api/wills', willsRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ 

@@ -1,15 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import axios from 'axios';
 import './Dashboard.css';
+
+const API_URL = 'http://localhost:3001/api';
 
 function Dashboard() {
   const { user, profile, updateProfile } = useAuth();
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     full_name: profile?.full_name || '',
     phone: profile?.phone || '',
   });
   const [message, setMessage] = useState('');
+  const [wills, setWills] = useState([]);
+  const [loadingWills, setLoadingWills] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      loadWills();
+    }
+  }, [user]);
+
+  const loadWills = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/wills/user/${user.id}`);
+      setWills(response.data);
+      setLoadingWills(false);
+    } catch (err) {
+      console.error('Error loading wills:', err);
+      setLoadingWills(false);
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -129,16 +153,63 @@ function Dashboard() {
           <div className="card">
             <h3>Quick Actions</h3>
             <p className="text-light mb-3">Create and manage your legal will documents</p>
-            <button className="btn btn-primary mb-2" style={{ width: '100%' }} disabled>
+            <button 
+              className="btn btn-primary mb-2" 
+              style={{ width: '100%' }}
+              onClick={() => navigate('/create-will')}
+            >
               Create New Will
             </button>
-            <button className="btn btn-secondary mb-2" style={{ width: '100%' }} disabled>
-              View My Documents
-            </button>
-            <p className="text-light" style={{ fontSize: '14px', marginTop: '20px' }}>
-              <em>Will creation features coming in Phase 3</em>
-            </p>
           </div>
+        </div>
+
+        <div className="wills-section mt-4">
+          <h2 className="mb-3">My Wills</h2>
+          
+          {loadingWills ? (
+            <div className="card">
+              <p className="text-light">Loading your wills...</p>
+            </div>
+          ) : wills.length === 0 ? (
+            <div className="card">
+              <p className="text-light">You haven't created any wills yet.</p>
+              <p className="text-light">Click "Create New Will" above to get started!</p>
+            </div>
+          ) : (
+            <div className="wills-grid">
+              {wills.map((will) => (
+                <div key={will.id} className="card will-card">
+                  <div className="will-header">
+                    <h4>Will for {will.jurisdiction_full_name}</h4>
+                    <span className={`status-badge ${will.status}`}>
+                      {will.status.charAt(0).toUpperCase() + will.status.slice(1)}
+                    </span>
+                  </div>
+                  <div className="will-details">
+                    <p><strong>Created:</strong> {new Date(will.created_at).toLocaleDateString()}</p>
+                    <p><strong>Status:</strong> {will.questionnaire_completed ? 'Completed' : `Round ${will.questionnaire_round} of 3`}</p>
+                  </div>
+                  <div className="will-actions">
+                    {will.questionnaire_completed ? (
+                      <button 
+                        className="btn btn-primary"
+                        onClick={() => navigate(`/will-summary/${will.id}`)}
+                      >
+                        View Summary
+                      </button>
+                    ) : (
+                      <button 
+                        className="btn btn-secondary"
+                        onClick={() => navigate(`/questionnaire/${will.id}`)}
+                      >
+                        Continue Questionnaire
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
