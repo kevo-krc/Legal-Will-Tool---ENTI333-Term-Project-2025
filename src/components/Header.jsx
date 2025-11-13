@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import NotificationBell from './NotificationBell';
 import './Header.css';
 
 function Header() {
@@ -18,6 +19,7 @@ function Header() {
           {user ? (
             <>
               <Link to="/dashboard" className="nav-link">Dashboard</Link>
+              <NotificationBell />
               <span className="nav-link" style={{ color: '#FACC15' }}>
                 {profile?.full_name || user.email}
               </span>
