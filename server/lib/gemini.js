@@ -97,6 +97,124 @@ function parseQuotaError(error) {
   return error;
 }
 
+function isTransientError(error) {
+  if (!error) return false;
+  
+  let status = null;
+  if (error.status !== undefined && error.status !== null) {
+    if (typeof error.status === 'number') {
+      status = error.status;
+    } else if (typeof error.status === 'object' && error.status.code !== undefined && error.status.code !== null) {
+      status = Number(error.status.code);
+      if (!isFinite(status)) status = null;
+    } else {
+      status = Number(error.status);
+      if (!isFinite(status)) status = null;
+    }
+  } else if (error.statusCode !== undefined && error.statusCode !== null) {
+    status = Number(error.statusCode);
+    if (!isFinite(status)) status = null;
+  }
+  
+  if (status && status >= 500 && status <= 599) {
+    console.log(`[Transient Error] Detected 5xx error: ${status}`);
+    return true;
+  }
+  
+  const statusText = (error.statusText || '').toLowerCase();
+  if (statusText.includes('unavailable') || statusText.includes('timeout') || statusText.includes('overloaded')) {
+    console.log(`[Transient Error] Detected via statusText: ${statusText}`);
+    return true;
+  }
+  
+  const message = (error.message || '').toLowerCase();
+  if (message.includes('network') || 
+      message.includes('timeout') || 
+      message.includes('overloaded') ||
+      message.includes('fetch') ||
+      message.includes('econnreset') ||
+      message.includes('enotfound') ||
+      message.includes('etimedout') ||
+      message.includes('econnrefused')) {
+    console.log(`[Transient Error] Detected via message: ${error.message}`);
+    return true;
+  }
+  
+  const errorCode = error.code || error.errno;
+  if (['ECONNRESET', 'ENOTFOUND', 'ETIMEDOUT', 'ECONNREFUSED', 'ENETUNREACH'].includes(errorCode)) {
+    console.log(`[Transient Error] Detected via error code: ${errorCode}`);
+    return true;
+  }
+  
+  return false;
+}
+
+async function executeWithRetry(promptFn, operationName, maxAttempts = 3, baseDelayMs = 2000) {
+  const maxTotalWaitMs = 60000;
+  let attempts = 0;
+  let totalWaitMs = 0;
+  let lastError = null;
+  
+  while (attempts < maxAttempts) {
+    attempts++;
+    
+    try {
+      await rateLimiter.waitIfNeeded();
+      const result = await promptFn();
+      
+      if (attempts > 1) {
+        console.log(`[Retry Success] ${operationName} succeeded on attempt ${attempts} after ${totalWaitMs}ms total wait`);
+      }
+      
+      return {
+        success: true,
+        result,
+        metadata: {
+          attempts,
+          totalWaitMs
+        }
+      };
+    } catch (error) {
+      lastError = error;
+      
+      const quotaError = parseQuotaError(error);
+      if (quotaError.name === 'GeminiQuotaError') {
+        console.error(`[QUOTA ERROR] ${quotaError.type}: ${quotaError.message}`);
+        if (quotaError.retryAfter) {
+          console.error(`Retry after: ${quotaError.retryAfter} seconds`);
+        }
+        throw quotaError;
+      }
+      
+      const shouldRetry = isTransientError(error);
+      
+      if (!shouldRetry || attempts >= maxAttempts) {
+        console.error(`[Retry Failed] ${operationName} failed after ${attempts} attempt(s)`);
+        error.retryMetadata = { attempts, totalWaitMs };
+        throw error;
+      }
+      
+      const exponentialDelay = baseDelayMs * Math.pow(2, attempts - 1);
+      const jitter = exponentialDelay * 0.2 * (Math.random() - 0.5) * 2;
+      const delayMs = Math.round(exponentialDelay + jitter);
+      
+      if (totalWaitMs + delayMs > maxTotalWaitMs) {
+        console.log(`[Retry Abort] ${operationName} would breach max wait time (${maxTotalWaitMs}ms). Failing now.`);
+        error.retryMetadata = { attempts, totalWaitMs, aborted: true };
+        throw error;
+      }
+      
+      console.log(`[Retry] ${operationName} attempt ${attempts} failed with ${error.status || error.code || 'error'}: ${error.message}. Retrying in ${delayMs}ms...`);
+      
+      await new Promise(resolve => setTimeout(resolve, delayMs));
+      totalWaitMs += delayMs;
+    }
+  }
+  
+  lastError.retryMetadata = { attempts, totalWaitMs, exhausted: true };
+  throw lastError;
+}
+
 async function generateComplianceStatement(jurisdiction, country) {
   const prompt = `You are a legal expert specializing in estate planning law.
 
@@ -113,22 +231,15 @@ The compliance statement should include:
 Keep the tone professional but accessible. The statement should be 200-300 words.
 Format the output as plain text without markdown.`;
 
-  try {
-    await rateLimiter.waitIfNeeded();
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    return response.text();
-  } catch (error) {
-    console.error('Error generating compliance statement:', error);
-    const quotaError = parseQuotaError(error);
-    if (quotaError.name === 'GeminiQuotaError') {
-      console.error(`[QUOTA ERROR] ${quotaError.type}: ${quotaError.message}`);
-      if (quotaError.retryAfter) {
-        console.error(`Retry after: ${quotaError.retryAfter} seconds`);
-      }
-    }
-    throw quotaError;
-  }
+  const { result } = await executeWithRetry(
+    async () => {
+      const response = await model.generateContent(prompt);
+      return (await response.response).text();
+    },
+    'generateComplianceStatement'
+  );
+  
+  return result;
 }
 
 async function generateInitialQuestions(jurisdiction, country, userName) {
@@ -168,29 +279,22 @@ Example format:
 
 IMPORTANT: Return ONLY the JSON array, no additional text or explanation.`;
 
-  try {
-    await rateLimiter.waitIfNeeded();
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text().trim();
-    
-    const jsonMatch = text.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) {
-      throw new Error('No JSON array found in response');
-    }
-    
-    return JSON.parse(jsonMatch[0]);
-  } catch (error) {
-    console.error('Error generating initial questions:', error);
-    const quotaError = parseQuotaError(error);
-    if (quotaError.name === 'GeminiQuotaError') {
-      console.error(`[QUOTA ERROR] ${quotaError.type}: ${quotaError.message}`);
-      if (quotaError.retryAfter) {
-        console.error(`Retry after: ${quotaError.retryAfter} seconds`);
+  const { result } = await executeWithRetry(
+    async () => {
+      const response = await model.generateContent(prompt);
+      const text = (await response.response).text().trim();
+      
+      const jsonMatch = text.match(/\[[\s\S]*\]/);
+      if (!jsonMatch) {
+        throw new Error('No JSON array found in response');
       }
-    }
-    throw quotaError;
-  }
+      
+      return JSON.parse(jsonMatch[0]);
+    },
+    'generateInitialQuestions'
+  );
+  
+  return result;
 }
 
 async function generateFollowUpQuestions(previousAnswers, jurisdiction, country, roundNumber) {
@@ -222,29 +326,22 @@ Format your response as a JSON array of question objects with the same structure
 
 IMPORTANT: Return ONLY the JSON array, no additional text or explanation.`;
 
-  try {
-    await rateLimiter.waitIfNeeded();
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text().trim();
-    
-    const jsonMatch = text.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) {
-      throw new Error('No JSON array found in response');
-    }
-    
-    return JSON.parse(jsonMatch[0]);
-  } catch (error) {
-    console.error('Error generating follow-up questions:', error);
-    const quotaError = parseQuotaError(error);
-    if (quotaError.name === 'GeminiQuotaError') {
-      console.error(`[QUOTA ERROR] ${quotaError.type}: ${quotaError.message}`);
-      if (quotaError.retryAfter) {
-        console.error(`Retry after: ${quotaError.retryAfter} seconds`);
+  const { result } = await executeWithRetry(
+    async () => {
+      const response = await model.generateContent(prompt);
+      const text = (await response.response).text().trim();
+      
+      const jsonMatch = text.match(/\[[\s\S]*\]/);
+      if (!jsonMatch) {
+        throw new Error('No JSON array found in response');
       }
-    }
-    throw quotaError;
-  }
+      
+      return JSON.parse(jsonMatch[0]);
+    },
+    'generateFollowUpQuestions'
+  );
+  
+  return result;
 }
 
 async function generateWillAssessment(allAnswers, jurisdiction, country) {
@@ -264,22 +361,15 @@ Create an assessment that includes:
 The assessment should be professional, clear, and 400-600 words.
 Format the output as plain text with clear sections.`;
 
-  try {
-    await rateLimiter.waitIfNeeded();
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    return response.text();
-  } catch (error) {
-    console.error('Error generating assessment:', error);
-    const quotaError = parseQuotaError(error);
-    if (quotaError.name === 'GeminiQuotaError') {
-      console.error(`[QUOTA ERROR] ${quotaError.type}: ${quotaError.message}`);
-      if (quotaError.retryAfter) {
-        console.error(`Retry after: ${quotaError.retryAfter} seconds`);
-      }
-    }
-    throw quotaError;
-  }
+  const { result } = await executeWithRetry(
+    async () => {
+      const response = await model.generateContent(prompt);
+      return (await response.response).text();
+    },
+    'generateWillAssessment'
+  );
+  
+  return result;
 }
 
 module.exports = {
