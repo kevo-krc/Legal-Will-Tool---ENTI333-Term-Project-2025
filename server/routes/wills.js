@@ -1,5 +1,6 @@
 const express = require('express');
 const { supabase } = require('../lib/supabase');
+const { generateWillPdf } = require('../services/pdfService');
 const router = express.Router();
 
 router.post('/', async (req, res) => {
@@ -93,7 +94,9 @@ router.put('/:willId', async (req, res) => {
       'assessment_pdf_path',
       'disclaimer_accepted',
       'disclaimer_accepted_at',
-      'status'
+      'status',
+      'storage_base_path',
+      'pdf_filename'
     ];
 
     const filteredUpdates = {};
@@ -112,10 +115,110 @@ router.put('/:willId', async (req, res) => {
 
     if (error) throw error;
 
+    if (updates.questionnaire_completed && updates.assessment_content) {
+      try {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('account_number, email')
+          .eq('user_id', data.user_id)
+          .single();
+
+        const userInfo = {
+          email: profileData?.email || 'Not provided',
+          account_number: profileData?.account_number || 'Not provided'
+        };
+
+        const pdfBuffer = await generateWillPdf({
+          willId: data.id,
+          user: userInfo,
+          willData: data,
+          assessmentContent: updates.assessment_content
+        });
+
+        const storagePath = `will-documents/user_${data.user_id}/will_${data.id}`;
+        const filename = 'draft.pdf';
+        const fullPath = `${storagePath}/${filename}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('will-documents')
+          .upload(fullPath, pdfBuffer, {
+            contentType: 'application/pdf',
+            upsert: true
+          });
+
+        if (uploadError) {
+          console.error('Error uploading PDF:', uploadError);
+        } else {
+          const { data: updatedData, error: storageUpdateError } = await supabase
+            .from('wills')
+            .update({
+              storage_base_path: storagePath,
+              pdf_filename: filename
+            })
+            .eq('id', willId)
+            .select()
+            .single();
+
+          if (storageUpdateError) {
+            console.error('Error updating storage fields:', storageUpdateError);
+          } else {
+            return res.json(updatedData);
+          }
+        }
+      } catch (pdfError) {
+        console.error('Error generating PDF:', pdfError);
+      }
+    }
+
     res.json(data);
   } catch (error) {
     console.error('Error updating will:', error);
     res.status(500).json({ error: 'Failed to update will' });
+  }
+});
+
+router.get('/:willId/download', async (req, res) => {
+  try {
+    const { willId } = req.params;
+
+    const { data: will, error: willError } = await supabase
+      .from('wills')
+      .select('*')
+      .eq('id', willId)
+      .single();
+
+    if (willError) {
+      if (willError.code === 'PGRST116') {
+        return res.status(404).json({ error: 'Will not found' });
+      }
+      throw willError;
+    }
+
+    if (!will.storage_base_path || !will.pdf_filename) {
+      return res.status(404).json({ error: 'PDF not generated yet' });
+    }
+
+    const filePath = `${will.storage_base_path}/${will.pdf_filename}`;
+    
+    const { data: fileData, error: downloadError } = await supabase.storage
+      .from('will-documents')
+      .download(filePath);
+
+    if (downloadError) {
+      console.error('Error downloading PDF:', downloadError);
+      return res.status(404).json({ error: 'PDF file not found' });
+    }
+
+    const buffer = Buffer.from(await fileData.arrayBuffer());
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="will_${will.jurisdiction}_${new Date().toISOString().split('T')[0]}.pdf"`);
+    res.setHeader('Content-Length', buffer.length);
+    
+    res.send(buffer);
+  } catch (error) {
+    console.error('Error downloading will PDF:', error);
+    res.status(500).json({ error: 'Failed to download PDF' });
   }
 });
 

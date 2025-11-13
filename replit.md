@@ -3,7 +3,7 @@
 ## Overview
 This is a full-stack web application for creating legally valid wills for Canada and the USA using AI-assisted guidance. The project is an academic initiative demonstrating AI-driven legal document creation.
 
-**Current Status:** Phase 3 Complete - Legal Compliance & AI Questionnaire Implemented
+**Current Status:** Phase 4 Complete - PDF Generation & Storage Implemented
 
 ## Project Information
 - **Author:** Kevin Cooney
@@ -62,6 +62,10 @@ The application is a full-stack React + Node.js project with:
   - generateInitialQuestions: Round 1 questions (5-7 questions)
   - generateFollowUpQuestions: Rounds 2-3 based on previous answers (3-5 questions)
   - generateWillAssessment: Final legal assessment after completion
+- **PDF Generation Service:** `server/services/pdfService.js`
+  - generateWillPdf: Creates formatted PDF with will content, Q&A responses, assessment, and legal disclaimers
+  - Automatic generation on questionnaire completion
+  - Upload to Supabase Storage with path: `will-documents/user_{user_id}/will_{will_id}/draft.pdf`
 - **API endpoints:**
   - `GET /api/health` - Health check
   - `GET /api/config/check` - Verify secrets configuration
@@ -72,9 +76,10 @@ The application is a full-stack React + Node.js project with:
   - `POST /api/wills` - Create will
   - `GET /api/wills/user/:userId` - Get all user's wills
   - `GET /api/wills/:willId` - Get specific will
-  - `PUT /api/wills/:willId` - Update will data
+  - `PUT /api/wills/:willId` - Update will data (with automatic PDF generation)
+  - `GET /api/wills/:willId/download` - Download will PDF
   - `DELETE /api/wills/:willId` - Delete will
-- Future endpoints: PDF generation, email delivery
+- Future endpoints: Email delivery
 
 ### Database (Implemented)
 - Supabase (PostgreSQL)
@@ -93,13 +98,17 @@ The application is a full-stack React + Node.js project with:
 - **Migrations Ready:**
   - `001_create_profiles_table.sql` - Profiles table with RLS
   - `002_create_wills_table.sql` - Wills table with RLS
-- **Future Storage Bucket:** `will-documents`
+  - `003_create_storage_bucket.sql` - Storage bucket with RLS policies (Phase 4)
+  - `004_add_storage_fields_to_wills.sql` - Add storage_base_path and pdf_filename columns (Phase 4)
+- **Supabase Storage Bucket:** `will-documents` (Implemented in Phase 4)
+  - Path structure: `will-documents/user_{user_id}/will_{will_id}/draft.pdf`
+  - RLS policies ensure users can only access their own documents
 - Storage for:
   - User profiles (implemented)
   - Q&A data from questionnaires (implemented)
   - AI-generated legal assessments (implemented)
   - Consent and disclaimer acknowledgments (implemented)
-  - Generated will documents (Phase 4)
+  - Generated will PDF documents (implemented - Phase 4)
   - Audit logs (Phase 5)
 
 ## Key Features (Planned)
@@ -117,6 +126,18 @@ The application is a full-stack React + Node.js project with:
 - **USA**: All 50 states (state-specific laws)
 
 ## Recent Changes
+- **2025-11-13 (Phase 4):**
+  - Installed pdfkit library for PDF generation
+  - Created `server/services/pdfService.js` with generateWillPdf function
+  - Built professional PDF layout with branding, legal disclaimers, and formatted content
+  - Implemented automatic PDF generation when questionnaire is completed
+  - Created Supabase storage bucket `will-documents` with RLS policies
+  - Added storage_base_path and pdf_filename columns to wills table
+  - Integrated PDF upload to Supabase Storage on will completion
+  - Created GET `/api/wills/:willId/download` endpoint for PDF downloads
+  - Updated WillSummary page with Download PDF button and status indicator
+  - Migration files: `003_create_storage_bucket.sql`, `004_add_storage_fields_to_wills.sql`
+
 - **2025-11-13 (Phase 3):**
   - Implemented Google Gemini AI integration for question generation and legal compliance
   - Created wills database table with JSONB Q&A storage and RLS policies
@@ -181,12 +202,13 @@ All sensitive credentials are stored in Replit Secrets:
 - ⚠️ `SENDGRID_FROM_EMAIL` - Verified sender email (to be set)
 
 ## Database Schema (Implemented)
-**Table:** `wills` (Implemented in `002_create_wills_table.sql`)
-- Columns: id (UUID), user_id (UUID), country (VARCHAR), jurisdiction (VARCHAR), jurisdiction_full_name (TEXT), compliance_statement (TEXT), qa_data (JSONB array), questionnaire_round (INT 1-3), questionnaire_completed (BOOLEAN), assessment_content (TEXT), will_content (TEXT), pdf_path (TEXT), status (VARCHAR), created_at, updated_at
+**Table:** `wills` (Implemented in `002_create_wills_table.sql` + `004_add_storage_fields_to_wills.sql`)
+- Columns: id (UUID), user_id (UUID), country (VARCHAR), jurisdiction (VARCHAR), jurisdiction_full_name (TEXT), compliance_statement (TEXT), qa_data (JSONB array), questionnaire_round (INT 1-3), questionnaire_completed (BOOLEAN), assessment_content (TEXT), will_content (TEXT), pdf_path (TEXT), storage_base_path (TEXT), pdf_filename (VARCHAR), status (VARCHAR), created_at, updated_at
 - RLS Policies: SELECT, INSERT, UPDATE, DELETE (users access only their own wills)
 
-**Storage Bucket:** `will-documents` (Phase 4)
-- Path structure: `will-documents/user_[user_id]/will_[will_id]/[document_type].pdf`
+**Storage Bucket:** `will-documents` (Implemented in Phase 4 - `003_create_storage_bucket.sql`)
+- Path structure: `will-documents/user_{user_id}/will_{will_id}/draft.pdf`
+- RLS Policies: Users can upload, view, update, and delete only their own documents
 
 ## User Preferences
 - Use Vite (not Create React App)
@@ -214,10 +236,10 @@ All sensitive credentials are stored in Replit Secrets:
 7. ✅ Build dynamic questionnaire flow (3 rounds max)
 8. ✅ Store Q&A data in Supabase
 
-**Phase 4:** PDF Generation & Storage (NEXT)
-9. Implement PDF generation (pdfkit)
-10. Upload PDFs to Supabase Storage
-11. Implement download/email functionality
+**Phase 4:** PDF Generation & Storage ✅ COMPLETE
+9. ✅ Implement PDF generation (pdfkit)
+10. ✅ Upload PDFs to Supabase Storage
+11. ✅ Implement download functionality
 
 **Phase 5:** Data Management & Deployment
 12. Implement dual-kill deletion
