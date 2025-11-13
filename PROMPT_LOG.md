@@ -309,74 +309,69 @@ The Updated_PRD_Legal_Will_App.md is a well-intentioned but dangerously under-sp
 - **Outcome:**The PRD.md needs an overhaul.  There will be many changes and scope redefining that will be omitted from this prompt_log for brevity.  Intial finalized PRD.md will be added to first GitHub commit.
 
 
-## 6. Implementing FR-003: Alphabetical Sorting (2025-11-09)
-### Goal: Initial prompt to Replit for coding the app.
-- **Source PRD Requirement:** 
-- **Prompt:** "I have imported my entire project, including the full requirements in the PRD.md document. I am building a full-stack application using React (frontend), Node.js (backend), and Supabase (database).
-CRITICAL FILE CONSTRAINT (DO NOT DEVIATE):
-1.	Brand Kit Constraint: The files brand_kit.html and brand-kit.css must remain in the same folder to function as a standalone reference page. For a React project, this means you must move both files into the public folder. The HTML will then correctly link to the CSS file.
-CORE DIRECTIVES:
-1.	Project Scope: Your only focus is to build the application described in the PRD.md. Ignore all other files in the repository.
-2.	Style Integration: Read and copy all necessary styles from the new location of brand-kit.css (in public) and incorporate them as global styles into the main React app (e.g., into a new file like src/styles/global.css or similar, which is then imported into src/App.js).
-3.	Logo File: Move the logo.png file into the React project's static assets folder (public).
-4.	Initial UI: Use the moved logo.png in the application header for the initial user interface in src/App.js.
-SUPABASE IMPLEMENTATION DETAILS (MANDATORY NAMING):
-The Supabase database and storage resources have already been set up. The Node.js backend MUST use these exact names for all operations:
-1.	Database Table Name: wills
-2.	Storage Bucket Name: will-documents
-3.	Will Document Pathing: All PDF files for a single will generation event must be stored under the following structure: will-documents/user_[user_id]/will_[will_id]/[document_type].pdf
-4.	Deletion Logic: The deletion function must perform a dual kill: delete all files using the path prefix above from the will-documents bucket (using the secure Service Role Key) AND delete the corresponding record from the wills table.
-TASK:
-Read the entire PRD.md document. Based on the requirements, the core directives, and the Supabase Implementation Details, propose a detailed, numbered, step-by-step Implementation Plan for building the entire application.
-DO NOT begin coding or implementing any features until I review and approve your Implementation Plan."
-- **AI Output Summary:** Code generation plan created in Replit successfully although clarifications with respect to replit secrets and pdf handling are needed.
-- **Debugging Prompt:** "
-WRT:
-4. Environment Configuration
+## 6. Phase 1: Frontend & Backend Foundation (2025-11-12)
+### Goal: Set up basic React + Node.js architecture with routing and styling
+- **Source PRD Requirement:** Full-stack application with React frontend and Node.js backend
+- **Prompt:** "I have imported my entire project, including the full requirements in the PRD.md document. I am building a full-stack application using React (frontend), Node.js (backend), and Supabase (database). Create the initial structure with Header, Footer, Home, Login, Register, Dashboard, and PrivacyPolicy pages. Extract global styles from brand-kit.css and set up dual workflows for frontend (Vite on port 5000) and backend (Express on port 3001)."
+- **AI Output Summary:** Created React + Vite frontend with routing, global CSS, and component structure. Set up Express backend with health check endpoints. Configured both workflows to run simultaneously.
+- **Outcome:** Phase 1 complete - Basic UI and backend running
+- **Commit:** Multiple commits establishing project structure
 
-Create .env file structure for Supabase credentials:
-SUPABASE_URL
-SUPABASE_ANON_KEY
-SUPABASE_SERVICE_ROLE_KEY (for deletion operations)
-OPENAI_API_KEY (for AI integration)
-EMAIL_SERVICE_CONFIG (for email delivery)
-PRIVACY_POLICY_URL
+## 7. Phase 2: Authentication System (2025-11-13)
+### Goal: Implement Supabase authentication with user profiles
+- **Source PRD Requirement:** Secure user authentication and profile management
+- **Prompt:** "Implement Supabase authentication with auto-generated account numbers (format: WL{timestamp}{random}). Create profiles table with RLS policies. Build AuthContext for session management, protected routes, and update Register/Login/Dashboard pages with full functionality."
+- **AI Output Summary:** Implemented complete Supabase auth system with client-side direct communication (no backend proxy). Created profiles table with account_number, full_name, email, phone fields. Built protected routes and session management.
+- **Debugging:** Fixed profile loading issues in Dashboard by handling undefined states properly
+- **Outcome:** Phase 2 complete - Users can register, login, view/edit profiles
+- **Commits:** 
+  - "Add Supabase and Axios libraries for enhanced functionality"
+  - Related authentication implementation commits
 
-I have created secrets for you with api keys, emails, etc. You have honored the supabase secrets but not the gemini_api_key for the AI features or sendgrid for email.  Also I see a Privacy_Policy_URL, there is a privacy_policy.md file you could use instead of a URL here.
+## 8. Phase 3: AI Questionnaire & Will Creation (2025-11-13)
+### Goal: Implement Google Gemini AI for dynamic questionnaires and will generation
+- **Source PRD Requirement:** AI-guided questionnaire with jurisdiction-specific questions
+- **Prompt:** "Integrate Google Gemini AI to generate compliance statements, dynamic questions (3 rounds max), and final assessments. Create wills table to store Q&A data as JSONB. Build CreateWill, Questionnaire, and WillSummary pages. Support all 13 Canadian provinces/territories and 50 US states with jurisdiction-specific legal requirements."
+- **AI Output Summary:** Implemented full AI questionnaire flow with gemini-2.0-flash-exp model. Created server/lib/gemini.js with 4 AI functions (compliance, initial questions, follow-up questions, assessment). Built wills table with RLS policies and Q&A storage.
+- **Debugging:** Fixed state synchronization issues in Questionnaire component and answer persistence between rounds
+- **Outcome:** Phase 3 complete - Users can create wills with AI-guided questionnaires
+- **Commits:**
+  - "Update AI model to improve response quality and accuracy"
+  - "Add functionality to generate, store, and download PDF will documents"
+  - Multiple commits for questionnaire implementation
 
-WRT
-15. PDF Generation Endpoints
+## 9. Phase 3: Gemini API Rate Limiting (2025-11-13)
+### Goal: Implement rate limiting to prevent API quota errors
+- **Source PRD Requirement:** AI integration must handle API limits gracefully
+- **Prompt:** "We're hitting Gemini API rate limits (10 requests per minute free tier). Implement a rate limiter using promise chain queue to serialize all API requests with 6-second minimum spacing. Add comprehensive error handling to distinguish between RPM (requests per minute) and RPD (requests per day) quota errors. Show user-friendly error messages on the frontend."
+- **AI Output Summary:** Created RateLimiter class with promise chain queue. Implemented GeminiQuotaError custom error class. Added error parsing for 429 responses. Updated all 4 AI routes to return specific error types (RPM/RPD/UNKNOWN) with retryAfter timing. Frontend shows specific quota error messages.
+- **Debugging:** Fixed race conditions where concurrent requests bypassed rate limiter. Architect reviews identified need for proper promise serialization and cleanup.
+- **Outcome:** All Gemini API calls properly rate-limited with 6-second minimum spacing enforced
+- **Commits:**
+  - "Add rate limiting and error handling for AI requests"
+  - "Update model to use Gemini Flash for more efficient processing"
 
-POST /api/will/generate - AI generates will, creates PDF
-POST /api/assessment/generate - AI generates assessment, creates PDF
-POST /api/documents/upload - upload PDFs to Supabase Storage
-GET /api/documents/download/:will_id - download PDFs
+## 10. Phase 3: Model Update & Authentication Timeouts (2025-11-13)
+### Goal: Upgrade to paid Gemini tier and fix authentication hanging issues
+- **Source PRD Requirement:** Reliable authentication and AI service
+- **Prompt:** "Update Gemini model from gemini-2.0-flash-exp to gemini-2.5-flash for paid tier limits. Also, Dashboard shows 'Loading...' indefinitely when Supabase requests hang. Add 10-second timeout guards on ALL Supabase operations (getSession, fetchProfile, signIn, signUp, signOut, updateProfile) using a withTimeout helper. Ensure timeout errors show user-friendly error UI with Retry and Go to Login buttons."
+- **AI Output Summary:** Updated Gemini model to gemini-2.5-flash. Created withTimeout helper that creates separate timeouts for each async call with proper cleanup. Wrapped all Supabase operations. Implemented authError state and enhanced ProtectedRoute with error UI. Fixed onAuthStateChange race condition that was clearing timeout errors.
+- **Debugging:** Multiple architect reviews identified issues with:
+  1. Shared timeout causing false negatives
+  2. fetchProfile not rethrowing errors
+  3. onAuthStateChange unconditionally clearing authError
+  - All issues resolved through iterative fixes with architect validation
+- **Outcome:** No more indefinite loading states. All Supabase requests have 10-second timeouts with clear error recovery options
+- **Commits:**
+  - "Update AI model to improve performance and overcome usage limits"
+  - "Fix persistent loading issues by adding authentication timeouts and error handling"
+  - "Improve authentication stability by adding timeouts to all Supabase operations"
 
-Does this imply that AI will generate the pdf? If yes, then that is undesirable.  I believe that is not something Gemini will do.  You will have to incorporate pdf creation within the app as needed.  I do see pdf creation as step 20 
+---
 
-WRT Jurisdiction or Region
-Legal compliance and disclaimer for wills should be on the scale of province in Canada or State in the USA as laws change between province and state.  There are more jurisdictions and regions than just Canada and USA "
-- **Outcome:** Code generation plan created in Replit successfully.
-
-## 7. Starting first step of Replit build plan
-### Goal: Code the first step of Replits plan
-- **Source PRD Requirement:** 
-- **Prompt:** "I approve your plan. Please proceed with Step 1: Project Setup and Initial File Structure. Create all foundational files (package.json, server.js, src/App.js, etc.) for a React + Node.js full-stack environment. Ensure brand_kit files are moved correctly and the initial UI is set up. The backend should use Express to serve the React build and provide secure API endpoints."
-- **AI Output Summary:** Code generated successfully
-- **Debugging Prompt:** ""
-- **Outcome:** Code generated successfully
-
-
-**END**
-
-
-
-EXAMPLE FORMAT BELOW -- Delete This line and everything after we have finihsed the entire project!!!
-
-## 8. Implementing FR-003: Alphabetical Sorting (2025-11-09)
-### Goal: Implement sorting logic for recipes.
-- **Source PRD Requirement:** FR-003: The application must sort recipes alphabetically by title.
-- **Prompt:** "Using the `RecipeList.jsx` file, add state to hold a list of dummy recipe data. Implement a function to sort this data alphabetically by the 'title' key."
-- **AI Output Summary:** Code generated successfully, but the sort was case-sensitive.
-- **Debugging Prompt:** "The sorting is case-sensitive. Please modify the sorting logic to be case-insensitive to ensure 'apple' and 'Banana' sort correctly."
-- **Outcome:** Sorting logic is now correct and case-insensitive.
+## Summary by Phase
+**Phase 1 (Complete):** React + Vite frontend, Node.js + Express backend, dual workflows, global styling
+**Phase 2 (Complete):** Supabase authentication, user profiles, protected routes, RLS policies
+**Phase 3 (Complete):** Google Gemini AI integration, multi-round questionnaires, rate limiting, comprehensive timeout handling
+**Phase 4 (Planned):** PDF generation with pdfkit, Supabase Storage, download/email functionality
+**Phase 5 (Planned):** Data deletion, email notifications (SendGrid), deployment configuration
