@@ -82,6 +82,7 @@ router.patch('/:notificationId/increment-retry', authenticateUser, async (req, r
     const { data, error } = await supabase
       .rpc('increment_notification_retry', {
         notification_id: notificationId,
+        requesting_user_id: userId,
         max_retries: 3
       });
     
@@ -91,6 +92,9 @@ router.patch('/:notificationId/increment-retry', authenticateUser, async (req, r
       }
       if (error.message?.includes('not found')) {
         return res.status(404).json({ error: 'Notification not found' });
+      }
+      if (error.message?.includes('Unauthorized')) {
+        return res.status(403).json({ error: 'Unauthorized: cannot modify another user\'s notification' });
       }
       throw error;
     }

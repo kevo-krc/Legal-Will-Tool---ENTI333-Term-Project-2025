@@ -3,20 +3,36 @@ import './Toast.css';
 
 const Toast = ({ notification, onClose, onAction }) => {
   const [isExiting, setIsExiting] = useState(false);
+  const [isActionLoading, setIsActionLoading] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      handleClose();
-    }, 5000);
-
-    return () => clearTimeout(timer);
-  }, []);
+    if (notification.type === 'success' || notification.type === 'info') {
+      const timer = setTimeout(() => {
+        handleClose();
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification.type]);
 
   const handleClose = () => {
     setIsExiting(true);
     setTimeout(() => {
       onClose(notification.id);
     }, 300);
+  };
+
+  const handleActionClick = async () => {
+    if (isActionLoading) return;
+    
+    setIsActionLoading(true);
+    try {
+      const success = await onAction(notification);
+      if (success) {
+        handleClose();
+      }
+    } finally {
+      setIsActionLoading(false);
+    }
   };
 
   const getIcon = () => {
@@ -45,14 +61,17 @@ const Toast = ({ notification, onClose, onAction }) => {
           <div className="toast-actions">
             <button
               className="toast-action-btn primary"
-              onClick={() => {
-                onAction(notification);
-                handleClose();
-              }}
+              onClick={handleActionClick}
+              disabled={isActionLoading}
+              style={{ opacity: isActionLoading ? 0.6 : 1, cursor: isActionLoading ? 'not-allowed' : 'pointer' }}
             >
-              {notification.action_type === 'retry_email' && 'Retry Email'}
-              {notification.action_type === 'retry_pdf' && 'Retry PDF'}
-              {notification.action_type === 'download' && 'Download'}
+              {isActionLoading ? 'Processing...' : (
+                <>
+                  {notification.action_type === 'retry_email' && 'Retry Email'}
+                  {notification.action_type === 'retry_pdf' && 'Retry PDF'}
+                  {notification.action_type === 'download' && 'Download'}
+                </>
+              )}
             </button>
           </div>
         )}

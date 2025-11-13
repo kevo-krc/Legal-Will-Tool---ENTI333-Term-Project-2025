@@ -244,8 +244,13 @@ export const NotificationProvider = ({ children }) => {
         
         const newRetryCount = response.data.retry_count || (currentRetryCount + 1);
         
-        await fetchNotifications();
-        await fetchUnreadCount();
+        setNotifications(prev => prev.map(n => 
+          n.id === notification.id 
+            ? { ...n, retry_count: newRetryCount, action_type: newRetryCount >= 3 ? 'none' : n.action_type }
+            : n
+        ));
+        
+        await Promise.all([fetchNotifications(), fetchUnreadCount()]);
         
         const canRetryAgain = newRetryCount < 3;
         
@@ -263,8 +268,15 @@ export const NotificationProvider = ({ children }) => {
         const updateErrorMsg = updateError.response?.data?.error || 'Could not track retry attempt.';
         const isMaxRetries = updateError.response?.data?.error?.includes('Maximum retry count');
         
-        await fetchNotifications();
-        await fetchUnreadCount();
+        if (isMaxRetries) {
+          setNotifications(prev => prev.map(n => 
+            n.id === notification.id 
+              ? { ...n, retry_count: 3, action_type: 'none' }
+              : n
+          ));
+        }
+        
+        await Promise.all([fetchNotifications(), fetchUnreadCount()]);
         
         addToast(
           'error',

@@ -13,6 +13,7 @@ const NotificationPanel = ({ onClose }) => {
     retryAction
   } = useNotifications();
   const navigate = useNavigate();
+  const [loadingActions, setLoadingActions] = React.useState({});
 
   const handleNotificationClick = (notification) => {
     if (!notification.is_read) {
@@ -21,9 +22,18 @@ const NotificationPanel = ({ onClose }) => {
   };
 
   const handleAction = async (notification) => {
+    if (loadingActions[notification.id]) return;
+    
     if (notification.action_type === 'retry_email' || notification.action_type === 'retry_pdf') {
-      await retryAction(notification);
-      onClose();
+      setLoadingActions(prev => ({ ...prev, [notification.id]: true }));
+      try {
+        const success = await retryAction(notification);
+        if (success) {
+          onClose();
+        }
+      } finally {
+        setLoadingActions(prev => ({ ...prev, [notification.id]: false }));
+      }
     }
   };
 
@@ -106,10 +116,19 @@ const NotificationPanel = ({ onClose }) => {
                         e.stopPropagation();
                         handleAction(notification);
                       }}
+                      disabled={loadingActions[notification.id]}
+                      style={{ 
+                        opacity: loadingActions[notification.id] ? 0.6 : 1, 
+                        cursor: loadingActions[notification.id] ? 'not-allowed' : 'pointer' 
+                      }}
                     >
-                      {notification.action_type === 'retry_email' && 'Retry Email'}
-                      {notification.action_type === 'retry_pdf' && 'Retry PDF'}
-                      {notification.action_type === 'download' && 'Download'}
+                      {loadingActions[notification.id] ? 'Processing...' : (
+                        <>
+                          {notification.action_type === 'retry_email' && 'Retry Email'}
+                          {notification.action_type === 'retry_pdf' && 'Retry PDF'}
+                          {notification.action_type === 'download' && 'Download'}
+                        </>
+                      )}
                     </button>
                     <button
                       className="notification-action-btn secondary"
@@ -117,6 +136,7 @@ const NotificationPanel = ({ onClose }) => {
                         e.stopPropagation();
                         deleteNotification(notification.id);
                       }}
+                      disabled={loadingActions[notification.id]}
                     >
                       Dismiss
                     </button>
