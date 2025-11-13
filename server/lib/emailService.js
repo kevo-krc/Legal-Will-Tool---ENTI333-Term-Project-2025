@@ -2,7 +2,7 @@ const sgMail = require('@sendgrid/mail');
 
 async function getSendGridClient() {
   const apiKey = process.env.SENDGRID_API_KEY;
-  const fromEmail = process.env.SENDGRID_FROM_EMAIL || 'kevin.cooney@ucalgary.ca';
+  const fromEmail = process.env.SENDGRID_FROM_EMAIL || 'kr.cooney1@gmail.com';
   
   if (!apiKey) {
     throw new Error('SENDGRID_API_KEY environment variable not set');
