@@ -10,11 +10,15 @@ async function getCredentials() {
     ? 'depl ' + process.env.WEB_REPL_RENEWAL 
     : null;
 
+  console.log('[SendGrid] Fetching credentials from connector...');
+  console.log('[SendGrid] Hostname:', hostname);
+  console.log('[SendGrid] Token present:', !!xReplitToken);
+
   if (!xReplitToken) {
     throw new Error('X_REPLIT_TOKEN not found for repl/depl');
   }
 
-  connectionSettings = await fetch(
+  const response = await fetch(
     'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=sendgrid',
     {
       headers: {
@@ -22,11 +26,20 @@ async function getCredentials() {
         'X_REPLIT_TOKEN': xReplitToken
       }
     }
-  ).then(res => res.json()).then(data => data.items?.[0]);
+  );
+  
+  const data = await response.json();
+  console.log('[SendGrid] Connector response:', JSON.stringify(data, null, 2));
+  
+  connectionSettings = data.items?.[0];
 
-  if (!connectionSettings || (!connectionSettings.settings.api_key || !connectionSettings.settings.from_email)) {
-    throw new Error('SendGrid not connected');
+  if (!connectionSettings || (!connectionSettings.settings?.api_key || !connectionSettings.settings?.from_email)) {
+    console.error('[SendGrid] Connection settings:', connectionSettings);
+    throw new Error('SendGrid not connected or missing credentials');
   }
+  
+  console.log('[SendGrid] API key starts with:', connectionSettings.settings.api_key?.substring(0, 3));
+  console.log('[SendGrid] From email:', connectionSettings.settings.from_email);
   
   return {
     apiKey: connectionSettings.settings.api_key, 
