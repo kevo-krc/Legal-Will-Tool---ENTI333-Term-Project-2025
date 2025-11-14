@@ -42,10 +42,10 @@
 .notification-panel {
   position: absolute;
   top: 100%;
-  right: 0;
+  right: -8px;
   margin-top: 8px;
   width: 380px;
-  max-width: 90vw;
+  max-width: calc(100vw - 32px);
   background: white;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -53,6 +53,16 @@
   max-height: 500px;
   display: flex;
   flex-direction: column;
+}
+
+@media (max-width: 640px) {
+  .notification-panel {
+    position: fixed;
+    right: 16px;
+    left: 16px;
+    width: auto;
+    max-width: none;
+  }
 }
 
 .notification-panel-header {
