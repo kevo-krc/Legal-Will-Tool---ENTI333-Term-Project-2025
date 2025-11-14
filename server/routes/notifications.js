@@ -3,24 +3,6 @@ const router = express.Router();
 const { supabase } = require('../lib/supabase');
 const { authenticateUser } = require('../middleware/auth');
 
-router.post('/refresh-schema', async (req, res) => {
-  try {
-    console.log('[Notifications] Refreshing Supabase schema cache...');
-    const { error } = await supabase.rpc('sb_refresh_schema');
-    
-    if (error) {
-      console.error('[Notifications] Error refreshing schema:', error);
-      return res.status(500).json({ error: 'Failed to refresh schema cache', details: error.message });
-    }
-    
-    console.log('[Notifications] Schema cache refreshed successfully');
-    res.json({ success: true, message: 'Schema cache refreshed successfully' });
-  } catch (error) {
-    console.error('[Notifications] Unexpected error refreshing schema:', error);
-    res.status(500).json({ error: 'Failed to refresh schema cache', details: error.message });
-  }
-});
-
 router.get('/', authenticateUser, async (req, res) => {
   try {
     const userId = req.authenticatedUserId;
