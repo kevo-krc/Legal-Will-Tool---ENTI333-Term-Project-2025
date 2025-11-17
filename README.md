@@ -9,12 +9,15 @@
 
 This is a full-stack web application that helps users create legally valid wills for Canada (all 13 provinces/territories) and the USA (all 50 states). The tool uses **AI-guided questionnaires** to gather information and generate region-specific legal compliance assessments.
 
-### Current Status: Phase 3 Complete ✅
+### Current Status: All Core Features Complete ✅
 - ✅ User authentication and profile management
-- ✅ AI-powered questionnaire system (up to 3 rounds)
-- ✅ Jurisdiction-specific compliance checks
-- ✅ Q&A data storage with full audit trail
-- 🔜 PDF generation and document delivery (Phase 4)
+- ✅ AI-powered questionnaire system (3 rounds with anti-repetition mechanisms)
+- ✅ Jurisdiction-specific compliance checks (13 Canadian provinces/territories, 50 US states)
+- ✅ PDF generation for will documents and assessment reports
+- ✅ Email sharing via SendGrid with secure PDF attachments
+- ✅ User data deletion with comprehensive cleanup
+- ✅ Notifications system for user actions and system events
+- ✅ Privacy policy and data handling compliance
 
 ---
 
@@ -35,7 +38,8 @@ This is a full-stack web application that helps users create legally valid wills
 | **Backend** | Node.js + Express |
 | **Database** | Supabase (PostgreSQL) |
 | **AI** | Google Gemini API (gemini-2.5-flash) |
-| **Email** | SendGrid (planned for Phase 5) |
+| **Email** | SendGrid |
+| **PDF Generation** | PDFKit |
 | **Hosting** | Replit |
 | **Version Control** | GitHub |
 
@@ -53,7 +57,8 @@ legal-will-generation-tool/
 │   ├── components/           # Reusable components
 │   │   ├── Header.jsx
 │   │   ├── Footer.jsx
-│   │   └── ProtectedRoute.jsx
+│   │   ├── ProtectedRoute.jsx
+│   │   └── NotificationBell.jsx
 │   ├── pages/                # Page components
 │   │   ├── Home.jsx
 │   │   ├── Login.jsx
@@ -64,7 +69,8 @@ legal-will-generation-tool/
 │   │   ├── WillSummary.jsx
 │   │   └── PrivacyPolicy.jsx
 │   ├── context/              # React context
-│   │   └── AuthContext.jsx
+│   │   ├── AuthContext.jsx
+│   │   └── NotificationContext.jsx
 │   ├── lib/                  # Utilities
 │   │   └── supabase.js
 │   ├── config/               # Configuration
@@ -75,12 +81,20 @@ legal-will-generation-tool/
 │   ├── index.js              # Express server
 │   ├── routes/               # API routes
 │   │   ├── ai.js             # AI endpoints
-│   │   └── wills.js          # Will management
+│   │   ├── wills.js          # Will management
+│   │   ├── notifications.js  # Notification management
+│   │   └── user.js           # User data deletion
 │   ├── lib/                  # Backend utilities
-│   │   └── gemini.js         # Gemini AI integration
+│   │   ├── gemini.js         # Gemini AI integration
+│   │   ├── emailService.js   # SendGrid integration
+│   │   └── pdfGenerator.js   # PDF generation
 │   └── migrations/           # Database migrations
 │       ├── 001_create_profiles_table.sql
-│       └── 002_create_wills_table.sql
+│       ├── 002_create_wills_table.sql
+│       └── 003_create_notifications_table.sql
+├── database/                  # Additional migrations
+│   └── migrations/
+│       └── 001_create_increment_retry_function.sql
 ├── PRD.md                     # Product Requirements
 ├── Privacy_Policy.md          # Privacy policy
 ├── PROMPT_LOG.md              # Development log
@@ -97,6 +111,7 @@ legal-will-generation-tool/
 - Node.js 20+ installed
 - Supabase account with project created
 - Google Gemini API key (paid tier recommended)
+- SendGrid account with verified sender email
 - Replit account (for hosting) or local development environment
 
 ### Installation
@@ -122,15 +137,17 @@ legal-will-generation-tool/
    SUPABASE_ANON_KEY=your_supabase_anon_key
    SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
    GEMINI_API_KEY=your_gemini_api_key
-   SENDGRID_API_KEY=your_sendgrid_api_key (optional, for Phase 5)
-   SENDGRID_FROM_EMAIL=your_verified_sender_email (optional, for Phase 5)
+   SENDGRID_API_KEY=your_sendgrid_api_key
+   SENDGRID_FROM_EMAIL=your_verified_sender_email
    ```
 
 4. **Run database migrations:**
    
-   Execute the SQL files in `server/migrations/` in your Supabase SQL Editor:
-   - `001_create_profiles_table.sql`
-   - `002_create_wills_table.sql`
+   Execute the SQL files in `server/migrations/` and `database/migrations/` in your Supabase SQL Editor in order:
+   - `server/migrations/001_create_profiles_table.sql`
+   - `server/migrations/002_create_wills_table.sql`
+   - `server/migrations/003_create_notifications_table.sql`
+   - `database/migrations/001_create_increment_retry_function.sql`
 
 5. **Start development servers:**
    ```bash
@@ -147,7 +164,7 @@ legal-will-generation-tool/
 
 ---
 
-## ✅ Current Features (Phases 1-3)
+## ✅ Completed Features
 
 ### Phase 1: Foundation
 - ✅ React + Vite frontend with routing
@@ -169,30 +186,30 @@ legal-will-generation-tool/
 - ✅ Jurisdiction selection (13 Canadian provinces/territories, 50 US states)
 - ✅ AI-generated legal compliance statements
 - ✅ Dynamic multi-round questionnaires (max 3 rounds)
-- ✅ AI follows up based on previous answers
+- ✅ AI follows up based on previous answers with anti-repetition mechanisms
+- ✅ Automated retry mechanism for empty/invalid AI responses (up to 3 attempts with exponential backoff)
+- ✅ Boolean (Yes/No) question type support
 - ✅ Final legal assessment generation
 - ✅ Q&A data storage in Supabase (JSONB format)
 - ✅ Rate limiting (10 requests/minute) with queue serialization
 - ✅ Comprehensive quota error handling (RPM vs RPD errors)
-- ✅ User-friendly error messages for API limits
 
----
+### Phase 4: PDF Generation
+- ✅ Generate will documents as formatted PDFs (using PDFKit)
+- ✅ Generate assessment reports as PDFs
+- ✅ Upload PDFs to Supabase Storage (`will-documents` bucket)
+- ✅ Download functionality for user documents
+- ✅ Proper legal formatting with headers and sections
 
-## 🔮 Upcoming Features (Phases 4-5)
-
-### Phase 4: PDF Generation (Next)
-- 🔜 Generate will documents as non-editable PDFs (using pdfkit)
-- 🔜 Generate assessment documents as PDFs
-- 🔜 Upload PDFs to Supabase Storage (`will-documents` bucket)
-- 🔜 Download functionality for user documents
-- 🔜 Email delivery integration (SendGrid)
-
-### Phase 5: Data Management & Deployment
-- 🔜 User data deletion (dual-kill: storage + database)
-- 🔜 Email notifications for will updates
-- 🔜 Audit logging for all data operations
-- 🔜 Deployment configuration and publishing
-- 🔜 Production-ready error handling
+### Phase 5: Email & Data Management
+- ✅ Email delivery integration (SendGrid)
+- ✅ Secure PDF attachment sharing via email
+- ✅ User data deletion (comprehensive: profiles, wills, PDFs, Auth accounts)
+- ✅ PDF safeguards preventing deletion of wills with generated documents
+- ✅ Individual will deletion from Dashboard (draft/in_progress wills only)
+- ✅ JWT-based authentication and authorization for deletion endpoints
+- ✅ Notifications system tracking email successes/failures and system events
+- ✅ Notification bell UI with dropdown panel
 
 ---
 
@@ -221,7 +238,16 @@ legal-will-generation-tool/
 - **GET** `/api/wills/user/:userId` - Get all user's wills
 - **GET** `/api/wills/:willId` - Get specific will
 - **PUT** `/api/wills/:willId` - Update will data
-- **DELETE** `/api/wills/:willId` - Delete will
+- **DELETE** `/api/wills/:willId` - Delete will (with PDF safeguards)
+- **POST** `/api/wills/:willId/email` - Share will PDFs via email
+
+### Notifications (`/api/notifications/`)
+- **GET** `/api/notifications` - Get user's notifications
+- **PUT** `/api/notifications/:id/read` - Mark notification as read
+- **POST** `/api/notifications/:id/retry` - Retry failed action
+
+### User Management (`/api/user/`)
+- **DELETE** `/api/user/delete-all-data` - Complete user data deletion
 
 ### Health Check
 - **GET** `/api/health` - Server health status
@@ -235,19 +261,22 @@ legal-will-generation-tool/
 - **User Profiles:** Full name, email, phone, account number
 - **Q&A Data:** All questions and answers from questionnaires (JSONB format)
 - **Will Metadata:** Country, jurisdiction, compliance statements, assessment content
-- **Will Documents:** *Phase 4 - PDFs stored in Supabase Storage*
+- **Will Documents:** PDFs stored in Supabase Storage with secure URLs
+- **Notifications:** User action tracking and system event notifications
 
 ### Security Measures
 - ✅ HTTPS encryption via Replit/Supabase
 - ✅ Row-Level Security (RLS) policies - users can only access their own data
 - ✅ Service Role Key used only for admin deletion operations
+- ✅ JWT-based authentication for sensitive endpoints
 - ✅ No plaintext passwords (Supabase handles auth)
 - ✅ 10-second timeouts prevent indefinite hanging requests
 - ✅ Environment variables for all sensitive credentials
+- ✅ PDF safeguards prevent accidental data loss
 
 ### Privacy Compliance
 - Users can view and edit their profile data
-- *Phase 5:* Users will be able to delete all their data
+- Users can delete all their data (profiles, wills, PDFs, Auth accounts)
 - Privacy Policy available at `/privacy-policy`
 - See `Privacy_Policy.md` for complete details
 
@@ -259,6 +288,7 @@ legal-will-generation-tool/
 - **Gemini API:** 10 requests per minute (free tier)
 - **Implementation:** Promise chain queue with 6-second minimum spacing
 - **Error Handling:** Specific messages for RPM vs RPD quota errors
+- **Retry Logic:** Automated retry for empty/invalid AI responses (up to 3 attempts)
 
 ### Timeouts
 - **All Supabase Operations:** 10-second timeout
@@ -284,13 +314,16 @@ See `TESTING_GUIDE.md` for comprehensive testing instructions.
 6. ✅ Answer Round 2 questions (follow-up based on Round 1)
 7. ✅ Complete Round 3 (if needed)
 8. ✅ View final assessment
-9. ✅ Check Dashboard shows will with status
+9. ✅ Download will PDF and assessment PDF
+10. ✅ Share documents via email
+11. ✅ View notifications
+12. ✅ Delete individual will (draft/in_progress only)
+13. ✅ Delete all user data
 
-### Known Limitations (Current Phase)
-- Will documents are stored as text only (PDF generation in Phase 4)
-- No email delivery yet (Phase 5)
-- No data deletion feature yet (Phase 5)
+### Known Limitations
+- SendGrid accepts valid email formats regardless of mailbox existence (actual bounces happen asynchronously)
 - Rate limited to 10 Gemini API requests/minute
+- Email failure testing requires invalid email formats (prevented by frontend validation)
 
 ---
 
@@ -304,11 +337,17 @@ See `TESTING_GUIDE.md` for comprehensive testing instructions.
 ### AI Quota Errors
 - **RPM Error (Rate Limit):** "Too many requests per minute (max 10/min). Please wait and try again."
 - **RPD Error (Daily Quota):** "Daily quota exceeded (250 requests/day). Resets at midnight Pacific Time."
+- **Empty/Invalid Responses:** Automated retry with exponential backoff (up to 3 attempts)
 - **Network Errors:** Retry with exponential backoff
 
 ### Database Errors
 - **RLS Policy Violations:** Returns 403, user shown clear error
 - **Connection Failures:** 10-second timeout with retry option
+
+### PDF & Email Errors
+- **PDF Generation Failure:** Notification created with retry option
+- **Email Send Failure:** Notification created with detailed error message
+- **Deletion Safeguards:** Cannot delete wills with generated PDFs
 
 ---
 
@@ -331,8 +370,10 @@ See `TESTING_GUIDE.md` for comprehensive testing instructions.
   - Node.js + Express
   - Supabase (Database & Auth)
   - Google Gemini AI
+  - SendGrid (Email)
+  - PDFKit (PDF Generation)
   - Replit (Hosting)
-  - GitHub Copilot (Development assistance)
+  - GitHub (Version Control)
 
 ---
 
@@ -358,8 +399,8 @@ ENTI333 - Final Term Project
 
 - **GitHub Repository:** [Your Repo URL]
 - **Replit Project:** [Your Replit URL]
-- **Demo Video:** [To be added after Phase 5]
+- **Demo Video:** [To be added]
 
 ---
 
-**Last Updated:** November 13, 2025 (Phase 3 Complete)
+**Last Updated:** November 17, 2025 (All Core Features Complete)

@@ -375,3 +375,132 @@ The Updated_PRD_Legal_Will_App.md is a well-intentioned but dangerously under-sp
 **Phase 3 (Complete):** Google Gemini AI integration, multi-round questionnaires, rate limiting, comprehensive timeout handling
 **Phase 4 (Planned):** PDF generation with pdfkit, Supabase Storage, download/email functionality
 **Phase 5 (Planned):** Data deletion, email notifications (SendGrid), deployment configuration
+
+## 11. Phase 4: PDF Generation & Storage (2025-11-14)
+### Goal: Generate will documents and assessments as PDFs, store in Supabase
+- **Source PRD Requirement:** PDF generation for legal documents and email sharing
+- **Prompt:** "Implement PDF generation for will documents and assessment reports using PDFKit. Store PDFs in Supabase Storage bucket called 'will-documents'. Update WillSummary page to show download buttons. Include proper legal formatting with headers, sections, and signatures."
+- **AI Output Summary:** Created server/lib/pdfGenerator.js with generateWillPDF and generateAssessmentPDF functions. Implemented legal document formatting with proper headers, jurisdiction info, sections (executors, guardians, beneficiaries, assets, special instructions). Added PDF upload to Supabase Storage with signed URLs for downloads.
+- **Outcome:** Phase 4 complete - Will and assessment documents generated as downloadable PDFs
+- **Commits:**
+  - "Add PDF generation with legal formatting using PDFKit"
+  - "Integrate Supabase Storage for PDF uploads and downloads"
+
+## 12. Phase 5: Email Sharing via SendGrid (2025-11-14)
+### Goal: Enable users to share generated PDFs via email
+- **Source PRD Requirement:** Email delivery for will documents and assessments
+- **Prompt:** "Integrate SendGrid to allow users to email their will and assessment PDFs. Add email input to WillSummary page. Create server/lib/emailService.js with SendGrid integration. Include both PDFs as attachments. Add email sharing button to Dashboard for each will."
+- **AI Output Summary:** Created emailService.js using SendGrid API v3. Added POST /api/wills/:willId/email endpoint. Implemented email sharing with dual PDF attachments (will + assessment). Added email UI to both WillSummary and Dashboard pages. Used Replit SendGrid integration for automatic key management.
+- **Debugging:** Fixed SendGrid configuration to use environment variables. Verified email delivery with PDF attachments.
+- **Outcome:** Phase 5 email functionality complete - Users can share PDFs via email
+- **Commits:**
+  - "Add SendGrid integration for email sharing"
+  - "Implement email sharing UI on Dashboard and WillSummary pages"
+
+## 13. Phase 5: User Data Deletion (2025-11-14)
+### Goal: Allow users to completely delete all their data
+- **Source PRD Requirement:** Privacy compliance - users must be able to delete all data
+- **Prompt:** "Implement complete user data deletion. Create DELETE /api/user/delete-all-data endpoint that deletes: user profile, all wills, all PDFs from storage, and Supabase Auth account. Add JWT authentication middleware. Create deletion UI in Dashboard with confirmation dialog. Prevent deletion if wills have generated PDFs (safeguard)."
+- **AI Output Summary:** Created server/routes/user.js with comprehensive deletion logic. Implemented JWT-based auth middleware to verify user identity. Added PDF safeguard check - prevents deletion if any will has generated PDFs. Created deletion UI with multi-step confirmation. Deletes in order: PDFs from storage → wills from database → profile → Auth account.
+- **Debugging:** Fixed auth middleware to properly extract and verify JWT tokens. Added proper error handling for partial failures.
+- **Outcome:** Phase 5 data deletion complete - Users can delete all their data with safeguards
+- **Commits:**
+  - "Implement complete user data deletion with safeguards"
+  - "Add JWT authentication middleware for secure endpoints"
+
+## 14. AI Prompt Improvements: Anti-Repetition Mechanisms (2025-11-15)
+### Goal: Prevent AI from asking redundant questions across rounds
+- **Source PRD Requirement:** User feedback - AI was asking similar questions in Round 2 and Round 3
+- **Prompt:** "The AI is asking redundant questions in follow-up rounds. Update prompts to explicitly track previously asked questions and prevent repetition. Add 'Already Captured' vs 'Missing' sections to the prompt. Use entity-specific language (e.g., 'registered name' vs 'full legal name' for organizations). Improve information gap detection."
+- **AI Output Summary:** Significantly enhanced all AI prompts in server/lib/gemini.js:
+  - Added structured tracking of previously asked questions
+  - Explicit anti-repeat rules with "Already Captured" vs "Missing" sections
+  - Entity-specific language for organizations (registered name vs full legal name)
+  - Better information gap detection in follow-up rounds
+  - Clearer instructions to avoid unnecessary questions
+- **Outcome:** AI now generates unique, non-redundant questions across all rounds
+- **Commits:**
+  - "Enhance AI prompts to prevent question repetition across rounds"
+  - "Add entity-specific language and information gap detection"
+
+## 15. Automated Retry for Empty AI Responses (2025-11-15)
+### Goal: Handle cases where Gemini returns empty or invalid responses
+- **Source PRD Requirement:** Reliability - AI sometimes returns empty arrays
+- **Prompt:** "Gemini occasionally returns empty question arrays. Implement automated retry mechanism with exponential backoff. Create custom EmptyGeminiResponseError. Retry up to 3 times with delays (1s, 2s, 4s). Apply to all AI endpoints (compliance, questions, assessment)."
+- **AI Output Summary:** Updated server/lib/gemini.js with retry logic:
+  - Created EmptyGeminiResponseError custom error class
+  - Implemented exponential backoff (1s → 2s → 4s)
+  - Added validation for empty/invalid responses
+  - Retry up to 3 attempts before failing
+  - Applied to all 4 AI functions
+- **Debugging:** Tested retry mechanism with various failure scenarios
+- **Outcome:** AI responses now automatically retry on empty/invalid data
+- **Commits:**
+  - "Add automated retry mechanism for empty Gemini responses"
+  - "Implement exponential backoff for AI reliability"
+
+## 16. Individual Will Deletion & PDF Safeguards (2025-11-16)
+### Goal: Allow users to delete individual wills from Dashboard
+- **Source PRD Requirement:** Data management - users should control individual wills
+- **Prompt:** "Add delete functionality to Dashboard for individual wills. Only allow deletion of wills with status 'draft' or 'in_progress'. Prevent deletion if will has generated PDFs (will_pdf_url or assessment_pdf_url exists). Show confirmation dialog before deletion. Update UI to show delete button only for eligible wills."
+- **AI Output Summary:** Enhanced DELETE /api/wills/:willId endpoint with:
+  - PDF safeguard check (prevents deletion if PDFs exist)
+  - Status validation (only draft/in_progress can be deleted)
+  - Updated Dashboard UI with conditional delete button
+  - Confirmation dialog with clear messaging
+  - Real-time will list refresh after deletion
+- **Debugging:** Fixed conditional rendering of delete button based on will status and PDF existence
+- **Outcome:** Users can safely delete individual draft/in-progress wills
+- **Commits:**
+  - "Add individual will deletion with PDF safeguards"
+  - "Implement confirmation dialog for will deletion"
+
+## 17. Boolean Question Type Support (2025-11-16)
+### Goal: Support Yes/No questions in the AI questionnaire
+- **Source PRD Requirement:** User experience - some questions need boolean answers
+- **Prompt:** "AI generates questions with type='boolean' but the UI doesn't support them. Add boolean question support to Questionnaire component with Yes/No radio buttons. Map boolean responses to 'Yes'/'No' strings for storage."
+- **AI Output Summary:** Updated src/pages/Questionnaire.jsx:
+  - Added boolean question rendering with Yes/No radio buttons
+  - Mapped boolean values to string responses ('Yes'/'No')
+  - Added proper styling for radio button layout
+  - Maintained consistency with text question styling
+- **Outcome:** Questionnaire now supports text and boolean question types
+- **Commits:**
+  - "Add boolean (Yes/No) question type support to questionnaire"
+
+## 18. Notifications System Implementation (2025-11-16 - 2025-11-17)
+### Goal: Track user actions and system events with persistent notifications
+- **Source PRD Requirement:** User awareness of email successes/failures and system events
+- **Prompt:** "Create a notifications system to track email successes/failures, PDF generation issues, and other events. Create notifications table with user_id, type, title, message, is_read, retry_count, metadata. Add notification bell icon in Header with unread count badge. Build notification dropdown panel. Create NotificationContext for real-time updates."
+- **AI Output Summary:** Comprehensive notifications implementation:
+  - Created server/migrations/003_create_notifications_table.sql with RLS policies
+  - Created database/migrations/001_create_increment_retry_function.sql for atomic retry tracking
+  - Built server/routes/notifications.js with GET, PUT (mark read), POST (retry) endpoints
+  - Created src/components/NotificationBell.jsx with bell icon and dropdown panel
+  - Created src/context/NotificationContext.jsx for real-time notification management
+  - Integrated notification creation in email sharing endpoint (success/failure)
+- **Debugging:** 
+  - Fixed initial issue where notifications table was created in local PostgreSQL instead of Supabase
+  - Created proper migration files for user to run in Supabase dashboard
+  - Fixed NotificationContext API URL (changed from localhost:3001 to relative /api path)
+  - Fixed notification dropdown positioning (changed from right: 0 to left: 0 for proper alignment)
+- **Outcome:** Full notifications system operational - tracks email events and allows retry actions
+- **Commits:**
+  - "Implement notifications system with bell UI and dropdown"
+  - "Create notifications table migration for Supabase"
+  - "Fix NotificationContext API URL for Replit proxy routing"
+  - "Update notification dropdown positioning for better UX"
+
+---
+
+## Summary by Phase (Final)
+**Phase 1 (Complete):** React + Vite frontend, Node.js + Express backend, dual workflows, global styling  
+**Phase 2 (Complete):** Supabase authentication, user profiles, protected routes, RLS policies  
+**Phase 3 (Complete):** Google Gemini AI integration, multi-round questionnaires, rate limiting, timeout handling, anti-repetition mechanisms, automated retry for empty responses  
+**Phase 4 (Complete):** PDF generation with PDFKit, Supabase Storage, legal formatting, download functionality  
+**Phase 5 (Complete):** Email sharing via SendGrid, comprehensive user data deletion, individual will deletion, notifications system  
+
+---
+
+**Last Updated:** November 17, 2025  
+**Status:** All core features complete and functional
