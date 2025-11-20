@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }) => {
       } catch (error) {
         console.error('Error getting session:', error);
         if (error.message === 'Authentication timeout') {
-          setAuthError('Connection timeout. Please check your internet connection and try again.');
+          setAuthError('You have been away too long. Please refresh the page or log in again.');
           console.log('[Auth Timeout] Session/profile fetch exceeded 30 seconds');
         } else {
           setAuthError('Authentication failed. Please try logging in again.');
@@ -70,7 +70,7 @@ export const AuthProvider = ({ children }) => {
             await fetchProfile(session.user.id);
           } catch (error) {
             if (error.message === 'Authentication timeout') {
-              setAuthError('Connection timeout. Please check your internet connection and try again.');
+              setAuthError('You have been away too long. Please refresh the page or log in again.');
             }
           }
         } else {
@@ -135,7 +135,7 @@ export const AuthProvider = ({ children }) => {
         } catch (profileError) {
           if (profileError.message === 'Authentication timeout') {
             profileTimedOut = true;
-            setAuthError('Connection timeout while loading profile. Please check your internet connection and refresh.');
+            setAuthError('Loading your profile is taking longer than expected. Please refresh the page.');
           } else {
             throw profileError;
           }
@@ -174,7 +174,7 @@ export const AuthProvider = ({ children }) => {
         } catch (profileError) {
           if (profileError.message === 'Authentication timeout') {
             profileTimedOut = true;
-            setAuthError('Connection timeout while loading profile. Please check your internet connection and refresh.');
+            setAuthError('Loading your profile is taking longer than expected. Please refresh the page.');
           } else {
             throw profileError;
           }
