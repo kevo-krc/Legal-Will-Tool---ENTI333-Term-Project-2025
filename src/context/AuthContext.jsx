@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState(null);
 
-  const withTimeout = (promise, timeoutMs = 10000) => {
+  const withTimeout = (promise, timeoutMs = 30000) => {
     let timeoutId;
     const timeoutPromise = new Promise((_, reject) => {
       timeoutId = setTimeout(() => reject(new Error('Authentication timeout')), timeoutMs);
@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }) => {
         console.error('Error getting session:', error);
         if (error.message === 'Authentication timeout') {
           setAuthError('Connection timeout. Please check your internet connection and try again.');
-          console.log('[Auth Timeout] Session/profile fetch exceeded 10 seconds');
+          console.log('[Auth Timeout] Session/profile fetch exceeded 30 seconds');
         } else {
           setAuthError('Authentication failed. Please try logging in again.');
         }
@@ -104,7 +104,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Error fetching profile:', error);
       if (error.message === 'Authentication timeout') {
-        console.log('[Auth Timeout] Profile fetch exceeded 10 seconds');
+        console.log('[Auth Timeout] Profile fetch exceeded 30 seconds');
       }
       throw error;
     }
@@ -150,7 +150,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Error signing up:', error);
       if (error.message === 'Authentication timeout') {
-        console.log('[Auth Timeout] Sign-up request exceeded 10 seconds');
+        console.log('[Auth Timeout] Sign-up request exceeded 30 seconds');
       }
       return { data: null, error };
     }
@@ -189,7 +189,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Error signing in:', error);
       if (error.message === 'Authentication timeout') {
-        console.log('[Auth Timeout] Sign-in request exceeded 10 seconds');
+        console.log('[Auth Timeout] Sign-in request exceeded 30 seconds');
       }
       return { data: null, error };
     }
@@ -207,7 +207,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Error signing out:', error);
       if (error.message === 'Authentication timeout') {
-        console.log('[Auth Timeout] Sign-out request exceeded 10 seconds');
+        console.log('[Auth Timeout] Sign-out request exceeded 30 seconds');
         setUser(null);
         setProfile(null);
       }
@@ -234,7 +234,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Error updating profile:', error);
       if (error.message === 'Authentication timeout') {
-        console.log('[Auth Timeout] Profile update exceeded 10 seconds');
+        console.log('[Auth Timeout] Profile update exceeded 30 seconds');
       }
       return { data: null, error };
     }
