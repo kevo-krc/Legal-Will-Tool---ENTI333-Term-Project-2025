@@ -491,6 +491,37 @@ The Updated_PRD_Legal_Will_App.md is a well-intentioned but dangerously under-sp
   - "Fix NotificationContext API URL for Replit proxy routing"
   - "Update notification dropdown positioning for better UX"
 
+## 19. Age Verification for Legal Compliance (2025-11-20)
+### Goal: Integrate age verification into will creation to flag underage users
+- **Source PRD Requirement:** Legal compliance - testamentary capacity based on age
+- **Prompt:** "Add age verification to the will creation process. Collect date of birth just-in-time during CreateWill (not at registration). Calculate user's age and pass to AI compliance statement and final assessment. If user is underage for their jurisdiction, clearly state this in both documents while allowing them to continue. Store DOB in profiles table for future wills."
+- **AI Output Summary:** Implemented comprehensive age verification:
+  - Created server/migrations/004_add_date_of_birth_to_profiles.sql migration file
+  - Updated src/pages/CreateWill.jsx to collect DOB before jurisdiction selection
+  - Added DOB validation (not in future, not >120 years old)
+  - Updated server/lib/gemini.js generateComplianceStatement() to accept age parameter
+  - Updated server/lib/gemini.js generateWillAssessment() to accept age parameter
+  - Modified AI prompts to compare user age against jurisdiction minimum requirements
+  - Updated src/pages/Questionnaire.jsx to calculate age and pass to assessment endpoint
+  - Enhanced server/routes/ai.js to accept age parameter in compliance and assessment endpoints
+- **Technical Implementation:**
+  - **Option A (Selected):** Just-in-time DOB collection in CreateWill component
+  - If user has DOB saved → Skip directly to jurisdiction selection
+  - If user lacks DOB → Show "Before We Begin" form to collect DOB first
+  - Age calculation handles edge cases (birthdays, leap years)
+  - AI clearly flags underage users in compliance statement and assessment
+- **User Experience:**
+  - Underage users receive clear messaging that they don't meet age requirements
+  - Will notes that document may not be legally valid
+  - Strong recommendation to consult licensed attorney
+  - Of-age users see standard compliance statement without age commentary
+- **Outcome:** Age verification integrated throughout will creation workflow
+- **Migration Required:** User must run 004_add_date_of_birth_to_profiles.sql in Supabase dashboard
+- **Commits:**
+  - "Add age verification with DOB collection in CreateWill"
+  - "Update AI prompts to include age compliance checks"
+  - "Create migration for date_of_birth column in profiles table"
+
 ---
 
 ## Summary by Phase (Final)
@@ -498,9 +529,9 @@ The Updated_PRD_Legal_Will_App.md is a well-intentioned but dangerously under-sp
 **Phase 2 (Complete):** Supabase authentication, user profiles, protected routes, RLS policies  
 **Phase 3 (Complete):** Google Gemini AI integration, multi-round questionnaires, rate limiting, timeout handling, anti-repetition mechanisms, automated retry for empty responses  
 **Phase 4 (Complete):** PDF generation with PDFKit, Supabase Storage, legal formatting, download functionality  
-**Phase 5 (Complete):** Email sharing via SendGrid, comprehensive user data deletion, individual will deletion, notifications system  
+**Phase 5 (Complete):** Email sharing via SendGrid, comprehensive user data deletion, individual will deletion, notifications system, **age verification for legal compliance**  
 
 ---
 
-**Last Updated:** November 17, 2025  
-**Status:** All core features complete and functional
+**Last Updated:** November 20, 2025  
+**Status:** All core features complete and functional - production-ready

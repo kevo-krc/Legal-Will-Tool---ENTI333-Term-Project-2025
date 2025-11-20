@@ -13,6 +13,7 @@ This is a full-stack web application that helps users create legally valid wills
 - ✅ User authentication and profile management
 - ✅ AI-powered questionnaire system (3 rounds with anti-repetition mechanisms)
 - ✅ Jurisdiction-specific compliance checks (13 Canadian provinces/territories, 50 US states)
+- ✅ Age verification for legal testamentary capacity
 - ✅ PDF generation for will documents and assessment reports
 - ✅ Email sharing via SendGrid with secure PDF attachments
 - ✅ User data deletion with comprehensive cleanup
@@ -147,6 +148,7 @@ legal-will-generation-tool/
    - `server/migrations/001_create_profiles_table.sql`
    - `server/migrations/002_create_wills_table.sql`
    - `server/migrations/003_create_notifications_table.sql`
+   - `server/migrations/004_add_date_of_birth_to_profiles.sql`
    - `database/migrations/001_create_increment_retry_function.sql`
 
 5. **Start development servers:**
@@ -184,12 +186,14 @@ legal-will-generation-tool/
 
 ### Phase 3: AI Questionnaire
 - ✅ Jurisdiction selection (13 Canadian provinces/territories, 50 US states)
-- ✅ AI-generated legal compliance statements
+- ✅ AI-generated legal compliance statements with age verification
 - ✅ Dynamic multi-round questionnaires (max 3 rounds)
 - ✅ AI follows up based on previous answers with anti-repetition mechanisms
 - ✅ Automated retry mechanism for empty/invalid AI responses (up to 3 attempts with exponential backoff)
 - ✅ Boolean (Yes/No) question type support
-- ✅ Final legal assessment generation
+- ✅ Final legal assessment generation with age compliance checks
+- ✅ Just-in-time date of birth collection during will creation
+- ✅ Age verification flags underage users while allowing continuation
 - ✅ Q&A data storage in Supabase (JSONB format)
 - ✅ Rate limiting (10 requests/minute) with queue serialization
 - ✅ Comprehensive quota error handling (RPM vs RPD errors)
@@ -210,6 +214,7 @@ legal-will-generation-tool/
 - ✅ JWT-based authentication and authorization for deletion endpoints
 - ✅ Notifications system tracking email successes/failures and system events
 - ✅ Notification bell UI with dropdown panel
+- ✅ Age verification for testamentary capacity (integrated into compliance and assessment)
 
 ---
 
@@ -221,7 +226,7 @@ legal-will-generation-tool/
 
 ### AI Routes (`/api/ai/`)
 - **POST** `/api/ai/compliance` - Generate jurisdiction-specific compliance statement
-  - Body: `{ country, jurisdiction, jurisdictionFullName }`
+  - Body: `{ country, jurisdiction, jurisdictionFullName, age? }`
   - Response: `{ complianceStatement }`
 - **POST** `/api/ai/questions/initial` - Generate Round 1 questions (5-7 questions)
   - Body: `{ jurisdiction, jurisdictionFullName }`
@@ -230,7 +235,7 @@ legal-will-generation-tool/
   - Body: `{ jurisdiction, jurisdictionFullName, previousQA }`
   - Response: `{ questions: [...] }`
 - **POST** `/api/ai/assessment` - Generate final legal assessment
-  - Body: `{ jurisdiction, jurisdictionFullName, allQA }`
+  - Body: `{ jurisdiction, jurisdictionFullName, allQA, age? }`
   - Response: `{ assessment }`
 
 ### Will Management (`/api/wills/`)
@@ -258,7 +263,7 @@ legal-will-generation-tool/
 ## 🔒 Privacy & Security
 
 ### Data Storage
-- **User Profiles:** Full name, email, phone, account number
+- **User Profiles:** Full name, email, phone, account number, date of birth (for age verification)
 - **Q&A Data:** All questions and answers from questionnaires (JSONB format)
 - **Will Metadata:** Country, jurisdiction, compliance statements, assessment content
 - **Will Documents:** PDFs stored in Supabase Storage with secure URLs
@@ -403,4 +408,4 @@ ENTI333 - Final Term Project
 
 ---
 
-**Last Updated:** November 17, 2025 (All Core Features Complete)
+**Last Updated:** November 20, 2025 (All Core Features Complete - Production Ready)
