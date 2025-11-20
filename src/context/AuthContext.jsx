@@ -257,6 +257,11 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const refreshProfile = async () => {
+    if (!user) throw new Error('No user logged in');
+    await fetchProfile(user.id);
+  };
+
   const value = {
     user,
     profile,
@@ -267,6 +272,7 @@ export const AuthProvider = ({ children }) => {
     signOut,
     updateProfile,
     fetchProfile,
+    refreshProfile,
     getSessionToken,
     logout: signOut
   };
