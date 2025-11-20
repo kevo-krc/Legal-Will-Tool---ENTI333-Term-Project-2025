@@ -522,6 +522,40 @@ The Updated_PRD_Legal_Will_App.md is a well-intentioned but dangerously under-sp
   - "Update AI prompts to include age compliance checks"
   - "Create migration for date_of_birth column in profiles table"
 
+## 20. Bug Fixes: Auth Context and Timeout Improvements (2025-11-20)
+### Goal: Fix date of birth save error and improve user experience when switching browser tabs
+- **Source PRD Requirement:** Bug fixes identified during user testing
+- **Prompt 1:** "When I test the date of birth I get a message: Failed to save date of birth. Please try again. Please fix that. Note that I have checked supabase and the database for profile has been updated to have a column for date of birth and the date of birth I entered during the test is confirmed to be there."
+- **Issue Identified:** The `refreshProfile` function was missing from AuthContext export, causing the error even though the database update was succeeding
+- **Prompt 2:** "When I tab between other open things on my computer the app asks for a 'retry' which might be authentication. Can that be fixed?"
+- **Issue Identified:** 10-second authentication timeout was too aggressive and triggered when browser throttled background tabs
+- **Prompt 3:** "If the 'retry' is due to being away too long perhaps the message when the user returns can say something like, 'You have been gone too long...'"
+- **AI Output Summary:** Fixed two critical issues in src/context/AuthContext.jsx:
+  1. **Missing refreshProfile Function:**
+     - Added `refreshProfile` function to AuthContext
+     - Function calls `fetchProfile(user.id)` to reload user profile data
+     - Added to context export value for use in components
+     - Fixes "Failed to save date of birth" error in CreateWill component
+  2. **Timeout Improvements:**
+     - Increased authentication timeout from 10 seconds → 30 seconds
+     - Updated all timeout log messages to reflect new duration
+     - Improved error messages for better user experience:
+       - "Connection timeout..." → "You have been away too long. Please refresh the page or log in again."
+       - "Connection timeout while loading profile..." → "Loading your profile is taking longer than expected. Please refresh the page."
+- **Technical Details:**
+  - `withTimeout` default parameter changed from 10000ms to 30000ms
+  - Applied to: session retrieval, profile fetching, sign up, sign in, sign out, profile updates
+  - New timeout accommodates browser tab throttling when user switches applications
+- **User Experience:**
+  - DOB now saves successfully without error messages
+  - Users can switch browser tabs without triggering retry prompts
+  - More user-friendly error messages when timeouts do occur
+  - Clear messaging about what happened instead of suggesting internet issues
+- **Outcome:** Both bugs resolved, improving overall user experience
+- **Commits:**
+  - "Fix missing refreshProfile function in AuthContext"
+  - "Increase auth timeout to 30s and improve error messages"
+
 ---
 
 ## Summary by Phase (Final)
@@ -534,4 +568,4 @@ The Updated_PRD_Legal_Will_App.md is a well-intentioned but dangerously under-sp
 ---
 
 **Last Updated:** November 20, 2025  
-**Status:** All core features complete and functional - production-ready
+**Status:** All core features complete, bugs fixed - production-ready

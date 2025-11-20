@@ -275,7 +275,7 @@ legal-will-generation-tool/
 - ✅ Service Role Key used only for admin deletion operations
 - ✅ JWT-based authentication for sensitive endpoints
 - ✅ No plaintext passwords (Supabase handles auth)
-- ✅ 10-second timeouts prevent indefinite hanging requests
+- ✅ 30-second authentication timeouts prevent indefinite hanging requests
 - ✅ Environment variables for all sensitive credentials
 - ✅ PDF safeguards prevent accidental data loss
 
@@ -296,9 +296,10 @@ legal-will-generation-tool/
 - **Retry Logic:** Automated retry for empty/invalid AI responses (up to 3 attempts)
 
 ### Timeouts
-- **All Supabase Operations:** 10-second timeout
+- **All Supabase Operations:** 30-second timeout
 - **Implementation:** `withTimeout` helper wraps all async Supabase calls
-- **Error Recovery:** User-friendly error UI with Retry and Go to Login buttons
+- **Error Recovery:** User-friendly error messages ("You have been away too long...") with Retry and Go to Login buttons
+- **Browser Tab Switching:** Timeout accommodates browser throttling when switching applications
 
 ### Workflows
 1. **Frontend:** `npm run dev` (Vite dev server, port 5000, webview)
@@ -408,4 +409,4 @@ ENTI333 - Final Term Project
 
 ---
 
-**Last Updated:** November 20, 2025 (All Core Features Complete - Production Ready)
+**Last Updated:** November 20, 2025 (All Core Features Complete + Bug Fixes - Production Ready)
