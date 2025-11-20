@@ -258,12 +258,29 @@ function Questionnaire() {
     }
   };
 
+  const calculateAge = (dob) => {
+    if (!dob) return null;
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return age;
+  };
+
   const completeQuestionnaire = async (qaData) => {
     try {
+      const age = profile?.date_of_birth ? calculateAge(profile.date_of_birth) : null;
+      
       const assessmentResponse = await axios.post(`${API_URL}/ai/assessment`, {
         allAnswers: qaData,
         jurisdiction: will.jurisdiction_full_name,
-        country: will.country
+        country: will.country,
+        age: age
       });
 
       await axios.put(`${API_URL}/wills/${willId}`, {

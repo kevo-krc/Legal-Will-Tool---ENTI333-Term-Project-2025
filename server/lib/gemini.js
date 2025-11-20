@@ -254,8 +254,15 @@ async function executeWithRetry(promptFn, operationName, maxAttempts = 3, baseDe
   throw lastError;
 }
 
-async function generateComplianceStatement(jurisdiction, country) {
-  const prompt = `You are a legal expert. Generate an itemized list of legal requirements for creating a FORMAL will in ${jurisdiction}, ${country === 'CA' ? 'Canada' : 'United States'}.
+async function generateComplianceStatement(jurisdiction, country, age) {
+  const ageNote = age !== undefined && age !== null
+    ? `\n\nUSER AGE: ${age} years old
+    - If the user is BELOW the minimum age requirement for ${jurisdiction}, clearly state this in item #1 (Testamentary Capacity)
+    - Note that they may continue but should consult an attorney, as the will may not be legally valid
+    - If the user MEETS the age requirement, simply state the requirement without additional commentary`
+    : '';
+
+  const prompt = `You are a legal expert. Generate an itemized list of legal requirements for creating a FORMAL will in ${jurisdiction}, ${country === 'CA' ? 'Canada' : 'United States'}.${ageNote}
 
 CRITICAL INSTRUCTIONS:
 - Maximum 300-400 words
@@ -265,7 +272,7 @@ CRITICAL INSTRUCTIONS:
 - Use clear, direct language
 
 Required items (numbered list format):
-1. Testamentary Capacity (age requirement)
+1. Testamentary Capacity (age requirement - COMPARE TO USER'S AGE IF PROVIDED)
 2. Mental Capacity (understanding nature and effect of will)
 3. Written Form (must be typed and printed)
 4. Testator Signature (will-maker must sign)
@@ -548,10 +555,17 @@ Be DIRECT and SPECIFIC. Return ONLY valid JSON array, no extra text.`;
   return result;
 }
 
-async function generateWillAssessment(allAnswers, jurisdiction, country) {
+async function generateWillAssessment(allAnswers, jurisdiction, country, age) {
   const summarized = summarizeAnswers(allAnswers);
   
-  const prompt = `You have gathered comprehensive information TO CREATE a legal will for ${jurisdiction}, ${country === 'CA' ? 'Canada' : 'United States'}. Provide a brief summary of key decisions and NEXT STEPS for will execution.
+  const ageWarning = age !== undefined && age !== null
+    ? `\n\nUSER AGE: ${age} years old
+    - In section 2 (READINESS), if the user is BELOW the minimum age requirement for ${jurisdiction}, explicitly state that they do not meet the age requirement
+    - Note that the will may not be legally valid and they MUST consult an attorney
+    - If they MEET the age requirement, proceed normally without mentioning age`
+    : '';
+  
+  const prompt = `You have gathered comprehensive information TO CREATE a legal will for ${jurisdiction}, ${country === 'CA' ? 'Canada' : 'United States'}. Provide a brief summary of key decisions and NEXT STEPS for will execution.${ageWarning}
 
 Information gathered (summarized):
 ${summarized}
@@ -567,6 +581,7 @@ ASSESSMENT FORMAT (250-350 words maximum):
 
 2. READINESS FOR WILL CREATION (2-3 sentences):
    - State whether we have sufficient information to draft a legally valid will
+   - IF USER IS UNDERAGE: Clearly state they do not meet the minimum age requirement and the will may not be legally valid
    - Note if any CRITICAL information is still missing (executor, beneficiaries, or distribution percentages)
    - If missing critical info, state what is needed before proceeding
 
@@ -582,6 +597,7 @@ ASSESSMENT FORMAT (250-350 words maximum):
 
 4. CRITICAL GAPS (only if absolutely necessary - 1-2 sentences):
    - Only mention if executor name, beneficiary distribution, or guardian (for minors) is completely missing
+   - IF USER IS UNDERAGE: Include age requirement as a critical gap
 
 STRONG LIABILITY DISCLAIMER (3-4 sentences):
 - This tool does NOT provide legal advice

@@ -1,26 +1,96 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { JURISDICTIONS, getJurisdictions } from '../data/jurisdictions';
 import { API_URL } from '../config/api';
 import axios from 'axios';
+import { supabase } from '../lib/supabase';
 import './CreateWill.css';
 
 function CreateWill() {
-  const { user, profile } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
   const navigate = useNavigate();
   
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [needsDOB, setNeedsDOB] = useState(false);
   
   const [formData, setFormData] = useState({
+    dateOfBirth: '',
     country: '',
     jurisdiction: ''
   });
 
+  useEffect(() => {
+    if (profile && !profile.date_of_birth) {
+      setNeedsDOB(true);
+    } else if (profile && profile.date_of_birth) {
+      setFormData(prev => ({ ...prev, dateOfBirth: profile.date_of_birth }));
+      setNeedsDOB(false);
+    }
+  }, [profile]);
+
+  const calculateAge = (dob) => {
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return age;
+  };
+
+  const handleDOBSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!formData.dateOfBirth) {
+      setError('Please enter your date of birth');
+      return;
+    }
+
+    const birthDate = new Date(formData.dateOfBirth);
+    const today = new Date();
+    
+    if (birthDate > today) {
+      setError('Date of birth cannot be in the future');
+      return;
+    }
+
+    const age = calculateAge(formData.dateOfBirth);
+    if (age > 120) {
+      setError('Please enter a valid date of birth');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ date_of_birth: formData.dateOfBirth })
+        .eq('user_id', user.id);
+
+      if (updateError) throw updateError;
+
+      await refreshProfile();
+      setNeedsDOB(false);
+      setStep(2);
+    } catch (err) {
+      console.error('Error saving date of birth:', err);
+      setError('Failed to save date of birth. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleCountryChange = (e) => {
     setFormData({
+      ...formData,
       country: e.target.value,
       jurisdiction: ''
     });
@@ -47,6 +117,9 @@ function CreateWill() {
         j => j.code === formData.jurisdiction
       )?.name;
 
+      const dob = profile.date_of_birth || formData.dateOfBirth;
+      const age = calculateAge(dob);
+
       const willData = {
         user_id: user.id,
         account_number: profile.account_number,
@@ -63,7 +136,8 @@ function CreateWill() {
 
       const complianceResponse = await axios.post(`${API_URL}/ai/compliance`, {
         jurisdiction: jurisdictionName,
-        country: formData.country
+        country: formData.country,
+        age: age
       });
 
       await axios.put(`${API_URL}/wills/${will.id}`, {
@@ -100,6 +174,69 @@ function CreateWill() {
   };
 
   const jurisdictions = formData.country ? getJurisdictions(formData.country) : [];
+
+  if (needsDOB) {
+    return (
+      <div className="create-will-page">
+        <div className="container">
+          <div className="create-will-container">
+            <div className="card">
+              <h2 className="text-center mb-3">Before We Begin</h2>
+              <p className="text-center text-light mb-4">
+                We need your date of birth to verify legal age requirements for your jurisdiction
+              </p>
+
+              {error && (
+                <div style={{
+                  backgroundColor: '#FEE2E2',
+                  border: '1px solid #EF4444',
+                  color: '#991B1B',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  marginBottom: '20px'
+                }}>
+                  {error}
+                </div>
+              )}
+
+              <form onSubmit={handleDOBSubmit}>
+                <div className="form-group">
+                  <label htmlFor="dateOfBirth">Date of Birth</label>
+                  <input
+                    type="date"
+                    id="dateOfBirth"
+                    value={formData.dateOfBirth}
+                    onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                    required
+                    max={new Date().toISOString().split('T')[0]}
+                  />
+                  <small style={{ display: 'block', marginTop: '8px', color: '#6B7280' }}>
+                    This information is used to determine age-related legal requirements for will creation
+                  </small>
+                </div>
+
+                <div className="info-box mb-3">
+                  <p>
+                    <strong>Why we need this:</strong> Age requirements for creating a valid will vary by jurisdiction.
+                    Even if you're underage, you can still continue - we'll note this in your legal assessment.
+                  </p>
+                </div>
+
+                <button 
+                  type="submit" 
+                  className="btn btn-primary" 
+                  style={{ width: '100%' }}
+                  disabled={loading}
+                >
+                  {loading ? 'Saving...' : 'Continue'}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="create-will-page">

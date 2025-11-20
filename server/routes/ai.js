@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.post('/compliance', async (req, res) => {
   try {
-    const { jurisdiction, country } = req.body;
+    const { jurisdiction, country, age } = req.body;
 
     if (!jurisdiction || !country) {
       return res.status(400).json({ 
@@ -23,12 +23,13 @@ router.post('/compliance', async (req, res) => {
       });
     }
 
-    const statement = await generateComplianceStatement(jurisdiction, country);
+    const statement = await generateComplianceStatement(jurisdiction, country, age);
 
     res.json({ 
       compliance_statement: statement,
       jurisdiction,
       country,
+      age,
       generated_at: new Date().toISOString()
     });
   } catch (error) {
@@ -171,7 +172,7 @@ router.post('/questions/followup', async (req, res) => {
 
 router.post('/assessment', async (req, res) => {
   try {
-    const { allAnswers, jurisdiction, country } = req.body;
+    const { allAnswers, jurisdiction, country, age } = req.body;
 
     if (!allAnswers || !jurisdiction || !country) {
       return res.status(400).json({ 
@@ -179,7 +180,7 @@ router.post('/assessment', async (req, res) => {
       });
     }
 
-    const assessment = await generateWillAssessment(allAnswers, jurisdiction, country);
+    const assessment = await generateWillAssessment(allAnswers, jurisdiction, country, age);
 
     res.json({ 
       assessment,
