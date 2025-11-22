@@ -109,20 +109,30 @@ textarea {
 }
 
 /* Tooltip Styles */
-.question-label-text {
-  display: inline;
+.question-with-tooltip {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.question-with-tooltip label {
+  flex: 1;
+  margin-bottom: 0;
 }
 
 .tooltip-wrapper {
   position: relative;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  margin-left: 8px;
+  flex-shrink: 0;
+  margin-top: 2px;
 }
 
 .tooltip-icon {
   color: #3B82F6;
-  font-size: 16px;
+  font-size: 18px;
   cursor: help;
   transition: color 0.2s ease;
 }
@@ -134,8 +144,7 @@ textarea {
 .tooltip-text {
   position: absolute;
   bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
+  right: 0;
   margin-bottom: 8px;
   padding: 10px 14px;
   background-color: #1F2937;
@@ -156,8 +165,7 @@ textarea {
   content: '';
   position: absolute;
   top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
+  right: 12px;
   border: 6px solid transparent;
   border-top-color: #1F2937;
 }

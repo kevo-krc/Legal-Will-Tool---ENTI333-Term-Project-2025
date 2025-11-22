@@ -538,11 +538,11 @@ function Questionnaire() {
             <form onSubmit={(e) => { e.preventDefault(); handleSubmitRound(); }}>
               {questions.map((question, index) => (
                 <div key={question.id} className="form-group">
-                  <label htmlFor={question.id}>
-                    <span className="question-label-text">
+                  <div className="question-with-tooltip">
+                    <label htmlFor={question.id}>
                       {index + 1}. {question.question}
                       {question.required && <span className="required">*</span>}
-                    </span>
+                    </label>
                     {question.tooltip && (
                       <span className="tooltip-wrapper">
                         <FaInfoCircle
@@ -555,7 +555,7 @@ function Questionnaire() {
                         )}
                       </span>
                     )}
-                  </label>
+                  </div>
                   {renderQuestion(question)}
                 </div>
               ))}
