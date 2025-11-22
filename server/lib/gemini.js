@@ -419,11 +419,18 @@ async function generateInitialQuestions(jurisdiction, country, userName) {
   return getStaticInitialQuestions(jurisdiction, country);
 }
 
-async function generateFollowUpQuestions(previousAnswers, jurisdiction, country, roundNumber) {
+async function generateFollowUpQuestions(previousAnswers, jurisdiction, country, roundNumber, userProfile = {}) {
   const summarized = summarizeAnswers(previousAnswers);
   
   const previouslyAskedQuestions = [];
   const providedInformation = [];
+  
+  if (userProfile.full_name) {
+    providedInformation.push(`User's full legal name: ${userProfile.full_name}`);
+  }
+  if (userProfile.date_of_birth) {
+    providedInformation.push(`User's date of birth: ${userProfile.date_of_birth}`);
+  }
   
   previousAnswers.forEach(round => {
     if (round.questions && Array.isArray(round.questions)) {

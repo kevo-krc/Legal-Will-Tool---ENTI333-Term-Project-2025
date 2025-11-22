@@ -113,7 +113,7 @@ router.post('/questions/initial', async (req, res) => {
 
 router.post('/questions/followup', async (req, res) => {
   try {
-    const { previousAnswers, jurisdiction, country, roundNumber } = req.body;
+    const { previousAnswers, jurisdiction, country, roundNumber, userProfile } = req.body;
 
     if (!previousAnswers || !jurisdiction || !country || !roundNumber) {
       return res.status(400).json({ 
@@ -131,7 +131,8 @@ router.post('/questions/followup', async (req, res) => {
       previousAnswers, 
       jurisdiction, 
       country, 
-      roundNumber
+      roundNumber,
+      userProfile
     );
 
     res.json({ 

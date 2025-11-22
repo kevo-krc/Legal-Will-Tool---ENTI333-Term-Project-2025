@@ -81,7 +81,11 @@ function Questionnaire() {
         previousAnswers: qaData,
         jurisdiction: willData.jurisdiction_full_name,
         country: willData.country,
-        roundNumber: roundNumber
+        roundNumber: roundNumber,
+        userProfile: {
+          full_name: profile?.full_name,
+          date_of_birth: profile?.date_of_birth
+        }
       });
 
       setQuestions(response.data.questions);
@@ -233,7 +237,11 @@ function Questionnaire() {
         previousAnswers: qaData,
         jurisdiction: will.jurisdiction_full_name,
         country: will.country,
-        roundNumber: nextRound
+        roundNumber: nextRound,
+        userProfile: {
+          full_name: profile?.full_name,
+          date_of_birth: profile?.date_of_birth
+        }
       });
 
       await axios.put(`${API_URL}/wills/${willId}`, {
@@ -329,6 +337,17 @@ function Questionnaire() {
             onChange={(e) => handleAnswerChange(question.id, e.target.value)}
             required={question.required}
             min="0"
+          />
+        );
+
+      case 'date':
+        return (
+          <input
+            type="date"
+            id={question.id}
+            value={answers[question.id] || ''}
+            onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+            required={question.required}
           />
         );
 
