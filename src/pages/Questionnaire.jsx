@@ -351,6 +351,74 @@ function Questionnaire() {
           />
         );
 
+      case 'person':
+        const personData = typeof answers[question.id] === 'object' 
+          ? answers[question.id] 
+          : { name: '', relationship: '', age: '', address: '' };
+        
+        const handlePersonFieldChange = (field, value) => {
+          const updatedPersonData = { ...personData, [field]: value };
+          handleAnswerChange(question.id, updatedPersonData);
+        };
+
+        return (
+          <div className="person-fields">
+            {question.fields.includes('name') && (
+              <div className="person-field">
+                <label htmlFor={`${question.id}_name`}>Full Legal Name {question.required && <span className="required">*</span>}</label>
+                <input
+                  type="text"
+                  id={`${question.id}_name`}
+                  value={personData.name || ''}
+                  onChange={(e) => handlePersonFieldChange('name', e.target.value)}
+                  required={question.required}
+                  placeholder="e.g., John Michael Smith"
+                />
+              </div>
+            )}
+            {question.fields.includes('relationship') && (
+              <div className="person-field">
+                <label htmlFor={`${question.id}_relationship`}>Relationship to You {question.required && <span className="required">*</span>}</label>
+                <input
+                  type="text"
+                  id={`${question.id}_relationship`}
+                  value={personData.relationship || ''}
+                  onChange={(e) => handlePersonFieldChange('relationship', e.target.value)}
+                  required={question.required}
+                  placeholder="e.g., Brother, Sister, Friend"
+                />
+              </div>
+            )}
+            {question.fields.includes('age') && (
+              <div className="person-field">
+                <label htmlFor={`${question.id}_age`}>Age {question.required && <span className="required">*</span>}</label>
+                <input
+                  type="number"
+                  id={`${question.id}_age`}
+                  value={personData.age || ''}
+                  onChange={(e) => handlePersonFieldChange('age', e.target.value)}
+                  required={question.required}
+                  min="18"
+                  placeholder="e.g., 45"
+                />
+              </div>
+            )}
+            {question.fields.includes('address') && (
+              <div className="person-field">
+                <label htmlFor={`${question.id}_address`}>Residential Address {question.required && <span className="required">*</span>}</label>
+                <input
+                  type="text"
+                  id={`${question.id}_address`}
+                  value={personData.address || ''}
+                  onChange={(e) => handlePersonFieldChange('address', e.target.value)}
+                  required={question.required}
+                  placeholder="e.g., 123 Main Street, Calgary, AB, T2P 1J9"
+                />
+              </div>
+            )}
+          </div>
+        );
+
       case 'boolean':
         return (
           <div className="radio-group">

@@ -322,9 +322,10 @@ function getStaticInitialQuestions(jurisdiction, country) {
     },
     {
       id: "spouse_details",
-      question: "If married or in a common-law relationship, provide your spouse/partner's age and residential address. If not applicable, write 'N/A'.",
-      type: "textarea",
+      question: "If married or in a common-law relationship, provide your spouse/partner's details below. If not applicable, leave blank.",
+      type: "person",
       required: false,
+      fields: ["age", "address"],
       tooltip: "Complete contact information helps with legal identification and estate matters."
     },
     {
@@ -336,16 +337,18 @@ function getStaticInitialQuestions(jurisdiction, country) {
     },
     {
       id: "guardian_for_minors",
-      question: "If you have minor children (under 18), who should be their legal guardian? Provide: full legal name, relationship to you, age, and residential address. If not applicable, write 'N/A'.",
-      type: "textarea",
+      question: "If you have minor children (under 18), who should be their legal guardian?",
+      type: "person",
       required: false,
+      fields: ["name", "relationship", "age", "address"],
       tooltip: "A guardian will care for your minor children if both parents are deceased. Complete information is needed for legal documentation."
     },
     {
       id: "executor_details",
-      question: "Who should be your Personal Representative (Executor)? Provide: full legal name, relationship to you, age, and residential address.",
-      type: "textarea",
+      question: "Who should be your Personal Representative (Executor)?",
+      type: "person",
       required: true,
+      fields: ["name", "relationship", "age", "address"],
       tooltip: "An executor manages your estate, pays debts, and distributes assets according to your will. Complete information is required for legal documentation."
     },
     {
@@ -358,9 +361,10 @@ function getStaticInitialQuestions(jurisdiction, country) {
     },
     {
       id: "alternate_executor",
-      question: "Who should be the alternate Personal Representative if your first choice cannot serve? Provide: full legal name, relationship to you, age, and residential address.",
-      type: "textarea",
+      question: "Who should be the alternate Personal Representative if your first choice cannot serve?",
+      type: "person",
       required: true,
+      fields: ["name", "relationship", "age", "address"],
       tooltip: "An alternate executor steps in if your primary executor is unable or unwilling to serve. Complete information is required for legal documentation."
     },
     {

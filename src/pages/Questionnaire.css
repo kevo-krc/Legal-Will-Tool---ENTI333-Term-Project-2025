@@ -170,6 +170,47 @@ textarea {
   border-top-color: #1F2937;
 }
 
+/* Person Fields Styles */
+.person-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.person-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.person-field label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  margin: 0;
+}
+
+.person-field input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #D1D5DB;
+  border-radius: 6px;
+  font-size: 15px;
+  transition: border-color 0.2s ease;
+}
+
+.person-field input:focus {
+  outline: none;
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.person-field input::placeholder {
+  color: #9CA3AF;
+  font-style: italic;
+}
+
 /* Help Button Styles */
 .questionnaire-header-content {
   display: flex;
