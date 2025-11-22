@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { API_URL } from '../config/api';
 import axios from 'axios';
 import './Questionnaire.css';
+import { FaInfoCircle } from 'react-icons/fa';
 
 function Questionnaire() {
   const { willId } = useParams();
@@ -22,6 +23,7 @@ function Questionnaire() {
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState({});
   const [allAnswers, setAllAnswers] = useState([]);
+  const [activeTooltip, setActiveTooltip] = useState(null);
 
   useEffect(() => {
     loadWill();
@@ -510,10 +512,21 @@ function Questionnaire() {
         <div className="questionnaire-container">
           <div className="card">
             <div className="questionnaire-header">
-              <h2>Will Questionnaire - Round {currentRound} of 3</h2>
-              <p className="text-light">
-                {will.jurisdiction_full_name}, {will.country === 'CA' ? 'Canada' : 'United States'}
-              </p>
+              <div className="questionnaire-header-content">
+                <div>
+                  <h2>Will Questionnaire - Round {currentRound} of 3</h2>
+                  <p className="text-light">
+                    {will.jurisdiction_full_name}, {will.country === 'CA' ? 'Canada' : 'United States'}
+                  </p>
+                </div>
+                <button 
+                  type="button"
+                  className="help-button"
+                  onClick={() => alert('Help chatbot coming soon!')}
+                >
+                  Help
+                </button>
+              </div>
             </div>
 
             {error && (
@@ -526,8 +539,22 @@ function Questionnaire() {
               {questions.map((question, index) => (
                 <div key={question.id} className="form-group">
                   <label htmlFor={question.id}>
-                    {index + 1}. {question.question}
-                    {question.required && <span className="required">*</span>}
+                    <span className="question-label-text">
+                      {index + 1}. {question.question}
+                      {question.required && <span className="required">*</span>}
+                    </span>
+                    {question.tooltip && (
+                      <span className="tooltip-wrapper">
+                        <FaInfoCircle
+                          className="tooltip-icon"
+                          onMouseEnter={() => setActiveTooltip(question.id)}
+                          onMouseLeave={() => setActiveTooltip(null)}
+                        />
+                        {activeTooltip === question.id && (
+                          <span className="tooltip-text">{question.tooltip}</span>
+                        )}
+                      </span>
+                    )}
                   </label>
                   {renderQuestion(question)}
                 </div>

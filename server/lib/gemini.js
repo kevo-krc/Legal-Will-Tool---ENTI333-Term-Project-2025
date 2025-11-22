@@ -310,92 +310,107 @@ function getStaticInitialQuestions(jurisdiction, country) {
       question: "What is your current marital status?",
       type: "select",
       required: true,
-      options: ["Single", "Married", "Divorced", "Widowed", "Common-law/Domestic Partnership", "Separated"]
+      options: ["Single", "Married", "Divorced", "Widowed", "Common-law/Domestic Partnership", "Separated"],
+      tooltip: "Your marital status affects how your estate is distributed and your spouse's legal rights."
     },
     {
       id: "spouse_name",
       question: "If married or in a common-law relationship, what is your spouse/partner's full legal name?",
       type: "text",
-      required: false
+      required: false,
+      tooltip: "Use the exact legal name as it appears on official documents."
     },
     {
       id: "children_details",
       question: "List all your children (include full names and ages). If none, write 'None'.",
       type: "textarea",
-      required: true
+      required: true,
+      tooltip: "Include all biological, adopted, and stepchildren to ensure proper distribution of your estate."
     },
     {
       id: "guardian_for_minors",
       question: "If you have minor children (under 18), who should be their legal guardian? Include full name and relationship. If not applicable, write 'N/A'.",
       type: "text",
-      required: false
+      required: false,
+      tooltip: "A guardian will care for your minor children if both parents are deceased."
     },
     {
       id: "executor_details",
       question: "Who should be your Personal Representative (Executor)? Provide: full legal name, relationship to you, and their age.",
       type: "textarea",
-      required: true
+      required: true,
+      tooltip: "An executor manages your estate, pays debts, and distributes assets according to your will."
     },
     {
       id: "executor_compensation",
       question: "Should your executor receive compensation for their services?",
       type: "select",
       required: true,
-      options: ["Yes - standard executor fees", "No - they should serve without compensation", "Specific amount (will specify in follow-up)"]
+      options: ["Yes - standard executor fees", "No - they should serve without compensation", "Specific amount (will specify in follow-up)"],
+      tooltip: "Executors can receive payment for their time and effort in managing your estate."
     },
     {
       id: "alternate_executor",
       question: "Who should be the alternate Personal Representative if your first choice cannot serve? Provide full name and relationship.",
       type: "text",
-      required: true
+      required: true,
+      tooltip: "An alternate executor steps in if your primary executor is unable or unwilling to serve."
     },
     {
       id: "specific_bequests",
       question: "Do you want to leave specific gifts to particular people or charities? (e.g., '$5,000 to my sister Jane Doe', 'My car to John Smith', 'My jewelry to my daughter'). If none, write 'None'.",
       type: "textarea",
-      required: false
+      required: false,
+      tooltip: "Specific bequests are individual gifts of money, property, or possessions to named beneficiaries."
     },
     {
       id: "beneficiary_distribution",
       question: "After paying debts and distributing any specific gifts above, how should the remainder (residue) of your estate be divided? Be specific with percentages or fractions (e.g., '100% to my spouse Sarah Smith', '50% to child A, 50% to child B', '1/3 to each of my 3 children').",
       type: "textarea",
-      required: true
+      required: true,
+      tooltip: "The residue is what remains of your estate after debts, taxes, and specific gifts are distributed."
     },
     {
       id: "contingent_beneficiaries",
       question: "If any primary beneficiary dies before you, who should receive their share? Be specific about the replacement beneficiary or how shares should be redistributed.",
       type: "textarea",
-      required: true
+      required: true,
+      tooltip: "Contingent beneficiaries ensure your assets go where you want even if a primary beneficiary predeceases you."
     },
     {
       id: "real_estate",
       question: "Do you own any real estate (house, land, etc.)? If yes, provide addresses and ownership type (sole, joint with spouse, etc.). If none, write 'None'.",
       type: "textarea",
-      required: true
+      required: true,
+      tooltip: "Real estate ownership details help ensure proper transfer of property to your beneficiaries."
     },
     {
       id: "financial_assets",
       question: "Summarize your financial assets: bank accounts, investments, retirement accounts, life insurance. Approximate values are fine.",
       type: "textarea",
-      required: true
+      required: true,
+      tooltip: "A summary of your financial assets helps your executor understand the scope of your estate."
     },
     {
       id: "debts_liabilities",
       question: "Do you have significant debts or liabilities (mortgage, loans, etc.)? If yes, briefly describe. If none, write 'None'.",
       type: "textarea",
-      required: true
+      required: true,
+      tooltip: "Debts must be paid from your estate before assets are distributed to beneficiaries."
     },
     {
       id: "digital_assets",
       question: "Do you have digital assets or online accounts that need to be addressed (social media, cryptocurrency, digital businesses)? If yes, describe briefly. If none, write 'None'.",
       type: "textarea",
-      required: false
+      required: false,
+      tooltip: "Digital assets include online accounts, cryptocurrency, and digital property that have monetary or sentimental value."
     },
     {
       id: "funeral_preferences",
       question: "Do you have specific funeral or burial preferences (burial, cremation, specific location)? If none, write 'No preference'.",
       type: "textarea",
-      required: false
+      required: false,
+      tooltip: "Stating your funeral preferences helps your family honor your wishes during a difficult time."
     }
   ];
 }
