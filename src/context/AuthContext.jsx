@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState(null);
 
-  const withTimeout = (promise, timeoutMs = 30000) => {
+  const withTimeout = (promise, timeoutMs = 60000) => {
     let timeoutId;
     const timeoutPromise = new Promise((_, reject) => {
       timeoutId = setTimeout(() => reject(new Error('Authentication timeout')), timeoutMs);
@@ -47,13 +47,14 @@ export const AuthProvider = ({ children }) => {
       } catch (error) {
         console.error('Error getting session:', error);
         if (error.message === 'Authentication timeout') {
-          setAuthError('You have been away too long. Please refresh the page or log in again.');
-          console.log('[Auth Timeout] Session/profile fetch exceeded 30 seconds');
+          setAuthError('Connection is taking longer than expected. Please refresh the page or log in again.');
+          console.log('[Auth Timeout] Session/profile fetch exceeded 60 seconds');
         } else {
           setAuthError('Authentication failed. Please try logging in again.');
         }
         setUser(null);
         setProfile(null);
+        setLoading(false);
       } finally {
         setLoading(false);
       }
@@ -68,10 +69,14 @@ export const AuthProvider = ({ children }) => {
         if (session?.user) {
           try {
             await fetchProfile(session.user.id);
+            setAuthError(null);
           } catch (error) {
             if (error.message === 'Authentication timeout') {
-              setAuthError('You have been away too long. Please refresh the page or log in again.');
+              setAuthError('Connection is taking longer than expected. Please refresh the page or log in again.');
+            } else {
+              setAuthError('Failed to load profile. Please refresh the page.');
             }
+            setProfile(null);
           }
         } else {
           setProfile(null);
@@ -93,7 +98,8 @@ export const AuthProvider = ({ children }) => {
           .from('profiles')
           .select('*')
           .eq('user_id', userId)
-          .single()
+          .single(),
+        60000
       );
 
       if (error && error.code !== 'PGRST116') {
@@ -104,7 +110,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Error fetching profile:', error);
       if (error.message === 'Authentication timeout') {
-        console.log('[Auth Timeout] Profile fetch exceeded 30 seconds');
+        console.log('[Auth Timeout] Profile fetch exceeded 60 seconds');
       }
       throw error;
     }
