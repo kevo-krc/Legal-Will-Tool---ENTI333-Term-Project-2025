@@ -47,8 +47,7 @@ export const AuthProvider = ({ children }) => {
       } catch (error) {
         console.error('Error getting session:', error);
         if (error.message === 'Authentication timeout') {
-          setAuthError('Connection is taking longer than expected. Please refresh the page or log in again.');
-          console.log('[Auth Timeout] Session/profile fetch exceeded 60 seconds');
+          setAuthError('Connection timeout. Please refresh the page or log in again.');
         } else {
           setAuthError('Authentication failed. Please try logging in again.');
         }
@@ -71,11 +70,7 @@ export const AuthProvider = ({ children }) => {
             await fetchProfile(session.user.id);
             setAuthError(null);
           } catch (error) {
-            if (error.message === 'Authentication timeout') {
-              setAuthError('Connection is taking longer than expected. Please refresh the page or log in again.');
-            } else {
-              setAuthError('Failed to load profile. Please refresh the page.');
-            }
+            console.error('Error loading profile on auth change:', error);
             setProfile(null);
           }
         } else {
@@ -93,14 +88,11 @@ export const AuthProvider = ({ children }) => {
 
   const fetchProfile = async (userId) => {
     try {
-      const { data, error } = await withTimeout(
-        supabase
-          .from('profiles')
-          .select('*')
-          .eq('user_id', userId)
-          .single(),
-        60000
-      );
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
 
       if (error && error.code !== 'PGRST116') {
         throw error;
@@ -109,9 +101,6 @@ export const AuthProvider = ({ children }) => {
       setProfile(data);
     } catch (error) {
       console.error('Error fetching profile:', error);
-      if (error.message === 'Authentication timeout') {
-        console.log('[Auth Timeout] Profile fetch exceeded 60 seconds');
-      }
       throw error;
     }
   };
@@ -224,14 +213,12 @@ export const AuthProvider = ({ children }) => {
     try {
       if (!user) throw new Error('No user logged in');
 
-      const { data, error } = await withTimeout(
-        supabase
-          .from('profiles')
-          .update(updates)
-          .eq('user_id', user.id)
-          .select()
-          .single()
-      );
+      const { data, error } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('user_id', user.id)
+        .select()
+        .single();
 
       if (error) throw error;
 
@@ -239,9 +226,6 @@ export const AuthProvider = ({ children }) => {
       return { data, error: null };
     } catch (error) {
       console.error('Error updating profile:', error);
-      if (error.message === 'Authentication timeout') {
-        console.log('[Auth Timeout] Profile update exceeded 30 seconds');
-      }
       return { data: null, error };
     }
   };
