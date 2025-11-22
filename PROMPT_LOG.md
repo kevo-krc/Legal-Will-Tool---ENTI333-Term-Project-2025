@@ -556,6 +556,115 @@ The Updated_PRD_Legal_Will_App.md is a well-intentioned but dangerously under-sp
   - "Fix missing refreshProfile function in AuthContext"
   - "Increase auth timeout to 30s and improve error messages"
 
+## 21. UX Enhancement: Tooltip System and Help Button (2025-11-22)
+### Goal: Add contextual help tooltips to guide users through questionnaire
+- **Source PRD Requirement:** Improve user experience with contextual help information
+- **Prompt 1:** "Can we add a 'help' that when hovered over explains why we are asking this question? And add a help button as well in case there is a live chatbot capability to help with a question. Scenario A: captures and stores additional data from user. Scenario B: doesn't capture data but helps user answer a question they are stuck on."
+- **AI Output Summary:** Implemented two-tier tooltip system:
+  1. **Static Tooltips for Round 1:**
+     - Added `tooltip` field to all 15 static Round 1 questions
+     - Explains legal necessity of each question (e.g., "Your marital status affects estate distribution")
+     - Tooltip appears on hover with info icon (ℹ️) next to each question
+  2. **AI-Generated Tooltips for Rounds 2-3:**
+     - Updated Gemini prompts to include `tooltip` field in generated questions
+     - AI provides contextual explanations for follow-up questions
+     - Tooltips integrated into JSON response structure
+  3. **Help Button (Visual Placeholder):**
+     - Added green "HELP" button in top-right corner of questionnaire header
+     - Distinct styling (green gradient) to differentiate from primary buttons
+     - Currently shows placeholder alert for future chatbot implementation
+     - Positioned responsively (moves below title on mobile)
+- **Technical Implementation:**
+  - Created tooltip CSS with dark bubble styling and proper positioning
+  - Used FaInfoCircle icon from react-icons
+  - Tooltips show/hide on hover with clean transitions
+  - Help button styled with box shadow and hover animations
+- **Prompt 2 (Bug Fix):** "The tooltips mostly look good but when a question is of a length to put the 'i' symbol on the left of the page the text pop up is cut off by the edge of the screen."
+- **Fix Applied:**
+  - Moved info icons to flex layout with `justify-content: space-between`
+  - Info icon always stays on right side using `flex-shrink: 0`
+  - Tooltip anchored to `right: 0` instead of centered
+  - Tooltip arrow positioned on right side to match icon position
+- **Outcome:** Users now have contextual help without leaving questionnaire flow, preventing tooltip cutoff issues
+- **Commits:**
+  - "Add tooltip help system and placeholder Help button"
+  - "Fix tooltip positioning to prevent edge cutoff"
+
+## 22. Bug Fixes: Date Input Field and AI Context Improvements (2025-11-22)
+### Goal: Fix missing date input field and prevent AI from asking for user's existing data
+- **Source PRD Requirement:** Bug fixes identified during user testing
+- **Prompt:** "I tested our process and for some reason the third round of questions asked my full legal name. We already know the user's name from registration or signing in. Also date of birth is being asked but we should also already have this information from registration+sign in. Additionally there is no spot to enter information after the date of birth question."
+- **Issues Identified:**
+  1. **Missing Date Input Field:** Questionnaire had no `case 'date':` handler in `renderQuestion` function
+  2. **AI Asking for User's Name:** Round 3 AI didn't know user's name was already in profile
+  3. **AI Asking for Date of Birth:** Round 3 AI didn't know user's DOB was already in profile
+- **AI Output Summary:** Implemented three critical fixes:
+  1. **Added Date Input Type:**
+     - Created `case 'date':` in `renderQuestion` function
+     - Renders proper `<input type="date">` element
+     - Includes required validation and proper value binding
+  2. **Pass User Profile to AI:**
+     - Updated `loadFollowUpQuestions` to include `userProfile` object
+     - Updated `loadFollowUpQuestionsForResume` to include `userProfile` object
+     - Profile data includes: `full_name` and `date_of_birth`
+  3. **Enhanced AI Context:**
+     - Modified `generateFollowUpQuestions` to accept `userProfile` parameter
+     - User profile data added to "INFORMATION ALREADY PROVIDED" section
+     - AI explicitly told: "DO NOT RE-ASK FOR THIS DATA"
+     - Updated data tracking to recognize `address`, `spouse`, and `details` fields
+- **Technical Details:**
+  - Backend route `/questions/followup` now accepts `userProfile` in request body
+  - `formatPersonAnswer` helper formats structured person data for AI prompts
+  - User context prevents AI from asking for: full legal name, date of birth
+- **Outcome:** Date questions now have input fields, AI never asks for data we already have
+- **Commits:**
+  - "Fix missing date input field and add user profile context to AI"
+  - "Prevent AI from asking for user's name and DOB"
+
+## 23. UX Enhancement: Multi-Field Person Input System (2025-11-22)
+### Goal: Separate person information into structured fields for better data quality and AI/PDF generation
+- **Source PRD Requirement:** Improve data collection and structured data for AI and PDF generation
+- **Prompt 1:** "The first round of questions is static and so consistently asks for an executor and back up. The second AI powered round consistently asks for that individual's residential address. Can we make the residential address a component of the static questions? Anytime an individual is to be named their residential address, relationship to the user, and age should be asked for."
+- **Initial Change:** Updated static Round 1 questions to ask for full information (name, relationship, age, address) in single textarea fields
+- **Prompt 2:** "Instead of all that information being collected in one user filled text box can we separate those fields into their specific types of data? That way we can pass that more specific information on to AI and its question answer will be enhanced as well as the generated pdf. Is ok to combine the data for storage in supabase or should we update supabase for this as well?"
+- **AI Output Summary:** Implemented structured multi-field person input system:
+  1. **New Question Type: 'person'**
+     - Created new question type with configurable fields array
+     - Supports: `name`, `relationship`, `age`, `address`
+     - Each question specifies which fields to display
+  2. **Updated Static Round 1 Questions:**
+     - **Spouse Details:** Age + Address fields (name already captured separately)
+     - **Guardian for Minors:** Name + Relationship + Age + Address
+     - **Primary Executor:** Name + Relationship + Age + Address
+     - **Alternate Executor:** Name + Relationship + Age + Address
+  3. **Multi-Field Rendering:**
+     - Each field has its own label and input
+     - Placeholders guide user input format
+     - Age fields use `type="number"` with `min="18"`
+     - Address fields are full-width text inputs
+  4. **Data Storage Structure:**
+     - Stored as JSON objects in Supabase `qa_data` field (no schema changes)
+     - Example: `{"name": "John Smith", "relationship": "Brother", "age": "45", "address": "123 Main St..."}`
+  5. **Data Formatting for AI & PDF:**
+     - Created `formatPersonAnswer()` helper function
+     - Converts objects to readable text: "Name: John Smith, Relationship: Brother, Age: 45, Address: 123 Main St..."
+     - Applied in `summarizeAnswers()` and `providedInformation` tracking
+  6. **Enhanced CSS Styling:**
+     - Created `.person-fields` and `.person-field` classes
+     - Clean vertical layout with proper spacing
+     - Focus states with blue borders
+     - Placeholder text styling
+- **Benefits:**
+  - **Better UX:** Clear labeled fields instead of confusing single text box
+  - **Data Quality:** Users know exactly what to provide
+  - **AI Enhancement:** Structured data improves AI understanding
+  - **PDF Generation:** Easy field extraction for legal documents
+  - **No Migration:** Kept existing Supabase schema, just improved data structure
+- **Outcome:** Person information now collected in separate, validated fields with structured storage
+- **Commits:**
+  - "Update Round 1 questions to request complete person information"
+  - "Implement multi-field person input system for structured data collection"
+
 ---
 
 ## Summary by Phase (Final)
@@ -564,8 +673,9 @@ The Updated_PRD_Legal_Will_App.md is a well-intentioned but dangerously under-sp
 **Phase 3 (Complete):** Google Gemini AI integration, multi-round questionnaires, rate limiting, timeout handling, anti-repetition mechanisms, automated retry for empty responses  
 **Phase 4 (Complete):** PDF generation with PDFKit, Supabase Storage, legal formatting, download functionality  
 **Phase 5 (Complete):** Email sharing via SendGrid, comprehensive user data deletion, individual will deletion, notifications system, **age verification for legal compliance**  
+**Phase 6 (Complete):** **Tooltip help system**, **Help button placeholder**, **user profile context for AI**, **multi-field person input system**  
 
 ---
 
-**Last Updated:** November 20, 2025  
-**Status:** All core features complete, bugs fixed - production-ready
+**Last Updated:** November 22, 2025  
+**Status:** All core features complete, UX enhancements implemented - production-ready
