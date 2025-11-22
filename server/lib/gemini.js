@@ -162,6 +162,18 @@ function isTransientError(error) {
   return false;
 }
 
+function formatPersonAnswer(personData) {
+  if (!personData || typeof personData !== 'object') return personData;
+  
+  const parts = [];
+  if (personData.name) parts.push(`Name: ${personData.name}`);
+  if (personData.relationship) parts.push(`Relationship: ${personData.relationship}`);
+  if (personData.age) parts.push(`Age: ${personData.age}`);
+  if (personData.address) parts.push(`Address: ${personData.address}`);
+  
+  return parts.length > 0 ? parts.join(', ') : '[Not provided]';
+}
+
 function summarizeAnswers(qaData) {
   if (!qaData || qaData.length === 0) return 'No previous answers';
   
@@ -178,7 +190,8 @@ function summarizeAnswers(qaData) {
     const answerPairs = Object.entries(round.answers)
       .map(([questionId, answer]) => {
         const questionText = questionMap[questionId] || questionId;
-        return `${questionText}: ${answer}`;
+        const formattedAnswer = typeof answer === 'object' ? formatPersonAnswer(answer) : answer;
+        return `${questionText}: ${formattedAnswer}`;
       })
       .join('; ');
     
@@ -456,7 +469,8 @@ async function generateFollowUpQuestions(previousAnswers, jurisdiction, country,
       Object.entries(round.answers).forEach(([key, value]) => {
         if (value && value !== 'None' && value !== 'N/A' && value !== 'No preference') {
           if (key.includes('name') || key.includes('executor') || key.includes('beneficiar') || key.includes('guardian') || key.includes('spouse') || key.includes('details') || key.includes('address')) {
-            providedInformation.push(`${key}: ${value}`);
+            const formattedValue = typeof value === 'object' ? formatPersonAnswer(value) : value;
+            providedInformation.push(`${key}: ${formattedValue}`);
           }
         }
       });
