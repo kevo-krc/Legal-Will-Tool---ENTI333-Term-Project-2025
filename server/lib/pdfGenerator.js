@@ -20,6 +20,25 @@ function extractAnswers(qaData) {
   return allAnswers;
 }
 
+function getPersonName(personData) {
+  if (!personData) return '';
+  if (typeof personData === 'string') return personData;
+  if (typeof personData === 'object' && personData.name) return personData.name;
+  return '';
+}
+
+function formatPersonForPDF(personData) {
+  if (!personData || typeof personData === 'string') return personData || '';
+  
+  const parts = [];
+  if (personData.name) parts.push(personData.name);
+  if (personData.relationship) parts.push(`(${personData.relationship})`);
+  if (personData.age) parts.push(`age ${personData.age}`);
+  if (personData.address) parts.push(`residing at ${personData.address}`);
+  
+  return parts.join(', ');
+}
+
 async function generateWillPDF(willData, userProfile) {
   return new Promise((resolve, reject) => {
     try {
@@ -77,7 +96,8 @@ async function generateWillPDF(willData, userProfile) {
       doc.fontSize(11).font('Helvetica');
       
       if (answers.executor_details) {
-        doc.text(`2.1 I appoint ${answers.executor_details} as my Personal Representative (Executor) to administer my estate.`);
+        const executorName = getPersonName(answers.executor_details);
+        doc.text(`2.1 I appoint ${executorName} as my Personal Representative (Executor) to administer my estate.`);
       }
       
       if (answers.executor_compensation) {
@@ -85,7 +105,8 @@ async function generateWillPDF(willData, userProfile) {
       }
       
       if (answers.alternate_executor) {
-        doc.text(`2.3 Alternate Representative: If my primary Personal Representative is unable or unwilling to serve, I appoint ${answers.alternate_executor} as alternate Personal Representative.`);
+        const alternateExecutorName = getPersonName(answers.alternate_executor);
+        doc.text(`2.3 Alternate Representative: If my primary Personal Representative is unable or unwilling to serve, I appoint ${alternateExecutorName} as alternate Personal Representative.`);
       }
       
       doc.text(`2.4 Powers: I grant my Personal Representative full power and authority to administer my estate, including but not limited to: selling property, paying debts and taxes, distributing assets, and taking all actions necessary for proper estate administration.`);
