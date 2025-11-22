@@ -19,7 +19,7 @@ function Footer() {
         <div className="footer-links">
           <Link to="/privacy-policy" className="footer-link">Privacy Policy</Link>
           <a 
-            href="https://github.com/yourusername/legal-will-tool" 
+            href="https://github.com/kevo-krc/Legal-Will-Tool---ENTI333-Term-Project-2025" 
             className="footer-link"
             target="_blank"
             rel="noopener noreferrer"
