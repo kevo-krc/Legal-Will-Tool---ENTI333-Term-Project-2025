@@ -521,9 +521,12 @@ Return ONLY a JSON array with this exact structure:
     "id": "specific_beneficiary_names",
     "question": "Your question here?",
     "type": "text",
-    "required": true
+    "required": true,
+    "tooltip": "Brief 1-sentence explanation of why this information is needed for the will."
   }
 ]
+
+IMPORTANT: Each question MUST include a "tooltip" field with a brief (1 sentence) explanation of why this information is legally necessary or important for creating the will.
 
 Be DIRECT and SPECIFIC. Return ONLY valid JSON array, no extra text.`;
 
