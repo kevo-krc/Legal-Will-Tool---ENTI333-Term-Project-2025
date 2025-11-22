@@ -321,6 +321,13 @@ function getStaticInitialQuestions(jurisdiction, country) {
       tooltip: "Use the exact legal name as it appears on official documents."
     },
     {
+      id: "spouse_details",
+      question: "If married or in a common-law relationship, provide your spouse/partner's age and residential address. If not applicable, write 'N/A'.",
+      type: "textarea",
+      required: false,
+      tooltip: "Complete contact information helps with legal identification and estate matters."
+    },
+    {
       id: "children_details",
       question: "List all your children (include full names and ages). If none, write 'None'.",
       type: "textarea",
@@ -329,17 +336,17 @@ function getStaticInitialQuestions(jurisdiction, country) {
     },
     {
       id: "guardian_for_minors",
-      question: "If you have minor children (under 18), who should be their legal guardian? Include full name and relationship. If not applicable, write 'N/A'.",
-      type: "text",
+      question: "If you have minor children (under 18), who should be their legal guardian? Provide: full legal name, relationship to you, age, and residential address. If not applicable, write 'N/A'.",
+      type: "textarea",
       required: false,
-      tooltip: "A guardian will care for your minor children if both parents are deceased."
+      tooltip: "A guardian will care for your minor children if both parents are deceased. Complete information is needed for legal documentation."
     },
     {
       id: "executor_details",
-      question: "Who should be your Personal Representative (Executor)? Provide: full legal name, relationship to you, and their age.",
+      question: "Who should be your Personal Representative (Executor)? Provide: full legal name, relationship to you, age, and residential address.",
       type: "textarea",
       required: true,
-      tooltip: "An executor manages your estate, pays debts, and distributes assets according to your will."
+      tooltip: "An executor manages your estate, pays debts, and distributes assets according to your will. Complete information is required for legal documentation."
     },
     {
       id: "executor_compensation",
@@ -351,10 +358,10 @@ function getStaticInitialQuestions(jurisdiction, country) {
     },
     {
       id: "alternate_executor",
-      question: "Who should be the alternate Personal Representative if your first choice cannot serve? Provide full name and relationship.",
-      type: "text",
+      question: "Who should be the alternate Personal Representative if your first choice cannot serve? Provide: full legal name, relationship to you, age, and residential address.",
+      type: "textarea",
       required: true,
-      tooltip: "An alternate executor steps in if your primary executor is unable or unwilling to serve."
+      tooltip: "An alternate executor steps in if your primary executor is unable or unwilling to serve. Complete information is required for legal documentation."
     },
     {
       id: "specific_bequests",
@@ -444,7 +451,7 @@ async function generateFollowUpQuestions(previousAnswers, jurisdiction, country,
     if (round.answers && typeof round.answers === 'object') {
       Object.entries(round.answers).forEach(([key, value]) => {
         if (value && value !== 'None' && value !== 'N/A' && value !== 'No preference') {
-          if (key.includes('name') || key.includes('executor') || key.includes('beneficiar') || key.includes('guardian')) {
+          if (key.includes('name') || key.includes('executor') || key.includes('beneficiar') || key.includes('guardian') || key.includes('spouse') || key.includes('details') || key.includes('address')) {
             providedInformation.push(`${key}: ${value}`);
           }
         }
