@@ -402,18 +402,35 @@ function WillSummary() {
               {will.qa_data && will.qa_data.map((round, roundIdx) => (
                 <div key={roundIdx} className="round-review">
                   <h4>Round {round.round}</h4>
-                  {round.questions && round.questions.map((q, qIdx) => (
-                    <div key={qIdx} className="qa-item">
-                      <p className="question-text"><strong>Q:</strong> {q.question}</p>
-                      <p className="answer-text">
-                        <strong>A:</strong> {
-                          Array.isArray(round.answers[q.id])
-                            ? round.answers[q.id].join(', ')
-                            : round.answers[q.id] || 'Not answered'
-                        }
-                      </p>
-                    </div>
-                  ))}
+                  {round.questions && round.questions.map((q, qIdx) => {
+                    const answer = round.answers[q.id];
+                    let displayAnswer;
+                    
+                    if (!answer || answer === '') {
+                      displayAnswer = 'Not answered';
+                    } else if (Array.isArray(answer)) {
+                      displayAnswer = answer.join(', ');
+                    } else if (typeof answer === 'object') {
+                      // Format person objects (name, relationship, age, address)
+                      const parts = [];
+                      if (answer.name) parts.push(`Name: ${answer.name}`);
+                      if (answer.relationship) parts.push(`Relationship: ${answer.relationship}`);
+                      if (answer.age) parts.push(`Age: ${answer.age}`);
+                      if (answer.address) parts.push(`Address: ${answer.address}`);
+                      displayAnswer = parts.join(', ');
+                    } else {
+                      displayAnswer = answer;
+                    }
+                    
+                    return (
+                      <div key={qIdx} className="qa-item">
+                        <p className="question-text"><strong>Q:</strong> {q.question}</p>
+                        <p className="answer-text">
+                          <strong>A:</strong> {displayAnswer}
+                        </p>
+                      </div>
+                    );
+                  })}
                 </div>
               ))}
             </div>
