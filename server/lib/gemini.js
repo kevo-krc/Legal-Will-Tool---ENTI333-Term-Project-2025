@@ -350,11 +350,10 @@ function getStaticInitialQuestions(jurisdiction, country) {
     },
     {
       id: "guardian_for_minors",
-      question: "If you have minor children (under 18), who should be their legal guardian?",
-      type: "person",
+      question: "If you have minor children (under 18), list the names of your chosen guardians (e.g., 'John Smith and Jane Smith' or 'Mary Johnson'). If not applicable, write 'N/A'.",
+      type: "textarea",
       required: false,
-      fields: ["name", "relationship", "age", "address"],
-      tooltip: "A guardian will care for your minor children if both parents are deceased. Complete information is needed for legal documentation."
+      tooltip: "A guardian will care for your minor children if both parents are deceased. List only the names - additional details will be collected in follow-up questions if needed."
     },
     {
       id: "executor_details",
@@ -485,82 +484,47 @@ async function generateFollowUpQuestions(previousAnswers, jurisdiction, country,
     ? `\n\nINFORMATION ALREADY PROVIDED (DO NOT RE-ASK FOR THIS DATA):\n${providedInformation.map((info, i) => `${i + 1}. ${info}`).join('\n')}\n`
     : '';
   
-  const prompt = `You are a lawyer gathering ESSENTIAL information TO CREATE a legally valid will. Review the client's answers and ask ${roundNumber === 2 ? '4-6' : '2-4' } follow-up questions to fill CRITICAL GAPS only.
+  const prompt = `You are a lawyer creating a will for ${jurisdiction}. Review answers and ask ${roundNumber === 2 ? '3-5' : '2-3'} follow-up questions for CRITICAL missing information only.
 
-Previous answers (summarized):
+PREVIOUS ANSWERS:
 ${summarized}
 ${previousQuestionsText}
 ${providedInfoText}
-Jurisdiction: ${jurisdiction}, ${country === 'CA' ? 'Canada' : 'United States'}
-Round ${roundNumber} of 3
 
-STRICT RULES TO PREVENT REDUNDANT QUESTIONS:
-1. NEVER ask for a person's "full legal name" if you already have their name in the answers above
-2. For PEOPLE: If you have a name, only ask for MISSING details (age, address, relationship) - NOT the name again
-3. For CHARITABLE ORGANIZATIONS: Ask for "registered charitable name and registration number" - NEVER "full legal name"
-4. NEVER repeat questions from previous rounds, even with different wording
-5. If the user answered "I do not know" or similar, accept it and DO NOT ask again
-6. The user cannot "confirm" things with others - this is a single-session form
+ANTI-REPETITION RULES:
+1. NEVER ask for names already provided
+2. For people with names: only ask for MISSING details (age, address, relationship)
+3. For charities: ask "registered name and number" not "full legal name"
+4. NEVER repeat previous questions (see list above)
+5. Accept "I don't know" - don't ask again
 
-${roundNumber === 2 ? 'ROUND 2 - ESSENTIAL WILL REQUIREMENTS (ask if missing):' : 'ROUND 3 - FINAL CRITICAL GAPS (ask ONLY if absolutely necessary):'}
+${roundNumber === 2 ? 'ROUND 2 - ASK IF MISSING:' : 'ROUND 3 - FINAL GAPS ONLY:'}
+- Executor/alternate details (age, address, relationship)
+- Guardian/alternate for minors (if kids under 18)
+- Beneficiary specifics (percentages must = 100%, names not vague)
+- Residue distribution (who gets remainder?)
+- Debt handling (pay before distribution?)
+- Minor inheritance age (18, 21, 25?)
+- Charity registration details
+- Major asset distribution clarity
 
-PRIORITY 1 - REQUIRED FOR VALID WILL:
-- Missing executor information (full name, age, address - BUT DO NOT ask about willingness if already asked)
-- Missing alternate executor (full name, relationship)
-- Unclear beneficiary distribution (must have specific percentages or clear division)
-- Missing guardian for minors (if they have children under 18)
-- Missing alternate guardian for minors
-- Vague residue clause (who gets the remainder after specific gifts?)
+FORBIDDEN:
+- Already asked questions
+- Already provided info
+- Witness/signing procedures
+- Legal formalities
+- Tax/estate planning
 
-PRIORITY 2 - ESSENTIAL CLARIFICATIONS:
-- If percentages don't add to 100%, ask for clarification
-- If beneficiaries are vague ("my children"), ask for specific names
-- If assets listed but distribution unclear, ask how each major asset should be distributed
-- Missing debt payment instructions (should debts be paid before distribution?)
-- If minor children inherit, ask about trust age threshold (18, 21, 25?)
-
-PRIORITY 3 - ONLY IF CRITICAL:
-- Per stirpes vs per capita for deceased beneficiaries (only if multiple children/beneficiaries)
-- Ademption clause for specific gifts (what if item no longer owned?)
-- Digital asset access (only if they mentioned digital assets/crypto)
-
-${roundNumber === 3 ? 'IMPORTANT: Most information should be gathered by now. Only ask about truly CRITICAL missing pieces needed for a functional will. DO NOT repeat questions from Round 2.' : ''}
-
-ABSOLUTELY FORBIDDEN (DO NOT ASK):
-- Questions already asked in previous rounds (see list above)
-- Information already provided (see list above) - if you have a person's name, DON'T ask for their "full legal name" again
-- "Full legal name" of organizations - use "registered charitable name and registration number" instead
-- Whether they have "now" confirmed anything with anyone - this is a single-session questionnaire
-- Repeating a question because the user said "I do not know" - accept that answer
-- Witness names or signing procedures (we handle that in instructions)
-- Legal formalities or will format
-- Tax planning or estate planning strategies
-
-GOOD QUESTION EXAMPLES:
-✓ "What is the residential address for [person's name that you already have]?"
-✓ "What is [person's name]'s age?"
-✓ "What is the registered charitable name and registration number for [charity mentioned]?"
-✓ "Should your mortgage be paid off from estate assets or assumed by beneficiary?"
-
-BAD QUESTION EXAMPLES (NEVER ASK THESE):
-✗ "What is [name]'s full legal name?" (when you already have their name)
-✗ "What is the full legal name of [organization]?" (organizations don't have "full legal names")
-✗ Any question that's already in the "QUESTIONS ALREADY ASKED" list above
-
-Return ONLY a JSON array with this exact structure:
+Return ONLY JSON array (include "tooltip" for each):
 [
   {
-    "id": "specific_beneficiary_names",
-    "question": "Your question here?",
+    "id": "question_id",
+    "question": "Your question?",
     "type": "text",
     "required": true,
-    "tooltip": "Brief 1-sentence explanation of why this information is needed for the will."
+    "tooltip": "Why this is needed for the will."
   }
-]
-
-IMPORTANT: Each question MUST include a "tooltip" field with a brief (1 sentence) explanation of why this information is legally necessary or important for creating the will.
-
-Be DIRECT and SPECIFIC. Return ONLY valid JSON array, no extra text.`;
+]`;
 
   const { result } = await executeWithRetry(
     async () => {
