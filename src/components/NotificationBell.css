@@ -42,7 +42,8 @@
 .notification-panel {
   position: absolute;
   top: 100%;
-  left: 0;
+  right: 50%;
+  transform: translateX(50%);
   margin-top: 8px;
   width: 380px;
   max-width: calc(100vw - 16px);
