@@ -40,6 +40,8 @@ const NotificationPanel = ({ onClose }) => {
   const getTypeIcon = (type) => {
     switch (type) {
       case 'success':
+      case 'email_success':
+      case 'pdf_success':
         return '✓';
       case 'error':
       case 'email_failure':
