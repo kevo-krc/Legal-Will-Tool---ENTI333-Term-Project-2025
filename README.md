@@ -48,7 +48,22 @@ This is a full-stack web application that helps users create legally valid wills
 
 ---
 
-## 🏗️ Architecture Highlights
+## 🏗️ Architecture Overview
+
+**📊 [View Complete Architecture Diagram →](ARCHITECTURE.md)**
+
+The architecture diagram provides:
+- High-level system architecture with all components
+- Component interaction flow (authentication, will creation, PDF generation, email sharing)
+- Database schema (ERD diagrams)
+- Schema-driven data flow
+- Technology stack breakdown
+- Security architecture
+- File structure overview
+
+---
+
+## Architecture Highlights
 
 ### Schema-Driven AI System
 
@@ -557,6 +572,20 @@ The following features were considered but not implemented in the current versio
 - Beneficiary notification system (alert beneficiaries of will existence)
 - Digital asset management (social media, crypto wallets)
 - Integration with estate planning services
+
+---
+
+## 📚 Documentation
+
+Comprehensive documentation is available for all aspects of the project:
+
+- **[PRD_final.md](PRD_final.md)** - Product Requirements Document reflecting actual delivered scope (features implemented vs. excluded)
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Complete system architecture with diagrams (Mermaid), data flow, and technical decisions
+- **[PROMPT_LOG.md](PROMPT_LOG.md)** - Development log documenting all AI coding prompts and implementation phases
+- **[TESTING_GUIDE.md](TESTING_GUIDE.md)** - Step-by-step testing instructions for authentication, questionnaire, PDF generation, and email sharing
+- **[QUICK_TEST_CHECKLIST.md](QUICK_TEST_CHECKLIST.md)** - Rapid testing checklist for all features
+- **[Privacy_Policy.md](Privacy_Policy.md)** - Comprehensive privacy notice and disclaimer (also available in-app)
+- **[replit.md](replit.md)** - Replit-specific configuration, system architecture, and recent changes
 
 ---
 
