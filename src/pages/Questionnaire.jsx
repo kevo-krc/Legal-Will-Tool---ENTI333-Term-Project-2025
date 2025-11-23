@@ -684,9 +684,9 @@ function Questionnaire() {
                 <button 
                   type="button"
                   className="help-button"
-                  onClick={() => alert('Help chatbot coming soon!')}
+                  onClick={() => alert('AI assistance chatbot coming soon!')}
                 >
-                  Help
+                  AI-HELP
                 </button>
               </div>
             </div>
