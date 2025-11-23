@@ -61,6 +61,5 @@ lerna-debug.log*
 .LSOverride
 
 # Documentation folders (keep only in repo root)
-Old PRDs/
 assets/
 attached_assets/
