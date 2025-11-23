@@ -51,6 +51,19 @@ The application is a full-stack React (Vite) and Node.js (Express) project.
 
 ## Recent Changes (November 2025)
 
+### November 23, 2025 (Part 4) - Scope Reduction & UI Simplification
+- **Notification System:**
+  - Removed notification bell icon from header UI to streamline interface
+  - Backend notification functionality preserved for potential future use
+  - Database schema remains intact with all notification columns
+- **AI-Help Button:**
+  - Updated to display "under development" message when clicked
+  - Alert text: "This feature is under development. AI-powered chat assistance will be available in a future release."
+- **PDF Actions Button:**
+  - Renamed "Download PDF Documents" to "View Will" for clarity
+  - Button opens will.pdf in browser (primary document)
+  - Assessment PDF remains accessible via email sharing
+
 ### November 23, 2025 (Part 3) - User-Friendly PDF Naming & Enhanced Debugging
 - **PDF Naming System:**
   - PDFs now use human-readable filenames: `Will_Kevin_Cooney_11_23_2025.pdf` and `Assessment_Kevin_Cooney_11_23_2025.pdf`
