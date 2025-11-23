@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { API_URL } from '../config/api';
 import axios from 'axios';
+import { AuthContext } from '../context/AuthContext';
 import './WillSummary.css';
 
 function WillSummary() {
   const { willId } = useParams();
   const navigate = useNavigate();
+  const { profile } = useContext(AuthContext);
   
   const [will, setWill] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -175,7 +177,7 @@ function WillSummary() {
                 <strong>Location:</strong> {will.jurisdiction_full_name}, {will.country === 'CA' ? 'Canada' : 'United States'}
               </p>
               <p>
-                <strong>Account Number:</strong> {will.account_number}
+                <strong>Account Number:</strong> {profile?.account_number || 'Loading...'}
               </p>
             </div>
 
