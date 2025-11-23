@@ -277,7 +277,7 @@ legal-will-generation-tool/
 - **POST** `/api/ai/compliance` - Generate jurisdiction-specific compliance statement
   - Body: `{ country, jurisdiction, jurisdictionFullName, age? }`
   - Response: `{ complianceStatement }`
-- **POST** `/api/ai/questions/initial` - Generate Round 1 questions (5-7 questions)
+- **POST** `/api/ai/questions/initial` - Generate Round 1 questions (15 static questions)
   - Body: `{ jurisdiction, jurisdictionFullName }`
   - Response: `{ questions: [...] }`
 - **POST** `/api/ai/questions/followup` - Generate follow-up questions (3-5 questions)
@@ -365,9 +365,9 @@ See `TESTING_GUIDE.md` for comprehensive testing instructions.
 2. ✅ Login with credentials
 3. ✅ View and edit profile
 4. ✅ Create new will (select jurisdiction)
-5. ✅ Answer Round 1 questions (5-7 questions)
-6. ✅ Answer Round 2 questions (follow-up based on Round 1)
-7. ✅ Complete Round 3 (if needed)
+5. ✅ Answer Round 1 questions (15 static questions)
+6. ✅ Answer Round 2 questions (AI-generated follow-up based on Round 1)
+7. ✅ Complete Round 3 if needed (AI-generated final clarifications)
 8. ✅ View final assessment
 9. ✅ View will PDF in browser
 10. ✅ Share documents (Will + Assessment) via email

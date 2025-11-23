@@ -18,12 +18,23 @@ After the initial documentation update, a thorough audit revealed **misleading s
 5. **Changed:** "Download functionality for user documents" → "View will PDF functionality in browser" (Phase 4)
 6. **Removed:** "Notifications system tracking..." and "Notification bell UI..." from Phase 5 (lines 269-270)
 7. **Updated Test Checklist:**
+   - Step 5: "Answer Round 1 questions (5-7 questions)" → "Answer Round 1 questions (15 static questions)"
+   - Step 6: More descriptive - "AI-generated follow-up based on Round 1"
+   - Step 7: Clarified "if needed (AI-generated final clarifications)"
    - Step 9: "Download will PDF..." → "View will PDF in browser"
    - Step 10: "Share documents via email" (more specific)
    - Removed Step 11: "View notifications"
    - Renumbered remaining steps
-8. **Updated API Endpoints:** Added "⚠️ Backend Only - UI Disabled" warning to Notifications section
+8. **Updated API Endpoints:** 
+   - Changed "Generate Round 1 questions (5-7 questions)" → "(15 static questions)"
+   - Added "⚠️ Backend Only - UI Disabled" warning to Notifications section
 9. **Removed:** "Notifications: User action tracking..." from Data Storage section
+
+### PRD_final.md Corrections:
+1. **Fixed Round 1 question count:** "13 questions" → "15 questions" (3 locations)
+   - Three-round questionnaire description
+   - User journey step 6
+   - User story US-005 acceptance criteria
 
 ### Verified Clean:
 - ✅ **PRD_final.md:** Already correctly marks notifications as "⚠️ Partially Implemented" with clear notes
@@ -248,8 +259,12 @@ SCOPE CORRECTIONS IN README.md:
 - Removed "Notifications system" from feature list (backend exists, UI disabled)
 - Changed "Download functionality" to "View will PDF functionality"
 - Removed NotificationBell.jsx and NotificationContext.jsx from file structure
+- Fixed Round 1 question count: "5-7 questions" → "15 static questions" (test checklist + API docs)
 - Updated test checklist to remove "Download" and "View notifications" steps
 - Added "Backend Only - UI Disabled" warning to Notifications API section
+
+SCOPE CORRECTIONS IN PRD_final.md:
+- Fixed Round 1 question count: "13 questions" → "15 questions" (3 locations)
 
 VERIFIED:
 - All dates updated to November 23, 2025

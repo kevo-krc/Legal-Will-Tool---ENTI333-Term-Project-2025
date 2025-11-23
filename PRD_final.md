@@ -121,7 +121,7 @@ The following were identified as non-goals or excluded from the final scope:
   - **Type 1 - Template Fields:** Questions that map directly to PDF template (executor, beneficiaries, etc.)
   - **Type 2 - Contextual Information:** Questions for legal assessment (life insurance, business interests, etc.)
 - **Three-round questionnaire:**
-  - Round 1: Static initial questions (13 questions covering basics)
+  - Round 1: Static initial questions (15 questions covering basics)
   - Round 2: AI-generated follow-up questions (based on Round 1 answers and schema)
   - Round 3: Final clarification questions (if needed, based on Round 2 answers)
 - **Multi-field person input system:** Structured data collection for spouse, executor, guardian, beneficiaries (name, relationship, age, address)
@@ -209,7 +209,7 @@ The following were identified as non-goals or excluded from the final scope:
 3. **Dashboard:** User redirected to dashboard showing account number and profile
 4. **Legal Disclaimer:** User initiates will creation, selects jurisdiction, reads compliance statement
 5. **Consent:** User accepts or rejects disclaimer (must accept to proceed)
-6. **Round 1 Questions:** 13 static questions with tooltips covering basic information
+6. **Round 1 Questions:** 15 static questions with tooltips covering basic information
 7. **Round 2 Questions:** AI-generated follow-up questions specific to jurisdiction and answers
 8. **Round 3 Questions:** (Optional) Final clarification questions if needed
 9. **Summary Review:** User reviews all answers before finalizing
@@ -411,7 +411,7 @@ See `README.md` section 13 for comprehensive list, including:
 ### US-005: AI-Guided Questionnaire ✅
 **As a user**, I want to answer AI-generated questions so that my will reflects my intentions accurately.  
 **Acceptance Criteria:**
-- Round 1: 13 static questions displayed with tooltips
+- Round 1: 15 static questions displayed with tooltips
 - Round 2: AI generates follow-up questions based on Round 1 answers and schema
 - Round 3: AI generates final clarification questions if needed (optional)
 - System prevents more than 3 rounds
