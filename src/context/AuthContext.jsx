@@ -238,11 +238,15 @@ export const AuthProvider = ({ children }) => {
 
   const getSessionToken = async () => {
     try {
+      console.log('[getSessionToken] Requesting session from Supabase...');
       const { data: { session }, error } = await supabase.auth.getSession();
+      console.log('[getSessionToken] Received response:', { hasSession: !!session, hasError: !!error });
       if (error) throw error;
-      return session?.access_token || null;
+      const token = session?.access_token || null;
+      console.log('[getSessionToken] Returning token:', token ? 'Token available' : 'No token');
+      return token;
     } catch (error) {
-      console.error('Error getting session token:', error);
+      console.error('[getSessionToken] Error getting session token:', error);
       return null;
     }
   };
