@@ -51,20 +51,33 @@ The application is a full-stack React (Vite) and Node.js (Express) project.
 
 ## Recent Changes (November 2025)
 
-### November 23, 2025 - UX Improvements & AI Prompt Enhancements
-- **Scroll-to-Top Functionality:**
-  - Added smooth scroll-to-top when accepting disclaimer (transition from consent screen to questionnaire)
-  - Added smooth scroll-to-top when advancing between question rounds (Round 1→2, Round 2→3)
-  - Improves UX by ensuring users start at the top of each new screen/form
-- **Common-Law Partnership Duration in PDF:**
-  - Added `common_law_duration` and `partnership_duration` fields to Article 1 of Will PDF
-  - Displays relationship duration/interdependence details under spouse information
-  - Ensures all AI-collected data appears in final document
-- **AI Prompt Clarifications:**
-  - Changed Round 2 prompt from "CRITICAL missing information only" to "clarify and complete"
-  - Encourages AI to ask 3-5 questions in Round 2 (instead of being overly conservative with 1 question)
-  - Maintained strict anti-hallucination rules to prevent asking about unmentioned assets
-  - AI still flexible to ask fewer questions if user provided complete Round 1 answers
+### November 23, 2025 - Schema-Driven Architecture & Enhanced AI Guidance
+- **Will Schema System (`willSchema.js`):**
+  - Created two-tier schema distinguishing template fields (goes IN will PDF) vs contextual information (for legal assessment)
+  - Template fields map directly to PDF Articles with exact field names, types, and requirements
+  - Contextual categories include non-probate assets, complex estate matters, family complexity, and jurisdiction-specific items
+  - AI now understands which questions populate the rigid will template vs which inform flexible legal guidance
+- **Enhanced AI Prompts with Schema Integration:**
+  - Follow-up questions now receive full schema showing template structure and contextual guidelines
+  - AI instructed to use EXACT template field names for will content
+  - AI can ask about contextual items (life insurance, retirement accounts, business interests) for comprehensive assessment
+  - Maintained strict anti-hallucination rules while allowing common asset questions once in Round 2
+  - Round 2 targets 3-5 questions to "clarify and complete" instead of conservative "critical only" approach
+- **Jurisdiction-Aware Assessment Generation:**
+  - Assessment AI has increased flexibility (300-500 words vs previous 250-350)
+  - New section: "Assets Passing Outside the Will" explains non-probate transfers
+  - Dedicated section for jurisdiction-specific legal compliance (Alberta common-law, Louisiana forced heirship, etc.)
+  - Enhanced estate planning considerations for complex situations (blended families, special needs, foreign assets)
+  - Regional terminology awareness (Personal Representative vs Executor)
+- **UX Improvements:**
+  - Added smooth scroll-to-top when accepting disclaimer and advancing between rounds
+  - Common-law partnership duration now appears in Article 1 of Will PDF
+  - Ensures all AI-collected data appears in appropriate document sections
+- **Architectural Benefits:**
+  - Clear separation between rigid PDF structure and flexible AI guidance
+  - AI can be comprehensive (ask about life insurance) without being constraining (trying to fit it into template)
+  - Easier to maintain and extend - schema is single source of truth
+  - Better documentation of data flow from questions → template fields → PDF articles
 
 ### November 22, 2025 - UX Enhancement & Data Structure Improvements
 - **Tooltip Help System:**
