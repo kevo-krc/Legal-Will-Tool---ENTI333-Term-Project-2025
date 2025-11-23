@@ -53,3 +53,22 @@ The frontend is built with React 18 and Vite, utilizing a Brand Kit for consiste
 - **Hosting:** Replit
 - **Version Control:** GitHub
 - **PDF Generation Library:** PDFKit
+
+## Recent Changes (November 2025)
+
+### November 23, 2025 - UX Text Improvements & Layout Fixes
+- **Next Steps Section:**
+  - Updated bullet points to clarify assessment PDF is email-only
+  - Changed "Generate your legal assessment document (PDF)" → "Legal assessment PDF available via email"
+  - Changed "Download both documents for your records" → "Email both documents at your leisure"
+  - More accurately reflects the email-based delivery system for assessment PDFs
+- **Header Layout:**
+  - Fixed Home tab positioning for non-logged-in users to match logged-in layout
+  - Home tab now appears on the left side in both states for consistency
+- **Assessment PDF Bug Fix:**
+  - Fixed "[object Object]" display for person-type questions in assessment PDFs
+  - Assessment PDF now properly formats structured person data as readable text
+- **UI Simplification:**
+  - Removed notification bell icon from header
+  - Updated AI-Help button with "under development" message
+  - Renamed "Download PDF Documents" to "View Will" button

@@ -269,8 +269,8 @@ function WillSummary() {
                   </p>
                   <ul className="next-steps-list">
                     <li>Generate your official will document (PDF)</li>
-                    <li>Generate your legal assessment document (PDF)</li>
-                    <li>Download both documents for your records</li>
+                    <li>Legal assessment PDF available via email</li>
+                    <li>Email both documents at your leisure</li>
                     <li>Review with a licensed attorney before execution</li>
                   </ul>
                 </>
