@@ -88,15 +88,28 @@ function WillSummary() {
       setGeneratingPDFs(true);
       setPdfError(null);
       
+      console.log('[PDF Download] Fetching PDF URLs...');
       const response = await axios.get(`${API_URL}/wills/${willId}/download-pdfs`);
+      
+      console.log('[PDF Download] Response:', {
+        hasWillPdf: !!response.data.downloadUrls.willPdf,
+        hasAssessmentPdf: !!response.data.downloadUrls.assessmentPdf
+      });
       
       setDownloadUrls(response.data.downloadUrls);
       
+      // Generate user-friendly filenames
+      const userName = will?.profile?.full_name || 'User';
+      const safeUserName = userName.replace(/[^a-zA-Z0-9]/g, '_');
+      const currentDate = new Date();
+      const formattedDate = `${currentDate.getMonth() + 1}_${currentDate.getDate()}_${currentDate.getFullYear()}`;
+      
       // Download both PDFs using anchor elements to avoid popup blockers
       if (response.data.downloadUrls.willPdf) {
+        console.log('[PDF Download] Downloading will.pdf...');
         const willLink = document.createElement('a');
         willLink.href = response.data.downloadUrls.willPdf;
-        willLink.download = 'will.pdf';
+        willLink.download = `Will_${safeUserName}_${formattedDate}.pdf`;
         willLink.target = '_blank';
         document.body.appendChild(willLink);
         willLink.click();
@@ -104,15 +117,19 @@ function WillSummary() {
       }
       
       if (response.data.downloadUrls.assessmentPdf) {
+        console.log('[PDF Download] Scheduling assessment.pdf download...');
         setTimeout(() => {
+          console.log('[PDF Download] Downloading assessment.pdf...');
           const assessmentLink = document.createElement('a');
           assessmentLink.href = response.data.downloadUrls.assessmentPdf;
-          assessmentLink.download = 'assessment.pdf';
+          assessmentLink.download = `Assessment_${safeUserName}_${formattedDate}.pdf`;
           assessmentLink.target = '_blank';
           document.body.appendChild(assessmentLink);
           assessmentLink.click();
           document.body.removeChild(assessmentLink);
         }, 500);
+      } else {
+        console.warn('[PDF Download] No assessment PDF URL found!');
       }
       
     } catch (err) {
