@@ -51,7 +51,28 @@ The application is a full-stack React (Vite) and Node.js (Express) project.
 
 ## Recent Changes (November 2025)
 
-### November 23, 2025 - Schema-Driven Architecture & Enhanced AI Guidance
+### November 23, 2025 (Part 2) - UX Refinements & Bug Fixes
+- **Header Layout for Non-Logged-In Users:**
+  - Home tab now appears below the header title on the left for non-logged-in users (matching logged-in user layout)
+  - Improved visual consistency across authentication states using `.header-nav-logged-out` CSS class
+- **AI Help Button:**
+  - Renamed from "HELP" to "AI-HELP" for clarity about future AI chatbot functionality
+- **Witness Information Handling:**
+  - Explicitly excluded witness-related questions from AI questionnaire rounds 2-3
+  - Witness requirements now only appear in assessment.pdf with jurisdiction-specific execution guidance
+  - AI prompts updated to never ask about witness information during will content collection
+- **PDF Download Improvements:**
+  - Fixed "Download PDFs" button to properly download both will.pdf AND assessment.pdf
+  - Replaced window.open() with programmatic anchor element creation to avoid browser popup blockers
+  - Both Generate PDFs and Download PDFs buttons now reliably deliver both documents
+- **Email Success Modal:**
+  - Fixed auto-dismiss functionality - modal now closes after 3 seconds (was staying on screen)
+  - Improved notification refresh with 500ms delay to ensure backend notification creation completes
+- **Notification System Debugging:**
+  - Added comprehensive console logging throughout notification fetch process
+  - Enhanced NotificationContext with detailed debugging for troubleshooting notification delivery
+
+### November 23, 2025 (Part 1) - Schema-Driven Architecture & Enhanced AI Guidance
 - **Will Schema System (`willSchema.js`):**
   - Created two-tier schema distinguishing template fields (goes IN will PDF) vs contextual information (for legal assessment)
   - Template fields map directly to PDF Articles with exact field names, types, and requirements

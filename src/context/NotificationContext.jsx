@@ -58,9 +58,6 @@ export const NotificationProvider = ({ children }) => {
 
       console.log('[Notifications] Received notifications:', response.data.length, 'notifications');
       setNotifications(response.data);
-      
-      // Also update unread count immediately
-      await fetchUnreadCount();
     } catch (error) {
       console.error('[Notifications] Error fetching notifications:', error);
     }
