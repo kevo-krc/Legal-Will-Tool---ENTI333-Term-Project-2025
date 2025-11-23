@@ -636,7 +636,7 @@ function Questionnaire() {
                     <li>This tool and its creators assume <strong>NO legal liability whatsoever</strong></li>
                     <li>The generated will may not meet all legal requirements in your jurisdiction</li>
                     <li>Laws vary significantly by location and change over time</li>
-                    <li>You <strong>MUST consult a licensed attorney</strong> before signing or executing any will</li>
+                    <li>You should <strong>strongly consider having this will reviewed by a licensed attorney</strong> before signing or executing it</li>
                     <li>Do not rely on this tool for legal decisions affecting your estate</li>
                   </ul>
                 </div>
