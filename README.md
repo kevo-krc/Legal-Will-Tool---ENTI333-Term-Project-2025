@@ -470,15 +470,77 @@ The following features were considered but not implemented in the current versio
   - Bulk operations and maintenance tasks
   - Advanced reporting and analytics
 
+### AI-Powered Help Chatbot
+- **Purpose:** Real-time assistance during questionnaire and will creation process
+- **Current Status:** Placeholder button present with "under development" message
+- **Benefits:**
+  - Answer user questions about legal terminology
+  - Explain jurisdiction-specific requirements
+  - Provide guidance on complex estate planning scenarios
+  - Reduce user confusion and abandonment
+- **Implementation Considerations:**
+  - Context-aware chatbot using Google Gemini AI
+  - Session history tracking for coherent conversations
+  - Pre-loaded knowledge base of common legal questions
+  - Integration with current questionnaire state
+  - Rate limiting to manage API costs
+
+### Direct PDF Download Feature
+- **Purpose:** Allow users to download PDFs directly from browser instead of email-only access
+- **Current Status:** PDFs only available via email sharing
+- **Benefits:**
+  - Immediate access to documents without email delay
+  - Offline storage for users
+  - Reduced dependency on email service
+  - Better user control over document access
+- **Implementation Considerations:**
+  - Add download buttons to Dashboard and WillSummary pages
+  - Generate temporary signed URLs (1-hour expiration)
+  - Track download events for user activity monitoring
+  - Implement browser-based PDF viewer
+
+### Global Jurisdiction Expansion
+- **Purpose:** Extend legal will support beyond Canada and USA
+- **Current Status:** Supports 13 Canadian provinces/territories and 50 US states
+- **Potential Regions:**
+  - United Kingdom (England, Scotland, Wales, Northern Ireland)
+  - Australia (6 states, 2 territories)
+  - New Zealand
+  - European Union countries
+  - Other common law jurisdictions
+- **Implementation Considerations:**
+  - Research jurisdiction-specific legal requirements
+  - Translate AI prompts for non-English regions
+  - Partner with international legal experts for validation
+  - Expand willSchema.js to support region-specific fields
+  - Update compliance checks for international probate laws
+
+### Mobile Platform Support
+- **Purpose:** Native mobile applications for iOS and Android
+- **Current Status:** Web-only application (mobile-responsive design)
+- **Benefits:**
+  - Better mobile user experience
+  - Offline questionnaire drafting
+  - Push notifications for will review reminders
+  - Biometric authentication (fingerprint, Face ID)
+  - Wider accessibility and reach
+- **Implementation Considerations:**
+  - React Native or Flutter for cross-platform development
+  - Secure local storage for draft wills
+  - Sync mechanism with backend database
+  - Mobile-optimized PDF viewer
+  - App store compliance and legal disclaimers
+
 ### Other Potential Enhancements
-- Multi-language support (French, Spanish)
+- Multi-language support (French, Spanish, Mandarin)
 - Two-factor authentication (2FA)
 - Document versioning and history tracking
 - In-app will comparison tool
 - Legal attorney directory integration
-- Mobile-responsive PDF viewer
 - Scheduled will review reminders
-- Beneficiary notification system
+- Beneficiary notification system (alert beneficiaries of will existence)
+- Digital asset management (social media, crypto wallets)
+- Integration with estate planning services
 
 ---
 
