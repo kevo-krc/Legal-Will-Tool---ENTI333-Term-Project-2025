@@ -63,6 +63,10 @@ The application is a full-stack React (Vite) and Node.js (Express) project.
   - Renamed "Download PDF Documents" to "View Will" for clarity
   - Button opens will.pdf in browser (primary document)
   - Assessment PDF remains accessible via email sharing
+- **Assessment PDF Bug Fix:**
+  - Fixed "[object Object]" display for person-type questions (spouse, guardian, executor)
+  - Assessment PDF now properly formats structured person data as readable text
+  - Uses existing `formatPersonForPDF()` helper to display: "Name, (relationship), age XX, residing at Address"
 
 ### November 23, 2025 (Part 3) - User-Friendly PDF Naming & Enhanced Debugging
 - **PDF Naming System:**

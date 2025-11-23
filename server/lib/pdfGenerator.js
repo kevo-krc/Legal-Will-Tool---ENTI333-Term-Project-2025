@@ -327,9 +327,17 @@ async function generateAssessmentPDF(willData, userProfile) {
               doc.moveDown(0.2);
               
               const answer = round.answers[q.id];
-              const answerText = Array.isArray(answer) 
-                ? answer.join(', ') 
-                : (answer || 'Not answered');
+              let answerText;
+              
+              if (!answer) {
+                answerText = 'Not answered';
+              } else if (Array.isArray(answer)) {
+                answerText = answer.join(', ');
+              } else if (typeof answer === 'object') {
+                answerText = formatPersonForPDF(answer);
+              } else {
+                answerText = answer;
+              }
               
               doc.fontSize(10).font('Helvetica')
                  .text(`A: ${answerText}`, { indent: 20 });
