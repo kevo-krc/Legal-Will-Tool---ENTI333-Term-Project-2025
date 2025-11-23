@@ -1,4 +1,5 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { getSchemaPromptText } = require('./willSchema');
 
 const apiKey = process.env.GEMINI_API_KEY;
 
@@ -484,53 +485,74 @@ async function generateFollowUpQuestions(previousAnswers, jurisdiction, country,
     ? `\n\nINFORMATION ALREADY PROVIDED (DO NOT RE-ASK FOR THIS DATA):\n${providedInformation.map((info, i) => `${i + 1}. ${info}`).join('\n')}\n`
     : '';
   
-  const prompt = `You are a lawyer creating a will for ${jurisdiction}. Review answers and generate ${roundNumber === 2 ? '3-5 follow-up questions to clarify and complete' : '2-3 final questions for any remaining gaps in'} the will information.
+  const schema = getSchemaPromptText();
+  
+  const prompt = `You are a lawyer creating a will for ${jurisdiction}. Your role is to ensure all ${jurisdiction}-specific legal requirements are met through strategic questioning.
+
+JURISDICTION-SPECIFIC REQUIREMENTS:
+- Ensure ${jurisdiction} laws regarding executors, witnesses, beneficiaries are understood
+- Ask questions that address unique ${jurisdiction} requirements (e.g., common-law recognition, forced heirship, community property)
+- Reference regional terminology (e.g., "Personal Representative" vs "Executor" based on jurisdiction)
 
 PREVIOUS ANSWERS:
 ${summarized}
 ${previousQuestionsText}
 ${providedInfoText}
 
-STRICT RULES - READ CAREFULLY:
-1. NEVER ask for names already provided
-2. For people with names: only ask for MISSING details (age, address, relationship)
-3. For charities: ask "registered name and number" not "full legal name"
-4. NEVER repeat previous questions (see list above)
-5. If user says "I don't know" - accept it and move on
-6. DO NOT HALLUCINATE - If the user said "None" or didn't mention something (like life insurance, trusts, business interests), DO NOT ASK ABOUT IT
-7. DO NOT assume what assets they have - only ask about assets they explicitly listed
+═══════════════════════════════════════════════════════════════════
+CRITICAL: UNDERSTAND THE TWO-TIER SYSTEM
+═══════════════════════════════════════════════════════════════════
 
-${roundNumber === 2 ? 'ROUND 2 - ONLY ASK IF INFORMATION IS INCOMPLETE:' : 'ROUND 3 - FINAL CRITICAL GAPS ONLY:'}
-- Executor/alternate executor details (ONLY missing age, address, relationship - NOT if already complete)
-- Guardian details (ONLY if they have minor children AND guardian was named)
-- Beneficiary percentages (ONLY if vague like "my children" without percentages)
-- Distribution clarity (ONLY if unclear who gets what percentage)
-- Contingent plan (ONLY if primary beneficiary dies before them)
-- Minor inheritance age (ONLY if minors are beneficiaries AND age not specified)
-- Charity details (ONLY if charity was explicitly named by user)
+TYPE 1: TEMPLATE FIELDS (Goes IN the will PDF document)
+These use EXACT field names and populate specific Articles in the legal will:
 
-ABSOLUTELY FORBIDDEN - NEVER ASK ABOUT:
-- Life insurance (unless user mentioned having a policy)
-- Trusts (unless user mentioned having trusts)
-- Business interests (unless user mentioned owning a business)
-- Real estate details (unless user listed specific properties)
-- Any asset type the user said "None" to or didn't mention
+${schema.templateFields}
 
-FORBIDDEN:
-- Already asked questions
-- Already provided info
-- Witness/signing procedures
-- Legal formalities
-- Tax/estate planning
+RULES FOR TEMPLATE FIELDS:
+- Use EXACT field names listed above (e.g., "executor_details", "beneficiary_distribution")
+- These fields directly populate the final will document
+- Missing template fields = incomplete will
 
-Return ONLY JSON array (include "tooltip" for each):
+TYPE 2: CONTEXTUAL INFORMATION (For legal assessment/guidance)
+These inform your legal advice but may NOT appear in the will template:
+
+${schema.contextualInfo}
+
+RULES FOR CONTEXTUAL QUESTIONS:
+- Ask about these to provide comprehensive legal guidance
+- Common items (life insurance, retirement accounts) can be asked ONCE if relevant
+- Explain in the assessment how these assets pass outside the will
+- DO NOT ask if user said "None" or never mentioned them
+
+═══════════════════════════════════════════════════════════════════
+${roundNumber === 2 ? 'ROUND 2: CLARIFY & COMPLETE (3-5 questions)' : 'ROUND 3: FINAL GAPS (2-3 questions)'}
+═══════════════════════════════════════════════════════════════════
+
+PRIORITY AREAS:
+1. Missing REQUIRED template fields (executor_details, beneficiary_distribution, contingent_beneficiaries)
+2. Incomplete person objects (missing age, address, relationship for named individuals)
+3. Vague distributions ("my children" without percentages)
+4. Jurisdiction-specific clarifications (common-law duration in AB, forced heirship in LA/QC)
+5. Contextual items for better assessment (life insurance beneficiaries, retirement accounts) - but ONLY if user likely has them
+
+ANTI-REPETITION RULES:
+- NEVER repeat questions already asked (see list above)
+- NEVER re-ask for information already provided
+- If user said "None" or "N/A" to something, accept it
+
+ANTI-HALLUCINATION RULES:
+- DO NOT ask about assets user never mentioned (if they said "None" for businesses, don't ask about partnerships)
+- DO NOT assume they have trusts, life insurance, or complex assets unless indicated
+- Ask about common items (life insurance, RRSP/401k) ONCE in Round 2 if estate planning context suggests it, but accept "None"
+
+Return ONLY JSON array (include "tooltip" explaining WHY this is needed):
 [
   {
-    "id": "question_id",
+    "id": "exact_template_field_name_or_descriptive_contextual_id",
     "question": "Your question?",
     "type": "text",
     "required": true,
-    "tooltip": "Why this is needed for the will."
+    "tooltip": "Why this information is legally necessary for ${jurisdiction}"
   }
 ]`;
 
@@ -582,52 +604,79 @@ async function generateWillAssessment(allAnswers, jurisdiction, country, age) {
   
   const ageWarning = age !== undefined && age !== null
     ? `\n\nUSER AGE: ${age} years old
-    - In section 2 (READINESS), if the user is BELOW the minimum age requirement for ${jurisdiction}, explicitly state that they do not meet the age requirement
-    - Note that the will may not be legally valid and they MUST consult an attorney
-    - If they MEET the age requirement, proceed normally without mentioning age`
+    - If BELOW minimum age for ${jurisdiction}: Explicitly state age requirement not met and will may not be valid
+    - If MEETS age requirement: Proceed normally without highlighting age`
     : '';
   
-  const prompt = `You have gathered comprehensive information TO CREATE a legal will for ${jurisdiction}, ${country === 'CA' ? 'Canada' : 'United States'}. Provide a brief summary of key decisions and NEXT STEPS for will execution.${ageWarning}
+  const schema = getSchemaPromptText();
+  
+  const prompt = `You are a legal expert creating a comprehensive will assessment for ${jurisdiction}, ${country === 'CA' ? 'Canada' : 'United States'}.
 
-Information gathered (summarized):
+YOUR ROLE: Provide jurisdiction-specific guidance that addresses ${jurisdiction}'s unique legal requirements while helping the user understand what goes IN their will versus what passes OUTSIDE the will.${ageWarning}
+
+INFORMATION GATHERED:
 ${summarized}
 
-ASSESSMENT FORMAT (250-350 words maximum):
+WILL TEMPLATE STRUCTURE (what goes IN the document):
+${schema.templateFields}
 
-1. WILL SUMMARY (4-6 sentences):
-   - Executor appointed: [name]
-   - Beneficiaries and distribution: [brief summary]
+CONTEXTUAL CONSIDERATIONS (for your assessment - may NOT appear in will template):
+${schema.contextualInfo}
+
+═══════════════════════════════════════════════════════════════════
+ASSESSMENT FORMAT (300-500 words - YOU HAVE FLEXIBILITY HERE)
+═══════════════════════════════════════════════════════════════════
+
+1. WILL SUMMARY (5-8 sentences):
+   - Estate structure: [describe their situation]
+   - Executor appointed: [name and relationship]
+   - Primary beneficiaries: [who gets what percentage]
+   - Contingent plan: [backup if primary beneficiaries predecease]
    - Guardian for minors (if applicable): [name]
-   - Key assets covered: [brief list]
-   - Special bequests (if any): [brief mention]
+   - Special provisions: [specific bequests, digital assets, funeral preferences]
+   - ${jurisdiction}-specific considerations: [mention any unique regional requirements that apply]
 
-2. READINESS FOR WILL CREATION (2-3 sentences):
-   - State whether we have sufficient information to draft a legally valid will
-   - IF USER IS UNDERAGE: Clearly state they do not meet the minimum age requirement and the will may not be legally valid
-   - Note if any CRITICAL information is still missing (executor, beneficiaries, or distribution percentages)
-   - If missing critical info, state what is needed before proceeding
+2. ASSETS PASSING OUTSIDE THE WILL (if applicable - 2-4 sentences):
+   - If user mentioned life insurance with named beneficiaries: "Note that your life insurance proceeds will pass directly to [beneficiary], outside this will."
+   - If user mentioned retirement accounts (RRSP/401k): "Retirement accounts with beneficiary designations bypass probate and this will."
+   - If user mentioned jointly-owned property: "Property held in joint tenancy passes to surviving owner automatically."
+   - If user mentioned POD/TOD accounts: "Payable-on-Death accounts transfer directly to named beneficiaries."
+   - RECOMMENDATION: "Ensure all beneficiary designations are coordinated with your will intentions."
 
-3. NEXT STEPS - WILL EXECUTION REQUIREMENTS (5-7 points):
-   For ${jurisdiction}, the will must be executed as follows:
-   - The will document must be printed (not handwritten, not electronic signature)
-   - Testator (will-maker) must sign at the end of the document
-   - Signature must be witnessed by [2 or 3] independent witnesses simultaneously present
-   - Witnesses must be adults (18+ years) who are NOT beneficiaries or spouses of beneficiaries
-   - Witnesses must sign in the presence of the testator and each other
-   - Each witness should provide their full name, address, and occupation
-   - [Any other jurisdiction-specific requirements]
+3. ${jurisdiction.toUpperCase()}-SPECIFIC LEGAL COMPLIANCE (3-5 sentences):
+   - Address any unique ${jurisdiction} requirements (e.g., common-law partnership recognition in Alberta, forced heirship in Louisiana/Quebec, community property considerations)
+   - Mention executor terminology used in ${jurisdiction} (Personal Representative vs Executor)
+   - Note witness requirements specific to ${jurisdiction}
+   - Highlight any regional legal nuances that affect this will
 
-4. CRITICAL GAPS (only if absolutely necessary - 1-2 sentences):
-   - Only mention if executor name, beneficiary distribution, or guardian (for minors) is completely missing
-   - IF USER IS UNDERAGE: Include age requirement as a critical gap
+4. READINESS FOR WILL CREATION (2-3 sentences):
+   - State whether sufficient information gathered for legally valid will
+   - IF UNDERAGE: "You do not meet the ${jurisdiction} age requirement. The will may not be valid; consult an attorney."
+   - Note if critical template fields missing (executor, beneficiary_distribution, contingent_beneficiaries)
+
+5. NEXT STEPS - WILL EXECUTION REQUIREMENTS FOR ${jurisdiction.toUpperCase()} (6-8 points):
+   - Document must be printed (no handwritten or electronic signatures)
+   - [Number] witnesses required (must be [age] or older)
+   - Witnesses cannot be beneficiaries or spouses of beneficiaries
+   - Witnesses must be present simultaneously when testator signs
+   - [Any jurisdiction-specific witness requirements]
+   - Where to store original will safely
+   - Provide copies to executor
+   - [Other ${jurisdiction}-specific execution steps]
+
+6. IMPORTANT ESTATE PLANNING CONSIDERATIONS (if applicable - 2-4 sentences):
+   - If complex estate (business interests, foreign assets, trusts): "Recommend consulting attorney for [specific issue]."
+   - If blended family: "Consider discussing intentions with family to prevent disputes."
+   - If dependent adults with disabilities: "Consider special needs trust to preserve benefits."
+   - Tax planning recommendations for ${jurisdiction} (if applicable to estate size)
 
 STRONG LIABILITY DISCLAIMER (3-4 sentences):
-- This tool does NOT provide legal advice
-- This tool and its creators assume NO legal liability whatsoever
-- The generated will may not reflect recent legal changes
-- Users MUST have the will reviewed by a licensed attorney before signing or execution
+- This AI-assisted tool does NOT provide legal advice and does NOT create an attorney-client relationship
+- This tool and its creators assume NO legal liability whatsoever for the accuracy, validity, or legal effect of any documents
+- Legal requirements change frequently; information may not reflect recent ${jurisdiction} law changes
+- Users MUST have this will reviewed and executed under supervision of a licensed ${jurisdiction} attorney
 
-Format as plain text with clear section headers. BE DIRECT AND ACTIONABLE.`;
+FORMAT: Use clear section headers. Be comprehensive yet concise. Address ${jurisdiction}'s unique legal landscape.`;
 
   const { result } = await executeWithRetry(
     async () => {
