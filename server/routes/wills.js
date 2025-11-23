@@ -232,10 +232,14 @@ router.post('/:willId/generate-pdfs', async (req, res) => {
     console.log('[PDF Generation] Generating Assessment PDF...');
     const assessmentPDFBuffer = await generateAssessmentPDF(will, profile);
     
-    // Generate file paths
-    const timestamp = Date.now();
-    const willPDFPath = `${will.user_id}/${willId}/will_${timestamp}.pdf`;
-    const assessmentPDFPath = `${will.user_id}/${willId}/assessment_${timestamp}.pdf`;
+    // Generate user-friendly file names
+    const userName = profile?.full_name || 'User';
+    const safeUserName = userName.replace(/[^a-zA-Z0-9]/g, '_');
+    const currentDate = new Date();
+    const formattedDate = `${currentDate.getMonth() + 1}_${currentDate.getDate()}_${currentDate.getFullYear()}`;
+    
+    const willPDFPath = `${will.user_id}/${willId}/Will_${safeUserName}_${formattedDate}.pdf`;
+    const assessmentPDFPath = `${will.user_id}/${willId}/Assessment_${safeUserName}_${formattedDate}.pdf`;
     
     console.log('[PDF Generation] Uploading Will PDF to storage...');
     await uploadPDF(willPDFBuffer, willPDFPath);
