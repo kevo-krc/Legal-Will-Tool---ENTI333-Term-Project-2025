@@ -1,13 +1,13 @@
 # ACADEMIC PROJECT PRIVACY NOTICE & DISCLAIMER
 
 **Effective Date:** November 13, 2025  
-**Last Updated:** November 13, 2025
+**Last Updated:** November 23, 2025
 
 ---
 
 ## 1. ACADEMIC PROJECT STATUS & LEGAL DISCLAIMER
 
-This application, **Legal Will Generation Tool**, is a **student academic project** created for the course **ENTI333** at the University of Calgary by Kevin Cooney.
+This application, **Legal Will Generation Tool**, is a **student academic project** created for the course **ENTI333** at the University of Calgary.
 
 **THIS IS NOT A PRODUCTION SERVICE AND DOES NOT CONSTITUTE LEGAL ADVICE.** The application is intended solely for demonstrating AI-driven legal document creation functionality and meeting academic requirements.
 
@@ -107,14 +107,12 @@ The application employs comprehensive technical safeguards to protect your sensi
 * **Row-Level Security (RLS)**: Database policies ensure users can only access their own data
 * **Authentication Required**: All endpoints require valid authentication tokens
 * **Authorization Checks**: Server-side validation ensures users can only modify their own resources
-* **Service-Role Keys**: Admin operations (like account deletion) use separate service-role credentials
 
 ### 4.3 Application Security
 
 * **Input Validation**: All user inputs validated and sanitized to prevent injection attacks
 * **Rate Limiting**: Email sharing limited to 5 emails per hour per user to prevent abuse
 * **CORS Protection**: Cross-origin requests restricted to authorized domains
-* **Audit Logging**: Critical operations (data deletion, document generation) logged for accountability
 
 ### 4.4 Privacy by Design
 
@@ -130,7 +128,7 @@ The application employs comprehensive technical safeguards to protect your sensi
 ### 5.1 Access and Control
 
 * **View Your Data**: Access all stored information via your Dashboard
-* **Download Documents**: Download generated will and assessment PDFs at any time
+* **Email Documents**: Share generated will and assessment PDFs via email at any time
 * **Update Information**: Edit your profile information (name, phone) through the Dashboard
 * **Delete Account**: Permanently delete all data through the "Danger Zone" section
 
@@ -182,8 +180,7 @@ We may update this Privacy Policy from time to time to reflect changes in our pr
 
 For questions, concerns, or requests regarding this privacy policy or the security of your data, please contact:
 
-* **Project Developer**: Kevin Cooney
-* **Email**: kevin.cooney@ucalgary.ca
+* **Project Team**: ENTI333 Final Project Team
 * **Institution**: University of Calgary
 * **Course**: ENTI333 - Final Project
 
@@ -199,4 +196,4 @@ By using the Legal Will Generation Tool, you acknowledge that:
 4. You understand that generated documents should be reviewed by legal professionals
 5. You acknowledge the developers assume no legal liability for document validity or outcomes
 
-**Last Review Date**: November 13, 2025
+**Last Review Date**: November 23, 2025
