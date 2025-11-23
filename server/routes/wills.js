@@ -80,7 +80,7 @@ router.get('/:willId', async (req, res) => {
 
     const { data, error } = await supabase
       .from('wills')
-      .select('*')
+      .select('*, profiles(account_number)')
       .eq('id', willId)
       .single();
 
@@ -91,7 +91,14 @@ router.get('/:willId', async (req, res) => {
       throw error;
     }
 
-    res.json(data);
+    // Flatten the account_number from the nested profiles object
+    const responseData = {
+      ...data,
+      account_number: data.profiles?.account_number || null
+    };
+    delete responseData.profiles;
+
+    res.json(responseData);
   } catch (error) {
     console.error('Error fetching will:', error);
     res.status(500).json({ error: 'Failed to fetch will' });

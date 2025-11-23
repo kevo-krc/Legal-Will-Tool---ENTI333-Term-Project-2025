@@ -110,34 +110,23 @@ router.patch('/:notificationId/increment-retry', authenticateUser, async (req, r
   }
 });
 
-router.patch('/:notificationId', authenticateUser, async (req, res) => {
+// IMPORTANT: Specific routes must come BEFORE parameterized routes
+router.patch('/mark-all-read', authenticateUser, async (req, res) => {
   try {
     const userId = req.authenticatedUserId;
-    const { notificationId } = req.params;
-    const updateData = req.body;
     
-    if (updateData.retry_count !== undefined && updateData.retry_count > 3) {
-      return res.status(400).json({ error: 'Maximum retry count is 3' });
-    }
-    
-    const { data: notification, error } = await supabase
+    const { error } = await supabase
       .from('notifications')
-      .update(updateData)
-      .eq('id', notificationId)
+      .update({ is_read: true })
       .eq('user_id', userId)
-      .select()
-      .single();
+      .eq('is_read', false);
     
     if (error) throw error;
     
-    if (!notification) {
-      return res.status(404).json({ error: 'Notification not found' });
-    }
-    
-    res.json(notification);
+    res.json({ success: true, message: 'All notifications marked as read' });
   } catch (error) {
-    console.error('[Notifications] Error updating notification:', error);
-    res.status(500).json({ error: 'Failed to update notification' });
+    console.error('[Notifications] Error marking all as read:', error);
+    res.status(500).json({ error: 'Failed to mark all as read' });
   }
 });
 
@@ -167,22 +156,34 @@ router.patch('/:notificationId/read', authenticateUser, async (req, res) => {
   }
 });
 
-router.patch('/mark-all-read', authenticateUser, async (req, res) => {
+router.patch('/:notificationId', authenticateUser, async (req, res) => {
   try {
     const userId = req.authenticatedUserId;
+    const { notificationId } = req.params;
+    const updateData = req.body;
     
-    const { error } = await supabase
+    if (updateData.retry_count !== undefined && updateData.retry_count > 3) {
+      return res.status(400).json({ error: 'Maximum retry count is 3' });
+    }
+    
+    const { data: notification, error } = await supabase
       .from('notifications')
-      .update({ is_read: true })
+      .update(updateData)
+      .eq('id', notificationId)
       .eq('user_id', userId)
-      .eq('is_read', false);
+      .select()
+      .single();
     
     if (error) throw error;
     
-    res.json({ success: true, message: 'All notifications marked as read' });
+    if (!notification) {
+      return res.status(404).json({ error: 'Notification not found' });
+    }
+    
+    res.json(notification);
   } catch (error) {
-    console.error('[Notifications] Error marking all as read:', error);
-    res.status(500).json({ error: 'Failed to mark all as read' });
+    console.error('[Notifications] Error updating notification:', error);
+    res.status(500).json({ error: 'Failed to update notification' });
   }
 });
 

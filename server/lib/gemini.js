@@ -302,7 +302,7 @@ END WITH STRONG LIABILITY DISCLAIMER (3-4 sentences):
 - This tool does NOT provide legal advice
 - This tool and its creators assume NO legal liability whatsoever
 - Information may not reflect recent legal changes
-- Users MUST consult a licensed attorney before creating or executing a will
+- Users should strongly consider consulting a licensed attorney before creating or executing a will
 
 Format as plain text, no markdown or tables.`;
 

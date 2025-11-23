@@ -82,13 +82,15 @@ async function generateWillPDF(willData, userProfile) {
       }
       
       if (answers.spouse_name) {
-        doc.text(`1.2 Spouse: My spouse is ${answers.spouse_name}.`);
+        let spouseText = `1.2 Spouse: My spouse is ${answers.spouse_name}.`;
         
         // Add common-law partnership duration if provided
         if (answers.common_law_duration || answers.partnership_duration) {
           const duration = answers.common_law_duration || answers.partnership_duration;
-          doc.text(`Relationship: ${duration}`, { indent: 20 });
+          spouseText += `\n     Relationship: ${duration}`;
         }
+        
+        doc.text(spouseText);
       }
       
       if (answers.children_details) {
