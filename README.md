@@ -427,11 +427,14 @@ See `TESTING_GUIDE.md` for comprehensive testing instructions.
 
 - **University of Calgary** - ENTI333 Term Project
 - **Professor Mohammad Keyhani** - Course instructor
+- **AI Development Assistance:**
+  - Google Gemini (Replit Agent) - Ideation, problem solving, debugging, and code implementation
+  - GitHub Copilot - Code completion and suggestions
 - **Technologies:**
   - React + Vite
   - Node.js + Express
   - Supabase (Database & Auth)
-  - Google Gemini AI
+  - Google Gemini AI (gemini-2.5-flash)
   - SendGrid (Email)
   - PDFKit (PDF Generation)
   - Replit (Hosting)

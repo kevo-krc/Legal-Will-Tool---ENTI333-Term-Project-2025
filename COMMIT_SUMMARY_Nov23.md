@@ -272,6 +272,7 @@ DOCUMENTATION REORGANIZATION IN README.md:
 - Moved PRD.md → Old PRDs/PRD_original.md (consolidates all historical PRDs)
 - Added PRD_final.md and ARCHITECTURE.md to documentation index
 - Updated all file descriptions to reflect actual content
+- Added AI Development Assistance acknowledgement (Gemini + Copilot)
 
 SCOPE CORRECTIONS IN PRD_final.md:
 - Fixed Round 1 question count: "13 questions" → "15 questions" (3 locations)
