@@ -1,7 +1,7 @@
 # Legal Will Generation Tool
 
 **Academic Project for University of Calgary (ENTI333)**  
-**Author:** Kevin Cooney
+**Team Project:** ENTI333 Final Project Team
 
 ---
 
@@ -431,12 +431,54 @@ See `LICENSE.txt` for details.
 
 ---
 
-## 👨‍💻 Author
+## 👥 Team
 
-**Kevin Cooney**  
+**ENTI333 Final Project Team**  
 University of Calgary  
 ENTI333 - Final Term Project  
 2025
+
+---
+
+## 🚧 Future Improvements
+
+The following features were considered but not implemented in the current version. These are potential areas for future development:
+
+### Audit Logging System
+- **Purpose:** Comprehensive logging of all critical operations (user actions, data modifications, deletions)
+- **Benefits:** 
+  - Enhanced security and accountability
+  - Compliance tracking for regulatory requirements
+  - Debugging and troubleshooting support
+  - Forensic analysis capabilities
+- **Implementation Considerations:**
+  - Create `audit_logs` table with fields: `id`, `user_id`, `action_type`, `resource_type`, `resource_id`, `changes`, `ip_address`, `timestamp`
+  - Log events: user registration, profile updates, will creation/updates/deletion, PDF generation, email sharing, account deletion
+  - Retention policy: 90 days for active users, permanent for deleted accounts
+  - RLS policies ensuring users cannot view/modify audit logs
+  - Admin dashboard for audit log review
+
+### Service-Role Key Management
+- **Purpose:** Advanced admin operations and elevated permissions
+- **Benefits:**
+  - Separation of user and admin operations
+  - Enhanced security through privilege separation
+  - Support for administrative tasks without exposing service keys to frontend
+- **Implementation Considerations:**
+  - Dedicated admin backend routes with service-role authentication
+  - Admin dashboard for system monitoring
+  - Bulk operations and maintenance tasks
+  - Advanced reporting and analytics
+
+### Other Potential Enhancements
+- Multi-language support (French, Spanish)
+- Two-factor authentication (2FA)
+- Document versioning and history tracking
+- In-app will comparison tool
+- Legal attorney directory integration
+- Mobile-responsive PDF viewer
+- Scheduled will review reminders
+- Beneficiary notification system
 
 ---
 

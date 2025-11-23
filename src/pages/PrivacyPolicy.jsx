@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './PrivacyPolicy.css';
 
 function PrivacyPolicy() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="privacy-policy-page">
       <div className="container">
@@ -17,7 +21,7 @@ function PrivacyPolicy() {
             <h2>1. Academic Project Status & Legal Disclaimer</h2>
             <p>
               This application, <strong>Legal Will Generation Tool</strong>, is a <strong>student academic project</strong> created 
-              for the course <strong>ENTI333</strong> at the University of Calgary by Kevin Cooney.
+              for the course <strong>ENTI333</strong> at the University of Calgary.
             </p>
             <p className="disclaimer-text">
               <strong>THIS IS NOT A PRODUCTION SERVICE AND DOES NOT CONSTITUTE LEGAL ADVICE.</strong> The application is intended 
@@ -122,7 +126,6 @@ function PrivacyPolicy() {
               <li><strong>Row-Level Security:</strong> Users can only access their own data</li>
               <li><strong>Authentication Required:</strong> All endpoints require valid tokens</li>
               <li><strong>Authorization Checks:</strong> Server-side validation for all operations</li>
-              <li><strong>Service-Role Keys:</strong> Separate credentials for admin operations</li>
             </ul>
 
             <h3>4.3 Application Security</h3>
@@ -130,7 +133,6 @@ function PrivacyPolicy() {
               <li><strong>Input Validation:</strong> All inputs validated and sanitized</li>
               <li><strong>Rate Limiting:</strong> Email sharing limited to 5 per hour per user</li>
               <li><strong>CORS Protection:</strong> Restricted to authorized domains</li>
-              <li><strong>Audit Logging:</strong> Critical operations logged for accountability</li>
             </ul>
 
             <h3>4.4 Privacy by Design</h3>
@@ -148,7 +150,7 @@ function PrivacyPolicy() {
             <h3>5.1 Access and Control</h3>
             <ul>
               <li><strong>View Your Data:</strong> Access all information via Dashboard</li>
-              <li><strong>Download Documents:</strong> Download PDFs at any time</li>
+              <li><strong>Email Documents:</strong> Share PDFs via email at any time</li>
               <li><strong>Update Information:</strong> Edit profile through Dashboard</li>
               <li><strong>Delete Account:</strong> Permanently delete via "Danger Zone"</li>
             </ul>
@@ -184,8 +186,7 @@ function PrivacyPolicy() {
             <h2>7. Contact Information</h2>
             <p>For questions or concerns regarding this privacy policy:</p>
             <ul>
-              <li><strong>Project Developer:</strong> Kevin Cooney</li>
-              <li><strong>Email:</strong> kevin.cooney@ucalgary.ca</li>
+              <li><strong>Project Team:</strong> ENTI333 Final Project Team</li>
               <li><strong>Institution:</strong> University of Calgary</li>
               <li><strong>Course:</strong> ENTI333 - Final Project</li>
             </ul>
