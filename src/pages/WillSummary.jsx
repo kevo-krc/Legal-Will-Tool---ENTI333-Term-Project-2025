@@ -3,12 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { API_URL } from '../config/api';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import { useNotifications } from '../context/NotificationContext';
 import './WillSummary.css';
 
 function WillSummary() {
   const { willId } = useParams();
   const navigate = useNavigate();
   const { profile } = useAuth();
+  const { fetchNotifications } = useNotifications();
   
   const [will, setWill] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -125,6 +127,12 @@ function WillSummary() {
       console.log('[Email Share] Email sent successfully:', response.data);
       
       setEmailSuccess(true);
+      
+      // Refresh notifications to show the email success notification immediately
+      if (fetchNotifications) {
+        fetchNotifications();
+      }
+      
       setTimeout(() => {
         setShowEmailModal(false);
       }, 2000);
