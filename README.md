@@ -592,8 +592,8 @@ All project documentation is organized in the **[📚 Additional Documentation](
 
 ## 🔗 Links
 
-- **GitHub Repository:** [Your Repo URL]
-- **Replit Project:** [Your Replit URL]
+- **GitHub Repository:** [https://github.com/kevo-krc/Legal-Will-Tool---ENTI333-Term-Project-2025](https://github.com/kevo-krc/Legal-Will-Tool---ENTI333-Term-Project-2025)
+- **Replit Project:** [https://replit.com/@rowenamba/workspace](https://replit.com/@rowenamba/workspace)
 - **Demo Video:** [To be added]
 
 ---

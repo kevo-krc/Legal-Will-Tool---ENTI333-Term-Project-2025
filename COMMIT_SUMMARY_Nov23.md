@@ -274,6 +274,7 @@ DOCUMENTATION REORGANIZATION IN README.md:
 - Updated all file descriptions to reflect actual content
 - Added AI Development Assistance acknowledgement (Replit Agent + Copilot)
 - Updated Replit acknowledgement to include both hosting platform and development environment
+- Added actual GitHub and Replit URLs to Links section
 
 SCOPE CORRECTIONS IN PRD_final.md:
 - Fixed Round 1 question count: "13 questions" → "15 questions" (3 locations)
