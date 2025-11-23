@@ -18,7 +18,6 @@ This is a full-stack web application that helps users create legally valid wills
 - ✅ PDF generation for will documents and assessment reports
 - ✅ Email sharing via SendGrid with secure PDF attachments
 - ✅ User data deletion with comprehensive cleanup
-- ✅ Notifications system for user actions and system events
 - ✅ Privacy policy and data handling compliance
 - ✅ Contextual tooltip help system and multi-field person inputs
 
@@ -105,8 +104,7 @@ legal-will-generation-tool/
 │   ├── components/           # Reusable components
 │   │   ├── Header.jsx
 │   │   ├── Footer.jsx
-│   │   ├── ProtectedRoute.jsx
-│   │   └── NotificationBell.jsx
+│   │   └── ProtectedRoute.jsx
 │   ├── pages/                # Page components
 │   │   ├── Home.jsx
 │   │   ├── Login.jsx
@@ -117,8 +115,7 @@ legal-will-generation-tool/
 │   │   ├── WillSummary.jsx
 │   │   └── PrivacyPolicy.jsx
 │   ├── context/              # React context
-│   │   ├── AuthContext.jsx
-│   │   └── NotificationContext.jsx
+│   │   └── AuthContext.jsx
 │   ├── lib/                  # Utilities
 │   │   └── supabase.js
 │   ├── config/               # Configuration
@@ -130,7 +127,7 @@ legal-will-generation-tool/
 │   ├── routes/               # API routes
 │   │   ├── ai.js             # AI endpoints
 │   │   ├── wills.js          # Will management
-│   │   ├── notifications.js  # Notification management
+│   │   ├── notifications.js  # Notification backend (UI disabled)
 │   │   └── user.js           # User data deletion
 │   ├── lib/                  # Backend utilities
 │   │   ├── gemini.js         # Gemini AI integration
@@ -255,7 +252,7 @@ legal-will-generation-tool/
 - ✅ Generate assessment reports as PDFs with flexible sections
 - ✅ **Enhanced assessments** include "Assets Passing Outside the Will" and jurisdiction-specific compliance
 - ✅ Upload PDFs to Supabase Storage (`will-documents` bucket)
-- ✅ Download functionality for user documents
+- ✅ View will PDF functionality in browser
 - ✅ Proper legal formatting with headers and sections
 - ✅ Common-law partnership duration in Article 1
 
@@ -266,8 +263,6 @@ legal-will-generation-tool/
 - ✅ PDF safeguards preventing deletion of wills with generated documents
 - ✅ Individual will deletion from Dashboard (draft/in_progress wills only)
 - ✅ JWT-based authentication and authorization for deletion endpoints
-- ✅ Notifications system tracking email successes/failures and system events
-- ✅ Notification bell UI with dropdown panel
 - ✅ Age verification for testamentary capacity (integrated into compliance and assessment)
 
 ---
@@ -300,10 +295,11 @@ legal-will-generation-tool/
 - **DELETE** `/api/wills/:willId` - Delete will (with PDF safeguards)
 - **POST** `/api/wills/:willId/email` - Share will PDFs via email
 
-### Notifications (`/api/notifications/`)
+### Notifications (`/api/notifications/`) ⚠️ **Backend Only - UI Disabled**
 - **GET** `/api/notifications` - Get user's notifications
 - **PUT** `/api/notifications/:id/read` - Mark notification as read
 - **POST** `/api/notifications/:id/retry` - Retry failed action
+- **Note:** Notification system exists in backend but UI is disabled and untested
 
 ### User Management (`/api/user/`)
 - **DELETE** `/api/user/delete-all-data` - Complete user data deletion
@@ -321,7 +317,6 @@ legal-will-generation-tool/
 - **Q&A Data:** All questions and answers from questionnaires (JSONB format)
 - **Will Metadata:** Country, jurisdiction, compliance statements, assessment content
 - **Will Documents:** PDFs stored in Supabase Storage with secure URLs
-- **Notifications:** User action tracking and system event notifications
 
 ### Security Measures
 - ✅ HTTPS encryption via Replit/Supabase
@@ -374,11 +369,10 @@ See `TESTING_GUIDE.md` for comprehensive testing instructions.
 6. ✅ Answer Round 2 questions (follow-up based on Round 1)
 7. ✅ Complete Round 3 (if needed)
 8. ✅ View final assessment
-9. ✅ Download will PDF and assessment PDF
-10. ✅ Share documents via email
-11. ✅ View notifications
-12. ✅ Delete individual will (draft/in_progress only)
-13. ✅ Delete all user data
+9. ✅ View will PDF in browser
+10. ✅ Share documents (Will + Assessment) via email
+11. ✅ Delete individual will (draft/in_progress only)
+12. ✅ Delete all user data
 
 ### Known Limitations
 - SendGrid accepts valid email formats regardless of mailbox existence (actual bounces happen asynchronously)
