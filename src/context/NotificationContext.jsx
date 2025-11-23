@@ -44,15 +44,23 @@ export const NotificationProvider = ({ children }) => {
 
     try {
       const token = await getSessionToken();
-      if (!token) return;
+      if (!token) {
+        console.log('[Notifications] No token available');
+        return;
+      }
 
+      console.log('[Notifications] Fetching notifications from API...');
       const response = await axios.get(`${apiUrl}/notifications`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
 
+      console.log('[Notifications] Received notifications:', response.data.length, 'notifications');
       setNotifications(response.data);
+      
+      // Also update unread count immediately
+      await fetchUnreadCount();
     } catch (error) {
       console.error('[Notifications] Error fetching notifications:', error);
     }
