@@ -282,7 +282,8 @@ function WillSummary() {
                     ✓ Your PDF documents have been generated successfully!
                   </p>
                   <ul className="next-steps-list">
-                    <li>Download your documents using the button below</li>
+                    <li>View your will document using the button below</li>
+                    <li>Share both documents via email for your records</li>
                     <li>Review the will document carefully</li>
                     <li>Consult with a licensed attorney before signing</li>
                     <li>Follow the witness requirements for your jurisdiction</li>

@@ -37,7 +37,10 @@ function Login() {
         return;
       }
 
-      navigate('/dashboard');
+      // Show success state briefly before redirecting
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 500);
     } catch (err) {
       setError('An unexpected error occurred');
       setLoading(false);
