@@ -57,7 +57,12 @@ export const NotificationProvider = ({ children }) => {
       });
 
       console.log('[Notifications] Received notifications:', response.data.length, 'notifications');
+      console.log('[Notifications] Notification details:', response.data.map(n => ({ id: n.id, type: n.type, title: n.title, is_read: n.is_read })));
       setNotifications(response.data);
+      
+      const unread = response.data.filter(n => !n.is_read).length;
+      console.log('[Notifications] Setting unread count to:', unread);
+      setUnreadCount(unread);
     } catch (error) {
       console.error('[Notifications] Error fetching notifications:', error);
     }
@@ -70,12 +75,14 @@ export const NotificationProvider = ({ children }) => {
       const token = await getSessionToken();
       if (!token) return;
 
+      console.log('[Notifications] Fetching unread count...');
       const response = await axios.get(`${apiUrl}/notifications/unread-count`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
 
+      console.log('[Notifications] Unread count:', response.data.count);
       setUnreadCount(response.data.count || 0);
     } catch (error) {
       console.error('[Notifications] Error fetching unread count:', error);
