@@ -470,6 +470,22 @@ The following features were considered but not implemented in the current versio
   - Bulk operations and maintenance tasks
   - Advanced reporting and analytics
 
+### Notification System (UI Integration)
+- **Purpose:** Display user notifications for system events and actions
+- **Current Status:** Backend and context fully implemented but **UI disabled and untested**
+- **What Exists:**
+  - Complete notification backend API (`/api/notifications/`)
+  - NotificationContext for state management
+  - Notification bell component (removed from UI)
+  - Database table with RLS policies
+  - Email success/failure tracking
+- **What's Needed:**
+  - Re-enable notification bell in Header
+  - Test notification dropdown panel
+  - Verify mark-as-read functionality
+  - Test retry mechanism for failed actions
+  - User acceptance testing
+
 ### AI-Powered Help Chatbot
 - **Purpose:** Real-time assistance during questionnaire and will creation process
 - **Current Status:** Placeholder button present with "under development" message
