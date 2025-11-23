@@ -484,7 +484,7 @@ async function generateFollowUpQuestions(previousAnswers, jurisdiction, country,
     ? `\n\nINFORMATION ALREADY PROVIDED (DO NOT RE-ASK FOR THIS DATA):\n${providedInformation.map((info, i) => `${i + 1}. ${info}`).join('\n')}\n`
     : '';
   
-  const prompt = `You are a lawyer creating a will for ${jurisdiction}. Review answers and ask ${roundNumber === 2 ? '3-5' : '2-3'} follow-up questions for CRITICAL missing information only.
+  const prompt = `You are a lawyer creating a will for ${jurisdiction}. Review answers and generate ${roundNumber === 2 ? '3-5 follow-up questions to clarify and complete' : '2-3 final questions for any remaining gaps in'} the will information.
 
 PREVIOUS ANSWERS:
 ${summarized}
