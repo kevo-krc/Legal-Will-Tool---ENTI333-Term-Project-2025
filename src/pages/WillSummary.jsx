@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { API_URL } from '../config/api';
 import axios from 'axios';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import './WillSummary.css';
 
 function WillSummary() {
   const { willId } = useParams();
   const navigate = useNavigate();
-  const { profile } = useContext(AuthContext);
+  const { profile } = useAuth();
   
   const [will, setWill] = useState(null);
   const [loading, setLoading] = useState(true);
