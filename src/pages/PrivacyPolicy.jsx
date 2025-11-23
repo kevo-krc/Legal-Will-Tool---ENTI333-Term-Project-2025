@@ -14,7 +14,7 @@ function PrivacyPolicy() {
           
           <div className="policy-meta">
             <p><strong>Effective Date:</strong> November 13, 2025</p>
-            <p><strong>Last Updated:</strong> November 13, 2025</p>
+            <p><strong>Last Updated:</strong> November 23, 2025</p>
           </div>
 
           <section className="policy-section">
@@ -202,7 +202,7 @@ function PrivacyPolicy() {
               <li>You understand generated documents should be reviewed by legal professionals</li>
               <li>You acknowledge developers assume no legal liability for document validity</li>
             </ol>
-            <p className="review-date"><strong>Last Review Date:</strong> November 13, 2025</p>
+            <p className="review-date"><strong>Last Review Date:</strong> November 23, 2025</p>
           </section>
         </div>
       </div>
