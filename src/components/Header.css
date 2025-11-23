@@ -50,6 +50,7 @@
 
 .header-nav-logged-out .nav-tabs {
   order: 2;
+  align-self: flex-start;
 }
 
 .header-nav-logged-out .nav-user-controls {
