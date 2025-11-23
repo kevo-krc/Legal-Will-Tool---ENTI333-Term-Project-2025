@@ -52,14 +52,26 @@ function WillSummary() {
       setDownloadUrls(response.data.downloadUrls);
       setWill(response.data.will);
       
-      // Auto-download both PDFs
+      // Download both PDFs using anchor elements to avoid popup blockers
       if (response.data.downloadUrls.willPdf) {
-        window.open(response.data.downloadUrls.willPdf, '_blank');
+        const willLink = document.createElement('a');
+        willLink.href = response.data.downloadUrls.willPdf;
+        willLink.download = 'will.pdf';
+        willLink.target = '_blank';
+        document.body.appendChild(willLink);
+        willLink.click();
+        document.body.removeChild(willLink);
       }
       
       if (response.data.downloadUrls.assessmentPdf) {
         setTimeout(() => {
-          window.open(response.data.downloadUrls.assessmentPdf, '_blank');
+          const assessmentLink = document.createElement('a');
+          assessmentLink.href = response.data.downloadUrls.assessmentPdf;
+          assessmentLink.download = 'assessment.pdf';
+          assessmentLink.target = '_blank';
+          document.body.appendChild(assessmentLink);
+          assessmentLink.click();
+          document.body.removeChild(assessmentLink);
         }, 500);
       }
       
@@ -80,14 +92,26 @@ function WillSummary() {
       
       setDownloadUrls(response.data.downloadUrls);
       
-      // Auto-download both PDFs
+      // Download both PDFs using anchor elements to avoid popup blockers
       if (response.data.downloadUrls.willPdf) {
-        window.open(response.data.downloadUrls.willPdf, '_blank');
+        const willLink = document.createElement('a');
+        willLink.href = response.data.downloadUrls.willPdf;
+        willLink.download = 'will.pdf';
+        willLink.target = '_blank';
+        document.body.appendChild(willLink);
+        willLink.click();
+        document.body.removeChild(willLink);
       }
       
       if (response.data.downloadUrls.assessmentPdf) {
         setTimeout(() => {
-          window.open(response.data.downloadUrls.assessmentPdf, '_blank');
+          const assessmentLink = document.createElement('a');
+          assessmentLink.href = response.data.downloadUrls.assessmentPdf;
+          assessmentLink.download = 'assessment.pdf';
+          assessmentLink.target = '_blank';
+          document.body.appendChild(assessmentLink);
+          assessmentLink.click();
+          document.body.removeChild(assessmentLink);
         }, 500);
       }
       
@@ -137,9 +161,11 @@ function WillSummary() {
         console.error('[Notifications] fetchNotifications is not available');
       }
       
+      // Auto-close modal after 3 seconds
       setTimeout(() => {
         setShowEmailModal(false);
-      }, 2000);
+        setEmailSuccess(false);
+      }, 3000);
       
     } catch (err) {
       console.error('[Email Share] Error:', err);
