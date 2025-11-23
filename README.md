@@ -407,11 +407,19 @@ See `TESTING_GUIDE.md` for comprehensive testing instructions.
 
 ## 📚 Additional Documentation
 
-- **[PRD.md](./PRD.md)** - Complete Product Requirements Document
-- **[Privacy_Policy.md](./Privacy_Policy.md)** - Privacy policy and data handling
-- **[PROMPT_LOG.md](./PROMPT_LOG.md)** - Development log and prompts
-- **[TESTING_GUIDE.md](./TESTING_GUIDE.md)** - Comprehensive testing guide
-- **[replit.md](./replit.md)** - Project architecture and technical details
+### Core Documentation
+- **[PRD_final.md](./PRD_final.md)** - Final Product Requirements Document reflecting actual delivered scope (features implemented vs. excluded)
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Complete system architecture with Mermaid diagrams, data flow, component interactions, and technical decisions
+- **[Privacy_Policy.md](./Privacy_Policy.md)** - Comprehensive privacy notice and legal disclaimer (also available in-app at `/privacy-policy`)
+- **[PROMPT_LOG.md](./PROMPT_LOG.md)** - Complete development history documenting all 26 AI coding phases from initial setup to production-ready state
+- **[replit.md](./replit.md)** - Replit-specific system architecture, user preferences, and recent changes log
+
+### Testing & Validation
+- **[TESTING_GUIDE.md](./TESTING_GUIDE.md)** - Step-by-step testing instructions for authentication, questionnaire, PDF generation, and email sharing
+- **[QUICK_TEST_CHECKLIST.md](./QUICK_TEST_CHECKLIST.md)** - Rapid testing checklist for all core features
+
+### Historical Documents
+- **[Old PRDs/](./Old%20PRDs/)** - Previous versions of Product Requirements Documents showing project evolution
 
 ---
 
@@ -569,17 +577,13 @@ The following features were considered but not implemented in the current versio
 
 ---
 
-## 📚 Documentation
+## 📚 Complete Documentation Index
 
-Comprehensive documentation is available for all aspects of the project:
+All project documentation is organized in the **[📚 Additional Documentation](#-additional-documentation)** section above, including:
 
-- **[PRD_final.md](PRD_final.md)** - Product Requirements Document reflecting actual delivered scope (features implemented vs. excluded)
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Complete system architecture with diagrams (Mermaid), data flow, and technical decisions
-- **[PROMPT_LOG.md](PROMPT_LOG.md)** - Development log documenting all AI coding prompts and implementation phases
-- **[TESTING_GUIDE.md](TESTING_GUIDE.md)** - Step-by-step testing instructions for authentication, questionnaire, PDF generation, and email sharing
-- **[QUICK_TEST_CHECKLIST.md](QUICK_TEST_CHECKLIST.md)** - Rapid testing checklist for all features
-- **[Privacy_Policy.md](Privacy_Policy.md)** - Comprehensive privacy notice and disclaimer (also available in-app)
-- **[replit.md](replit.md)** - Replit-specific configuration, system architecture, and recent changes
+**Core Documentation:** PRD_final.md, ARCHITECTURE.md, Privacy_Policy.md, PROMPT_LOG.md, replit.md  
+**Testing & Validation:** TESTING_GUIDE.md, QUICK_TEST_CHECKLIST.md  
+**Historical:** Old PRDs/ folder with previous versions
 
 ---
 

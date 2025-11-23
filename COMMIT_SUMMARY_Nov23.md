@@ -118,16 +118,15 @@ After the initial documentation update, a thorough audit revealed **misleading s
 ### 5. **README.md** (Updated)
 **Changes:**
 - ✅ Added "Architecture Overview" section with link to ARCHITECTURE.md
-- ✅ Added "Documentation" section listing all key documents:
-  - PRD_final.md
-  - ARCHITECTURE.md
-  - PROMPT_LOG.md
-  - TESTING_GUIDE.md
-  - QUICK_TEST_CHECKLIST.md
-  - Privacy_Policy.md
-  - replit.md
+- ✅ Completely reorganized "Additional Documentation" section with:
+  - **Core Documentation:** PRD_final.md, ARCHITECTURE.md, Privacy_Policy.md, PROMPT_LOG.md, replit.md (with accurate descriptions)
+  - **Testing & Validation:** TESTING_GUIDE.md, QUICK_TEST_CHECKLIST.md
+  - **Historical Documents:** Old PRDs/ folder reference
+- ✅ Updated all documentation descriptions to accurately reflect file contents
+- ✅ Moved PRD.md → Old PRDs/PRD_original.md (keeps all historical PRDs together)
+- ✅ Created "Complete Documentation Index" section linking to organized documentation
 
-**Impact:** Single entry point for all project documentation
+**Impact:** Single, well-organized entry point for all project documentation with accurate descriptions
 
 ---
 
@@ -267,6 +266,13 @@ SCOPE CORRECTIONS IN README.md:
 - Added "Backend Only - UI Disabled" warning to Notifications API section
 - Reworded PDF & Email error handling to clarify backend logging vs. user-facing notifications
 
+DOCUMENTATION REORGANIZATION IN README.md:
+- Reorganized "Additional Documentation" section with accurate descriptions
+- Created 3 subsections: Core Documentation, Testing & Validation, Historical Documents
+- Moved PRD.md → Old PRDs/PRD_original.md (consolidates all historical PRDs)
+- Added PRD_final.md and ARCHITECTURE.md to documentation index
+- Updated all file descriptions to reflect actual content
+
 SCOPE CORRECTIONS IN PRD_final.md:
 - Fixed Round 1 question count: "13 questions" → "15 questions" (3 locations)
 
@@ -308,12 +314,13 @@ STATUS: Production-ready for academic submission (ENTI333 Final Project)
 | `PROMPT_LOG.md` | Updated | Final development phase documented |
 | `PRD_final.md` | Created | Delivered scope documentation |
 | `ARCHITECTURE.md` | Created | System architecture diagrams |
-| `README.md` | Updated | Architecture & documentation links |
+| `README.md` | Updated | Scope corrections + reorganized documentation section |
 | `LICENSE.txt` | Updated | Team attribution |
+| `PRD.md` | Moved | → Old PRDs/PRD_original.md |
 | `COMMIT_SUMMARY_Nov23.md` | Created | This summary |
 
-**Total Files:** 7 files  
-**Lines Changed:** ~1,500+ lines (mostly additions for new docs)
+**Total Files:** 8 files (7 updated/created, 1 moved)  
+**Lines Changed:** ~1,600+ lines (mostly additions for new docs)
 
 ---
 
