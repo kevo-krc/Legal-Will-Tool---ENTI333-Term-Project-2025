@@ -56,6 +56,19 @@ The frontend is built with React 18 and Vite, utilizing a Brand Kit for consiste
 
 ## Recent Changes (November 2025)
 
+### November 23, 2025 - UX Text Improvements, Layout Fixes & Session Handling
+
+- **Login Button State Fix:**
+  - Login button now properly resets from "Signing In..." to normal state before redirect
+  - Added `setLoading(false)` before navigation to ensure clean UI transition
+  - Button no longer stuck in loading state after successful authentication
+
+- **Session Timeout Fix:**
+  - Added 10-second timeout to `getSessionToken()` to prevent hanging after hard refresh
+  - Prevents dashboard from appearing blank or non-functional after Ctrl+Shift+R
+  - Logout button now works properly after hard refresh
+  - This was an **application issue**, not a Replit platform limitation
+
 ### November 23, 2025 - UX Text Improvements & Layout Fixes
 - **Next Steps Section (Pre-Generation):**
   - Updated bullet points to clarify assessment PDF is email-only

@@ -239,7 +239,15 @@ export const AuthProvider = ({ children }) => {
   const getSessionToken = async () => {
     try {
       console.log('[getSessionToken] Requesting session from Supabase...');
-      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      // Add timeout specifically for getSessionToken to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Session token request timeout')), 10000)
+      );
+      
+      const sessionPromise = supabase.auth.getSession();
+      const { data: { session }, error } = await Promise.race([sessionPromise, timeoutPromise]);
+      
       console.log('[getSessionToken] Received response:', { hasSession: !!session, hasError: !!error });
       if (error) throw error;
       const token = session?.access_token || null;

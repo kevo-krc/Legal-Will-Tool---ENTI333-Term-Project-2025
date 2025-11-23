@@ -37,7 +37,8 @@ function Login() {
         return;
       }
 
-      // Show success state briefly before redirecting
+      // Reset loading and navigate smoothly
+      setLoading(false);
       setTimeout(() => {
         navigate('/dashboard');
       }, 500);
