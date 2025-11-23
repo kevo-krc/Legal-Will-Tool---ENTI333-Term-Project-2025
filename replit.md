@@ -51,6 +51,21 @@ The application is a full-stack React (Vite) and Node.js (Express) project.
 
 ## Recent Changes (November 2025)
 
+### November 23, 2025 - UX Improvements & AI Prompt Enhancements
+- **Scroll-to-Top Functionality:**
+  - Added smooth scroll-to-top when accepting disclaimer (transition from consent screen to questionnaire)
+  - Added smooth scroll-to-top when advancing between question rounds (Round 1→2, Round 2→3)
+  - Improves UX by ensuring users start at the top of each new screen/form
+- **Common-Law Partnership Duration in PDF:**
+  - Added `common_law_duration` and `partnership_duration` fields to Article 1 of Will PDF
+  - Displays relationship duration/interdependence details under spouse information
+  - Ensures all AI-collected data appears in final document
+- **AI Prompt Clarifications:**
+  - Changed Round 2 prompt from "CRITICAL missing information only" to "clarify and complete"
+  - Encourages AI to ask 3-5 questions in Round 2 (instead of being overly conservative with 1 question)
+  - Maintained strict anti-hallucination rules to prevent asking about unmentioned assets
+  - AI still flexible to ask fewer questions if user provided complete Round 1 answers
+
 ### November 22, 2025 - UX Enhancement & Data Structure Improvements
 - **Tooltip Help System:**
   - Static tooltips for all 15 Round 1 questions explaining legal necessity
