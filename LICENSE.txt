@@ -1,5 +1,5 @@
-Copyright © 2025 Kevin Cooney
+Copyright © 2025 ENTI333 Final Project Team
 
-This project was created for educational purposes as part of a school term project.
+This project was created for educational purposes as part of a University of Calgary course (ENTI333).
 Permission is granted to view and use this code for non-commercial, academic purposes only.
-No warranty is provided, and the author assumes no liability for any damages arising from its use.
+No warranty is provided, and the authors assume no liability for any damages arising from its use.
