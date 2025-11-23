@@ -57,11 +57,18 @@ The frontend is built with React 18 and Vite, utilizing a Brand Kit for consiste
 ## Recent Changes (November 2025)
 
 ### November 23, 2025 - UX Text Improvements & Layout Fixes
-- **Next Steps Section:**
+- **Next Steps Section (Pre-Generation):**
   - Updated bullet points to clarify assessment PDF is email-only
   - Changed "Generate your legal assessment document (PDF)" → "Legal assessment PDF available via email"
   - Changed "Download both documents for your records" → "Email both documents at your leisure"
-  - More accurately reflects the email-based delivery system for assessment PDFs
+- **Next Steps Section (Post-Generation):**
+  - Updated to reflect actual functionality (View + Email, not Download)
+  - Changed "Download your documents using the button below" → "View your will document using the button below"
+  - Added "Share both documents via email for your records"
+  - More accurately describes the View Will button and Share via Email button
+- **Login Experience:**
+  - Added 500ms delay after successful sign-in for smoother transition to dashboard
+  - Button shows "Signing In..." during authentication, then automatically redirects
 - **Header Layout:**
   - Fixed Home tab positioning for non-logged-in users to match logged-in layout
   - Home tab now appears on the left side in both states for consistency
