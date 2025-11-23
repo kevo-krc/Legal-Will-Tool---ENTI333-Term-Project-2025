@@ -11,6 +11,7 @@ This is a full-stack web application that helps users create legally valid wills
 
 ### Current Status: All Core Features Complete ✅
 - ✅ User authentication and profile management
+- ✅ **Schema-driven architecture** with two-tier system (template fields vs contextual information)
 - ✅ AI-powered questionnaire system (3 rounds with anti-repetition mechanisms)
 - ✅ Jurisdiction-specific compliance checks (13 Canadian provinces/territories, 50 US states)
 - ✅ Age verification for legal testamentary capacity
@@ -19,6 +20,7 @@ This is a full-stack web application that helps users create legally valid wills
 - ✅ User data deletion with comprehensive cleanup
 - ✅ Notifications system for user actions and system events
 - ✅ Privacy policy and data handling compliance
+- ✅ Contextual tooltip help system and multi-field person inputs
 
 ---
 
@@ -43,6 +45,36 @@ This is a full-stack web application that helps users create legally valid wills
 | **PDF Generation** | PDFKit |
 | **Hosting** | Replit |
 | **Version Control** | GitHub |
+
+---
+
+## 🏗️ Architecture Highlights
+
+### Schema-Driven AI System
+
+The application uses a **two-tier schema system** (`willSchema.js`) that separates:
+
+**Type 1: Template Fields** (Goes IN the will PDF)
+- Exact field names mapping to specific PDF Articles
+- Examples: `marital_status`, `executor_details`, `beneficiary_distribution`
+- These fields directly populate the final will document
+- Missing required template fields = incomplete will
+
+**Type 2: Contextual Information** (For legal assessment)
+- Questions that inform legal guidance but don't appear in will template
+- Categories:
+  - **Non-Probate Assets:** Life insurance, retirement accounts, jointly-owned property
+  - **Complex Estate Matters:** Business interests, trusts, foreign assets
+  - **Family Complexity:** Previous marriages, blended families, estranged relatives
+  - **Jurisdiction-Specific:** Common-law recognition, forced heirship, community property
+- AI can ask comprehensive questions without forcing them into rigid template
+
+**Benefits:**
+- ✅ Clear separation: rigid PDF structure vs flexible AI guidance
+- ✅ Single source of truth for data flow
+- ✅ AI can be comprehensive (ask about life insurance) without being constraining
+- ✅ Assessment explains non-probate assets and jurisdiction-specific requirements
+- ✅ Easier to maintain and extend
 
 ---
 
@@ -87,6 +119,7 @@ legal-will-generation-tool/
 │   │   └── user.js           # User data deletion
 │   ├── lib/                  # Backend utilities
 │   │   ├── gemini.js         # Gemini AI integration
+│   │   ├── willSchema.js     # Two-tier schema definition
 │   │   ├── emailService.js   # SendGrid integration
 │   │   └── pdfGenerator.js   # PDF generation
 │   └── migrations/           # Database migrations
@@ -188,9 +221,12 @@ legal-will-generation-tool/
 - ✅ Jurisdiction selection (13 Canadian provinces/territories, 50 US states)
 - ✅ AI-generated legal compliance statements with age verification
 - ✅ Dynamic multi-round questionnaires (max 3 rounds)
+- ✅ **Schema-driven AI prompts** distinguishing template fields from contextual information
 - ✅ AI follows up based on previous answers with anti-repetition mechanisms
 - ✅ Automated retry mechanism for empty/invalid AI responses (up to 3 attempts with exponential backoff)
 - ✅ Boolean (Yes/No) question type support
+- ✅ Multi-field person input system (structured data collection)
+- ✅ Contextual tooltip help system (static + AI-generated)
 - ✅ Final legal assessment generation with age compliance checks
 - ✅ Just-in-time date of birth collection during will creation
 - ✅ Age verification flags underage users while allowing continuation
@@ -200,10 +236,13 @@ legal-will-generation-tool/
 
 ### Phase 4: PDF Generation
 - ✅ Generate will documents as formatted PDFs (using PDFKit)
-- ✅ Generate assessment reports as PDFs
+- ✅ **Template-driven PDF generation** using exact schema field mappings
+- ✅ Generate assessment reports as PDFs with flexible sections
+- ✅ **Enhanced assessments** include "Assets Passing Outside the Will" and jurisdiction-specific compliance
 - ✅ Upload PDFs to Supabase Storage (`will-documents` bucket)
 - ✅ Download functionality for user documents
 - ✅ Proper legal formatting with headers and sections
+- ✅ Common-law partnership duration in Article 1
 
 ### Phase 5: Email & Data Management
 - ✅ Email delivery integration (SendGrid)
@@ -409,4 +448,4 @@ ENTI333 - Final Term Project
 
 ---
 
-**Last Updated:** November 20, 2025 (All Core Features Complete + Bug Fixes - Production Ready)
+**Last Updated:** November 23, 2025 (Schema-Driven Architecture + Enhanced AI Guidance - Production Ready)

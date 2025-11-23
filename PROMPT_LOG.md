@@ -677,5 +677,37 @@ The Updated_PRD_Legal_Will_App.md is a well-intentioned but dangerously under-sp
 
 ---
 
-**Last Updated:** November 22, 2025  
-**Status:** All core features complete, UX enhancements implemented - production-ready
+## 25. Schema-Driven Architecture Implementation (2025-11-23)
+### Goal: Create two-tier schema system to separate template fields from contextual information
+- **Source PRD Requirement:** Ensure AI questions align with rigid PDF template structure while maintaining comprehensive legal guidance
+- **Context:** AI was asking questions that didn't map to PDF template fields, causing data to be collected but never used in final documents. Need architectural clarity on what goes IN the will vs what informs the assessment.
+- **Prompt:** "Lets keep the current approach but if we do then we need to be sure AI's questions during the process are specific to that approach. Would sending a blank example of the output be of value to our AI prompt in the questions answer? Is there a good or a better way to keep AI from asking questions that will never be used in our process of having a rigidly defined output?"
+- **AI Output Summary:** 
+  - Created `willSchema.js` with two-tier schema system
+  - **Type 1 - Template Fields:** Exact field names mapping to PDF Articles (marital_status, executor_details, beneficiary_distribution, etc.)
+  - **Type 2 - Contextual Information:** Questions for legal assessment that don't appear in will template (life insurance, retirement accounts, business interests, blended family considerations)
+  - Updated all AI prompts to include schema awareness
+  - Enhanced assessment generation with 300-500 word flexibility, new sections for "Assets Passing Outside the Will" and jurisdiction-specific compliance
+  - Added common-law partnership duration to PDF Article 1
+  - Added smooth scroll-to-top functionality when switching between screens
+- **Debugging Actions:**
+  - Fixed syntax error in follow-up questions prompt (missing quote in ternary operator)
+  - Tested backend restart to ensure schema module loads correctly
+- **Architectural Benefits:**
+  - Clear separation: rigid PDF structure vs flexible AI guidance
+  - AI can ask comprehensive questions (life insurance) without trying to fit them into template
+  - Single source of truth for data flow (questions → template fields → PDF articles)
+  - Easier to maintain and extend (schema documents entire system)
+  - Better jurisdiction-specific compliance (dedicated assessment sections)
+- **Files Modified:**
+  - Created: `server/lib/willSchema.js`
+  - Updated: `server/lib/gemini.js` (all AI prompts now schema-aware)
+  - Updated: `server/lib/pdfGenerator.js` (common-law duration in Article 1)
+  - Updated: `src/pages/Questionnaire.jsx` (scroll-to-top UX)
+  - Updated: `replit.md` (comprehensive documentation)
+- **Outcome:** Schema-driven architecture ensures AI questions align with template structure while maintaining comprehensive legal guidance. Assessment can explain non-probate assets and jurisdiction-specific requirements without forcing them into rigid will template.
+
+---
+
+**Last Updated:** November 23, 2025  
+**Status:** Schema-driven architecture implemented - production-ready
