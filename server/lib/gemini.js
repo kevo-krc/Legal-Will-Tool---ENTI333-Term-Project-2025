@@ -540,6 +540,18 @@ ANTI-REPETITION RULES:
 - NEVER re-ask for information already provided
 - If user said "None" or "N/A" to something, accept it
 
+${roundNumber === 3 ? `
+EXCEPTION FOR ROUND 3 - STRATEGIC RE-ASKING WITH EXPLICIT REASONING:
+If a previous answer was vague, incomplete, or estimated (e.g., "close to ten years", "approximately", "around", "I don't know exact dates"), you MAY revisit that topic ONCE in Round 3 IF AND ONLY IF:
+1. Greater precision would materially improve legal validity or compliance
+2. You EXPLICITLY explain in your question WHY you are re-asking
+3. You acknowledge their previous answer and explain what additional detail is needed
+
+Example: "You mentioned your common-law relationship is 'close to ten years.' For ${jurisdiction} legal purposes, can you provide more specific dates or duration? Even approximate years (e.g., '2014-present' or '10 years, 8 months') would strengthen documentation."
+
+DO NOT re-ask if their original answer was clear and complete.
+` : ''}
+
 ANTI-HALLUCINATION RULES:
 - DO NOT ask about assets user never mentioned (if they said "None" for businesses, don't ask about partnerships)
 - DO NOT assume they have trusts, life insurance, or complex assets unless indicated
@@ -674,7 +686,7 @@ STRONG LIABILITY DISCLAIMER (3-4 sentences):
 - This AI-assisted tool does NOT provide legal advice and does NOT create an attorney-client relationship
 - This tool and its creators assume NO legal liability whatsoever for the accuracy, validity, or legal effect of any documents
 - Legal requirements change frequently; information may not reflect recent ${jurisdiction} law changes
-- Users MUST have this will reviewed and executed under supervision of a licensed ${jurisdiction} attorney
+- Users should strongly consider having this will reviewed by a licensed ${jurisdiction} attorney before execution to ensure validity and alignment with their intentions
 
 FORMAT: Use clear section headers. Be comprehensive yet concise. Address ${jurisdiction}'s unique legal landscape.`;
 

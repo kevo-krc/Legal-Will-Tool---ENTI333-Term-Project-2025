@@ -87,7 +87,7 @@ async function generateWillPDF(willData, userProfile) {
         // Add common-law partnership duration if provided
         if (answers.common_law_duration || answers.partnership_duration) {
           const duration = answers.common_law_duration || answers.partnership_duration;
-          doc.text(`    Relationship: ${duration}`, { indent: 20 });
+          doc.text(`Relationship: ${duration}`, { indent: 20 });
         }
       }
       
