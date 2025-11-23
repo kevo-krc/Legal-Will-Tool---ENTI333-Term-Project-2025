@@ -189,6 +189,44 @@ function Questionnaire() {
     });
   };
 
+  const handleLookupAnswer = async (questionId, question) => {
+    const answer = answers[questionId];
+    
+    if (!answer) {
+      setError('Please type "I don\'t know" or similar before using lookup');
+      return;
+    }
+    
+    setSubmitting(true);
+    setError('');
+    
+    try {
+      console.log('[Lookup] Requesting lookup for:', question, answer);
+      const response = await axios.post(`${API_URL}/ai/lookup-answer`, {
+        question,
+        answer,
+        jurisdiction: will.jurisdiction_full_name,
+        country: will.country
+      });
+      
+      if (response.data.needsLookup && response.data.answer) {
+        console.log('[Lookup] Found answer:', response.data.answer);
+        setAnswers({
+          ...answers,
+          [questionId]: response.data.answer
+        });
+        setError('');
+      } else {
+        console.log('[Lookup] No lookup needed');
+      }
+    } catch (err) {
+      console.error('[Lookup] Error:', err);
+      setError('Failed to lookup answer. Please try again or consult a legal professional.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handleSubmitRound = async () => {
     const unansweredRequired = questions.filter(
       q => q.required && !answers[q.id]
@@ -448,14 +486,37 @@ function Questionnaire() {
         );
 
       case 'textarea':
+        const showLookupButton = answers[question.id] && /i don't know|please look|look this up|not sure/i.test(answers[question.id]);
         return (
-          <textarea
-            id={question.id}
-            value={answers[question.id] || ''}
-            onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-            required={question.required}
-            rows="4"
-          />
+          <div style={{ position: 'relative' }}>
+            <textarea
+              id={question.id}
+              value={answers[question.id] || ''}
+              onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+              required={question.required}
+              rows="4"
+            />
+            {showLookupButton && (
+              <button
+                type="button"
+                onClick={() => handleLookupAnswer(question.id, question.question)}
+                disabled={submitting}
+                style={{
+                  marginTop: '8px',
+                  padding: '8px 16px',
+                  backgroundColor: '#4CAF50',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: submitting ? 'not-allowed' : 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
+              >
+                {submitting ? '🔍 Looking up...' : '🔍 Lookup Answer for Me'}
+              </button>
+            )}
+          </div>
         );
 
       case 'select':

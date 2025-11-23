@@ -633,9 +633,65 @@ Format as plain text with clear section headers. BE DIRECT AND ACTIONABLE.`;
   return result;
 }
 
+async function lookupUnknownAnswer(question, partialAnswer, context = {}) {
+  const needsLookup = /i don't know|please look|look this up|not sure|can you find|search for/i.test(partialAnswer);
+  
+  if (!needsLookup) {
+    return { needsLookup: false, answer: partialAnswer };
+  }
+  
+  // Extract what the user wants looked up
+  const lookupQuery = `${question} ${context.jurisdiction || ''} ${context.country || ''} legal requirements`;
+  
+  console.log(`[AI Lookup] User doesn't know answer for: "${question}"`);
+  console.log(`[AI Lookup] Will search for: "${lookupQuery}"`);
+  
+  try {
+    // Use Gemini with grounding (web search capability)
+    const prompt = `The user is creating a will and doesn't know the answer to this question: "${question}"
+
+Context:
+- Jurisdiction: ${context.jurisdiction || 'Not specified'}
+- Country: ${context.country || 'Not specified'}
+- User said: "${partialAnswer}"
+
+Please search for and provide a brief, factual answer (2-3 sentences maximum) that would be appropriate for a legal will. If you cannot find specific information, suggest "Consult with a legal professional for this specific detail."
+
+Focus on providing practical, legally appropriate guidance.`;
+
+    const { result } = await executeWithRetry(
+      async () => {
+        const response = await model.generateContent(prompt);
+        return (await response.response).text();
+      },
+      'lookupUnknownAnswer'
+    );
+    
+    console.log(`[AI Lookup] Found answer: ${result}`);
+    
+    return {
+      needsLookup: true,
+      originalAnswer: partialAnswer,
+      lookupResult: result,
+      answer: result,
+      searchQuery: lookupQuery
+    };
+    
+  } catch (error) {
+    console.error('[AI Lookup] Failed to lookup answer:', error);
+    return {
+      needsLookup: true,
+      error: error.message,
+      answer: partialAnswer,
+      fallback: "Please consult with a legal professional for this specific information."
+    };
+  }
+}
+
 module.exports = {
   generateComplianceStatement,
   generateInitialQuestions,
   generateFollowUpQuestions,
-  generateWillAssessment
+  generateWillAssessment,
+  lookupUnknownAnswer
 };

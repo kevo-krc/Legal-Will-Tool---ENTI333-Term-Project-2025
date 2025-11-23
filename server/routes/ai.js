@@ -3,7 +3,8 @@ const {
   generateComplianceStatement, 
   generateInitialQuestions, 
   generateFollowUpQuestions,
-  generateWillAssessment 
+  generateWillAssessment,
+  lookupUnknownAnswer
 } = require('../lib/gemini');
 const router = express.Router();
 
@@ -212,6 +213,59 @@ router.post('/assessment', async (req, res) => {
     
     res.status(500).json({ 
       error: 'Failed to generate assessment',
+      message: error.message,
+      retryMetadata
+    });
+  }
+});
+
+router.post('/lookup-answer', async (req, res) => {
+  try {
+    const { question, answer, jurisdiction, country } = req.body;
+
+    if (!question || !answer) {
+      return res.status(400).json({ 
+        error: 'Missing required fields: question and answer' 
+      });
+    }
+
+    const context = {
+      jurisdiction,
+      country
+    };
+
+    const result = await lookupUnknownAnswer(question, answer, context);
+
+    res.json({ 
+      ...result,
+      original_question: question,
+      processed_at: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error looking up answer:', error);
+    
+    const retryMetadata = error.retryMetadata || {};
+    
+    if (error.name === 'GeminiQuotaError') {
+      return res.status(429).json({ 
+        error: error.message,
+        errorType: error.type,
+        retryAfter: error.retryAfter,
+        retryMetadata
+      });
+    }
+    
+    if (error.status === 503 || error.statusText === 'Service Unavailable') {
+      return res.status(503).json({ 
+        error: 'AI service is temporarily overloaded. Please try again in a moment.',
+        errorType: 'SERVICE_UNAVAILABLE',
+        message: error.message,
+        retryMetadata
+      });
+    }
+    
+    res.status(500).json({ 
+      error: 'Failed to lookup answer',
       message: error.message,
       retryMetadata
     });
