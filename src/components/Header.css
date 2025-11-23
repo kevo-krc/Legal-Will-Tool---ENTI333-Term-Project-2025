@@ -36,7 +36,49 @@
 .header-nav {
   display: flex;
   align-items: center;
+  gap: 3rem;
+  flex: 1;
+  justify-content: space-between;
+}
+
+.nav-tabs {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.nav-tab {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 10px 24px;
+  border-radius: 8px 8px 0 0;
+  background-color: rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  bottom: -1px;
+}
+
+.nav-tab:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.nav-tab.active {
+  background-color: rgba(255, 255, 255, 0.95);
+  color: var(--color-primary);
+  font-weight: 600;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.nav-user-controls {
+  display: flex;
+  align-items: center;
   gap: 1.5rem;
+}
+
+.nav-username {
+  color: #FACC15;
+  font-weight: 500;
 }
 
 .nav-link {
@@ -66,5 +108,21 @@
 
   .header-title {
     font-size: 1.2rem;
+  }
+
+  .header-nav {
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .nav-tabs {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .nav-user-controls {
+    flex-wrap: wrap;
+    justify-content: center;
   }
 }
