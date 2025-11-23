@@ -11,7 +11,7 @@
   padding: 0 20px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   flex-wrap: wrap;
   gap: 1rem;
 }
@@ -43,19 +43,20 @@
 
 .header-nav-logged-out {
   width: 100%;
-  flex-direction: column;
+  flex-direction: row;
   align-items: flex-start;
   gap: 1rem;
+  justify-content: space-between;
 }
 
 .header-nav-logged-out .nav-tabs {
-  order: 2;
+  order: 1;
   align-self: flex-start;
 }
 
 .header-nav-logged-out .nav-user-controls {
-  order: 1;
-  align-self: flex-end;
+  order: 2;
+  align-self: flex-start;
 }
 
 .nav-tabs {
