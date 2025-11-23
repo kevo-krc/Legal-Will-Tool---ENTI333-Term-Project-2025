@@ -41,6 +41,22 @@
   justify-content: space-between;
 }
 
+.header-nav-logged-out {
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.header-nav-logged-out .nav-tabs {
+  order: 2;
+}
+
+.header-nav-logged-out .nav-user-controls {
+  order: 1;
+  align-self: flex-end;
+}
+
 .nav-tabs {
   display: flex;
   align-items: flex-end;

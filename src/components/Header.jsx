@@ -22,7 +22,7 @@ function Header() {
           <img src="/logo.png" alt="Legal Will Generation Tool" className="logo-image" />
           <h1 className="header-title">Legal Will Generation Tool</h1>
         </div>
-        <nav className="header-nav">
+        <nav className={`header-nav ${!user ? 'header-nav-logged-out' : ''}`}>
           <div className="nav-tabs">
             <Link to="/" className={`nav-tab ${isActive('/') ? 'active' : ''}`}>
               Home
