@@ -709,5 +709,95 @@ The Updated_PRD_Legal_Will_App.md is a well-intentioned but dangerously under-sp
 
 ---
 
+## 26. Final UX Refinements and Session Handling (2025-11-23)
+### Goal: Polish user experience and fix authentication issues
+- **Context:** Final refinements for production readiness, including text accuracy, session handling, and privacy policy updates
+- **Prompts & Changes:**
+  1. **"Next Steps" Text Updates**
+     - Pre-Generation: Clarified that assessment PDF is email-only delivery
+     - Post-Generation: Updated to reflect actual functionality (View Will button + Share via Email)
+     - Removed references to downloading assessment PDF directly
+  
+  2. **Login Button State Fix**
+     - **Problem:** Login button stuck on "Signing In..." even after successful authentication
+     - **Root Cause:** Artificial 60-second timeout wrapper (`withTimeout`) was timing out before Supabase completed, but Supabase's background auth state listener was succeeding afterward
+     - **Solution:** Removed `withTimeout` wrapper from `signIn`, `signOut`, and `signUp` functions
+     - **Impact:** Supabase now handles authentication at its own pace, button properly resets and redirects
+  
+  3. **Session Timeout Fix (Hard Refresh Issue)**
+     - **Problem:** Dashboard appeared blank after hard refresh (Ctrl+Shift+R), logout button non-functional
+     - **Root Cause:** `getSessionToken()` hanging indefinitely waiting for Supabase response
+     - **Solution:** Added 10-second timeout specifically to `getSessionToken()` using Promise.race
+     - **Confirmation:** This was an **application issue**, not a Replit platform limitation
+  
+  4. **Header Layout Consistency**
+     - Fixed Home tab positioning for non-logged-in users to match logged-in state layout
+  
+  5. **Privacy Policy Updates**
+     - Changed authorship from individual to "ENTI333 Final Project Team" (team effort)
+     - Removed references to Service-Role Keys (not implemented)
+     - Removed references to Audit Logging (not implemented)
+     - Changed "Download Documents" to "Email Documents" (accurate to implementation)
+     - Added scroll-to-top functionality when user clicks Privacy Policy link
+     - Updated dates to November 23, 2025
+     - Updated both Privacy_Policy.md and src/pages/PrivacyPolicy.jsx for consistency
+  
+  6. **README.md Future Improvements Section**
+     - Added comprehensive "Future Improvements" section documenting features not implemented
+     - **Audit Logging System:** Detailed purpose, benefits, and implementation considerations
+     - **Service-Role Key Management:** Admin operations and elevated permissions
+     - **AI-Powered Help Chatbot:** Real-time assistance (currently placeholder button)
+     - **Direct PDF Download Feature:** Browser downloads instead of email-only (current status)
+     - **Global Jurisdiction Expansion:** Beyond Canada/USA (UK, Australia, EU, etc.)
+     - **Mobile Platform Support:** Native iOS/Android apps (currently web-only)
+     - **Notification System (UI Integration):** Backend exists but UI disabled and untested
+     - Other enhancements: Multi-language, 2FA, document versioning, legal directory integration
+  
+  7. **Assessment PDF Bug Fix**
+     - Fixed "[object Object]" display for person-type questions (spouse, executor, guardian)
+     - Created `formatPersonForPDF()` helper function to convert structured person objects to readable text
+     - Applied to both will.pdf and assessment.pdf generation
+
+- **Files Modified:**
+  - `src/pages/WillSummary.jsx` (Next Steps text updates)
+  - `src/pages/Login.jsx` (removed setLoading delay, smooth transition)
+  - `src/context/AuthContext.jsx` (removed withTimeout from auth functions, added timeout to getSessionToken)
+  - `src/components/Header.jsx` & `src/components/Header.css` (layout consistency)
+  - `src/pages/PrivacyPolicy.jsx` (team attribution, scroll-to-top, removed outdated features)
+  - `Privacy_Policy.md` (synchronized with JSX component)
+  - `README.md` (added comprehensive Future Improvements section)
+  - `server/lib/pdfGenerator.js` (person data formatting for PDFs)
+  - `replit.md` (documented all changes)
+
+- **Key Realizations:**
+  - Authentication timeouts were causing more problems than solving (Supabase handles its own timing)
+  - Hard refresh issues were application-level, not platform limitations
+  - Documentation consistency crucial for team project (Privacy Policy, README, PROMPT_LOG all aligned)
+  - Future improvements section valuable for academic evaluation and potential continuation
+
+- **Production Readiness:**
+  - ✅ All authentication flows working smoothly
+  - ✅ PDFs generating correctly with proper formatting
+  - ✅ Privacy policy accurate to actual implementation
+  - ✅ Documentation comprehensive and consistent
+  - ✅ Future improvements documented for potential expansion
+  - ✅ Team attribution throughout all documents
+
+- **Outcome:** Application ready for final GitHub commit with polished UX, accurate documentation, and clear roadmap for future enhancements
+
+---
+
+## Summary by Phase (Final)
+**Phase 1 (Complete):** React + Vite frontend, Node.js + Express backend, dual workflows, global styling  
+**Phase 2 (Complete):** Supabase authentication, user profiles, protected routes, RLS policies  
+**Phase 3 (Complete):** Google Gemini AI integration, multi-round questionnaires, rate limiting, timeout handling, anti-repetition mechanisms, automated retry for empty responses  
+**Phase 4 (Complete):** PDF generation with PDFKit, Supabase Storage, legal formatting, email-based sharing  
+**Phase 5 (Complete):** Email sharing via SendGrid, comprehensive user data deletion, individual will deletion, **age verification for legal compliance**  
+**Phase 6 (Complete):** **Tooltip help system**, **Help button placeholder**, **user profile context for AI**, **multi-field person input system**  
+**Phase 7 (Complete):** **Schema-driven architecture**, **two-tier system separating template fields from contextual information**  
+**Phase 8 (Complete):** **Final UX polish**, **session handling fixes**, **documentation consistency**, **future improvements roadmap**
+
+---
+
 **Last Updated:** November 23, 2025  
-**Status:** Schema-driven architecture implemented - production-ready
+**Status:** Production-ready for academic submission - all core features complete, documentation comprehensive, UX polished
