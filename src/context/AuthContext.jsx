@@ -107,105 +107,72 @@ export const AuthProvider = ({ children }) => {
 
   const signUp = async (email, password, userData) => {
     try {
-      const { data: authData, error: signUpError } = await withTimeout(
-        supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              full_name: userData.fullName,
-              phone: userData.phone || null
-            }
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: userData.fullName,
+            phone: userData.phone || null
           }
-        })
-      );
+        }
+      });
 
       if (signUpError) throw signUpError;
 
-      let profileTimedOut = false;
       if (authData.user) {
         await new Promise(resolve => setTimeout(resolve, 1000));
         try {
           await fetchProfile(authData.user.id);
         } catch (profileError) {
-          if (profileError.message === 'Authentication timeout') {
-            profileTimedOut = true;
-            setAuthError('Loading your profile is taking longer than expected. Please refresh the page.');
-          } else {
-            throw profileError;
-          }
+          console.error('Error fetching profile during sign-up:', profileError);
         }
       }
 
-      if (!profileTimedOut) {
-        setAuthError(null);
-      }
-      
+      setAuthError(null);
       return { data: authData, error: null };
     } catch (error) {
       console.error('Error signing up:', error);
-      if (error.message === 'Authentication timeout') {
-        console.log('[Auth Timeout] Sign-up request exceeded 30 seconds');
-      }
       return { data: null, error };
     }
   };
 
   const signIn = async (email, password) => {
     try {
-      const { data, error } = await withTimeout(
-        supabase.auth.signInWithPassword({
-          email,
-          password,
-        })
-      );
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
       if (error) throw error;
 
-      let profileTimedOut = false;
       if (data.user) {
         try {
           await fetchProfile(data.user.id);
         } catch (profileError) {
-          if (profileError.message === 'Authentication timeout') {
-            profileTimedOut = true;
-            setAuthError('Loading your profile is taking longer than expected. Please refresh the page.');
-          } else {
-            throw profileError;
-          }
+          console.error('Error fetching profile during sign-in:', profileError);
         }
       }
 
-      if (!profileTimedOut) {
-        setAuthError(null);
-      }
-
+      setAuthError(null);
       return { data, error: null };
     } catch (error) {
       console.error('Error signing in:', error);
-      if (error.message === 'Authentication timeout') {
-        console.log('[Auth Timeout] Sign-in request exceeded 30 seconds');
-      }
       return { data: null, error };
     }
   };
 
   const signOut = async () => {
     try {
-      const { error } = await withTimeout(
-        supabase.auth.signOut()
-      );
+      const { error } = await supabase.auth.signOut();
       if (error) throw error;
       
       setUser(null);
       setProfile(null);
     } catch (error) {
       console.error('Error signing out:', error);
-      if (error.message === 'Authentication timeout') {
-        console.log('[Auth Timeout] Sign-out request exceeded 30 seconds');
-        setUser(null);
-        setProfile(null);
-      }
+      setUser(null);
+      setProfile(null);
     }
   };
 

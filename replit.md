@@ -59,9 +59,11 @@ The frontend is built with React 18 and Vite, utilizing a Brand Kit for consiste
 ### November 23, 2025 - UX Text Improvements, Layout Fixes & Session Handling
 
 - **Login Button State Fix:**
-  - Login button now properly resets from "Signing In..." to normal state before redirect
+  - Fixed button stuck on "Signing In..." by removing artificial timeouts from auth functions
+  - Removed `withTimeout` wrapper from `signIn`, `signOut`, and `signUp` functions
+  - Supabase now handles authentication at its own pace without artificial 60-second timeouts
+  - Login button properly resets and redirects to dashboard after successful authentication
   - Added `setLoading(false)` before navigation to ensure clean UI transition
-  - Button no longer stuck in loading state after successful authentication
 
 - **Session Timeout Fix:**
   - Added 10-second timeout to `getSessionToken()` to prevent hanging after hard refresh
