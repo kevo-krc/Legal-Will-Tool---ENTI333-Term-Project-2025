@@ -29,6 +29,20 @@ function Questionnaire() {
     loadWill();
   }, [willId]);
 
+  // Scroll to top when consent is accepted
+  useEffect(() => {
+    if (consentAccepted && !showConsentScreen) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [consentAccepted, showConsentScreen]);
+
+  // Scroll to top when round changes
+  useEffect(() => {
+    if (currentRound > 1) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [currentRound]);
+
   const loadWill = async () => {
     try {
       const response = await axios.get(`${API_URL}/wills/${willId}`);
