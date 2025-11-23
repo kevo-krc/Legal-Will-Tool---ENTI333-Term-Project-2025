@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import NotificationBell from './NotificationBell';
 import './Header.css';
 
 function Header() {
@@ -36,7 +35,6 @@ function Header() {
           <div className="nav-user-controls">
             {user ? (
               <>
-                <NotificationBell />
                 <span className="nav-username">
                   {profile?.full_name || user.email}
                 </span>

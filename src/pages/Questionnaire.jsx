@@ -684,7 +684,7 @@ function Questionnaire() {
                 <button 
                   type="button"
                   className="help-button"
-                  onClick={() => alert('AI assistance chatbot coming soon!')}
+                  onClick={() => alert('This feature is under development. AI-powered chat assistance will be available in a future release.')}
                 >
                   AI-HELP
                 </button>

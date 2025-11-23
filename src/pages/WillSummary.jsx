@@ -313,7 +313,7 @@ function WillSummary() {
                       className="btn btn-primary" 
                       disabled={generatingPDFs}
                     >
-                      {generatingPDFs ? 'Loading...' : 'Download PDF Documents'}
+                      {generatingPDFs ? 'Loading...' : 'View Will'}
                     </button>
                     <button 
                       onClick={handleShareEmail}
