@@ -29,6 +29,9 @@ After the initial documentation update, a thorough audit revealed **misleading s
    - Changed "Generate Round 1 questions (5-7 questions)" → "(15 static questions)"
    - Added "⚠️ Backend Only - UI Disabled" warning to Notifications section
 9. **Removed:** "Notifications: User action tracking..." from Data Storage section
+10. **Updated Error Handling Section:**
+    - "Notification created with retry option" → "Error logged to backend (notification backend tracks event but UI disabled)"
+    - "Notification created with detailed error message" → "Error logged to backend with detailed message (notification backend tracks event but UI disabled)"
 
 ### PRD_final.md Corrections:
 1. **Fixed Round 1 question count:** "13 questions" → "15 questions" (3 locations)
@@ -262,6 +265,7 @@ SCOPE CORRECTIONS IN README.md:
 - Fixed Round 1 question count: "5-7 questions" → "15 static questions" (test checklist + API docs)
 - Updated test checklist to remove "Download" and "View notifications" steps
 - Added "Backend Only - UI Disabled" warning to Notifications API section
+- Reworded PDF & Email error handling to clarify backend logging vs. user-facing notifications
 
 SCOPE CORRECTIONS IN PRD_final.md:
 - Fixed Round 1 question count: "13 questions" → "15 questions" (3 locations)

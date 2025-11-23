@@ -399,8 +399,8 @@ See `TESTING_GUIDE.md` for comprehensive testing instructions.
 - **Connection Failures:** 10-second timeout with retry option
 
 ### PDF & Email Errors
-- **PDF Generation Failure:** Notification created with retry option
-- **Email Send Failure:** Notification created with detailed error message
+- **PDF Generation Failure:** Error logged to backend (notification backend tracks event but UI disabled)
+- **Email Send Failure:** Error logged to backend with detailed message (notification backend tracks event but UI disabled)
 - **Deletion Safeguards:** Cannot delete wills with generated PDFs
 
 ---
