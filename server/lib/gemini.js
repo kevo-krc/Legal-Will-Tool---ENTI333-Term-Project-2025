@@ -496,17 +496,18 @@ ANTI-REPETITION RULES:
 2. For people with names: only ask for MISSING details (age, address, relationship)
 3. For charities: ask "registered name and number" not "full legal name"
 4. NEVER repeat previous questions (see list above)
-5. Accept "I don't know" - don't ask again
+5. If user says "I don't know" or similar - mark that question with special flag for web lookup
+6. ONLY ask about assets/items the user EXPLICITLY mentioned - DO NOT assume or hallucinate
 
 ${roundNumber === 2 ? 'ROUND 2 - ASK IF MISSING:' : 'ROUND 3 - FINAL GAPS ONLY:'}
-- Executor/alternate details (age, address, relationship)
-- Guardian/alternate for minors (if kids under 18)
+- Executor/alternate details (age, address, relationship) - ONLY if executor named
+- Guardian/alternate for minors - ONLY if user has minor children
 - Beneficiary specifics (percentages must = 100%, names not vague)
 - Residue distribution (who gets remainder?)
 - Debt handling (pay before distribution?)
-- Minor inheritance age (18, 21, 25?)
-- Charity registration details
-- Major asset distribution clarity
+- Minor inheritance age (18, 21, 25?) - ONLY if minors are beneficiaries
+- Charity registration details - ONLY if charity was mentioned
+- Asset distribution clarity - ONLY for assets user explicitly listed
 
 FORBIDDEN:
 - Already asked questions

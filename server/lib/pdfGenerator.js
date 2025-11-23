@@ -154,6 +154,25 @@ async function generateWillPDF(willData, userProfile) {
         doc.text(answers.beneficiary_distribution, { indent: 20 });
       }
       
+      // Capture any additional beneficiary information from follow-up questions
+      const beneficiaryKeys = Object.keys(answers).filter(key => 
+        (key.toLowerCase().includes('beneficiar') || key.toLowerCase().includes('inherit')) && 
+        key !== 'beneficiary_distribution' && 
+        key !== 'contingent_beneficiaries' &&
+        answers[key] && 
+        answers[key].toString().trim() !== '' && 
+        answers[key].toString().toLowerCase() !== 'none' && 
+        answers[key].toString().toLowerCase() !== 'n/a'
+      );
+      
+      if (beneficiaryKeys.length > 0) {
+        doc.moveDown(0.5);
+        beneficiaryKeys.forEach(key => {
+          const value = typeof answers[key] === 'object' ? formatPersonForPDF(answers[key]) : answers[key];
+          doc.text(`${value}`, { indent: 20 });
+        });
+      }
+      
       if (answers.contingent_beneficiaries) {
         doc.moveDown(0.5);
         doc.text(`6.2 Contingent Beneficiaries: ${answers.contingent_beneficiaries}`);
