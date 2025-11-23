@@ -490,9 +490,10 @@ async function generateFollowUpQuestions(previousAnswers, jurisdiction, country,
   const prompt = `You are a lawyer creating a will for ${jurisdiction}. Your role is to ensure all ${jurisdiction}-specific legal requirements are met through strategic questioning.
 
 JURISDICTION-SPECIFIC REQUIREMENTS:
-- Ensure ${jurisdiction} laws regarding executors, witnesses, beneficiaries are understood
+- Ensure ${jurisdiction} laws regarding executors and beneficiaries are understood
 - Ask questions that address unique ${jurisdiction} requirements (e.g., common-law recognition, forced heirship, community property)
 - Reference regional terminology (e.g., "Personal Representative" vs "Executor" based on jurisdiction)
+- DO NOT ask about witnesses - witness requirements will be explained in the assessment PDF only
 
 PREVIOUS ANSWERS:
 ${summarized}
@@ -556,6 +557,7 @@ ANTI-HALLUCINATION RULES:
 - DO NOT ask about assets user never mentioned (if they said "None" for businesses, don't ask about partnerships)
 - DO NOT assume they have trusts, life insurance, or complex assets unless indicated
 - Ask about common items (life insurance, RRSP/401k) ONCE in Round 2 if estate planning context suggests it, but accept "None"
+- DO NOT ask about witness information - witnesses are NOT part of the will content and will be addressed in the assessment PDF with jurisdiction-specific execution requirements
 
 Return ONLY JSON array (include "tooltip" explaining WHY this is needed):
 [
