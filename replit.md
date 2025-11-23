@@ -51,6 +51,22 @@ The application is a full-stack React (Vite) and Node.js (Express) project.
 
 ## Recent Changes (November 2025)
 
+### November 23, 2025 (Part 3) - User-Friendly PDF Naming & Enhanced Debugging
+- **PDF Naming System:**
+  - PDFs now use human-readable filenames: `Will_Kevin_Cooney_11_23_2025.pdf` and `Assessment_Kevin_Cooney_11_23_2025.pdf`
+  - Replaced timestamp-based naming (will_1763916886727.pdf) with user name and date format
+  - Safe filename sanitization replaces special characters with underscores
+  - Format: `Will_{UserName}_{MM}_{DD}_{YYYY}.pdf`
+- **Enhanced PDF Download Debugging:**
+  - Added comprehensive console logging to track both will.pdf and assessment.pdf downloads
+  - Logs show URL availability and download trigger events
+  - User-friendly filenames applied to both generated and downloaded PDFs
+- **Notification System Deep Debugging:**
+  - Added detailed logging showing notification IDs, types, titles, and read status
+  - Unread count now calculated directly from fetched notifications and logged
+  - Enhanced tracking to identify why notifications appear in API but not in UI bell icon
+  - Browser console (F12) now displays full notification lifecycle for troubleshooting
+
 ### November 23, 2025 (Part 2) - UX Refinements & Bug Fixes
 - **Header Layout for Non-Logged-In Users:**
   - Home tab now appears below the header title on the left for non-logged-in users (matching logged-in user layout)
@@ -68,9 +84,6 @@ The application is a full-stack React (Vite) and Node.js (Express) project.
 - **Email Success Modal:**
   - Fixed auto-dismiss functionality - modal now closes after 3 seconds (was staying on screen)
   - Improved notification refresh with 500ms delay to ensure backend notification creation completes
-- **Notification System Debugging:**
-  - Added comprehensive console logging throughout notification fetch process
-  - Enhanced NotificationContext with detailed debugging for troubleshooting notification delivery
 
 ### November 23, 2025 (Part 1) - Schema-Driven Architecture & Enhanced AI Guidance
 - **Will Schema System (`willSchema.js`):**
