@@ -129,8 +129,12 @@ function WillSummary() {
       setEmailSuccess(true);
       
       // Refresh notifications to show the email success notification immediately
+      console.log('[Notifications] Calling fetchNotifications after email send');
       if (fetchNotifications) {
-        fetchNotifications();
+        await fetchNotifications();
+        console.log('[Notifications] fetchNotifications completed');
+      } else {
+        console.error('[Notifications] fetchNotifications is not available');
       }
       
       setTimeout(() => {
