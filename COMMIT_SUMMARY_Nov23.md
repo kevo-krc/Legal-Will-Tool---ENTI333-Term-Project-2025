@@ -5,6 +5,37 @@ This commit finalizes all documentation for academic submission (ENTI333 Final P
 
 ---
 
+## ⚠️ IMPORTANT: Scope Corrections (November 23, 2025 - Second Pass)
+
+After the initial documentation update, a thorough audit revealed **misleading scope claims** in README.md. The following corrections were made:
+
+### README.md Corrections:
+1. **Removed:** "✅ Notifications system for user actions and system events" from feature list (line 21)
+   - **Reason:** Backend exists but UI is disabled and untested
+2. **Removed:** NotificationBell.jsx from file structure (line 109)
+3. **Removed:** NotificationContext.jsx from file structure (line 121)
+4. **Updated:** notifications.js route description → "Notification backend (UI disabled)"
+5. **Changed:** "Download functionality for user documents" → "View will PDF functionality in browser" (Phase 4)
+6. **Removed:** "Notifications system tracking..." and "Notification bell UI..." from Phase 5 (lines 269-270)
+7. **Updated Test Checklist:**
+   - Step 9: "Download will PDF..." → "View will PDF in browser"
+   - Step 10: "Share documents via email" (more specific)
+   - Removed Step 11: "View notifications"
+   - Renumbered remaining steps
+8. **Updated API Endpoints:** Added "⚠️ Backend Only - UI Disabled" warning to Notifications section
+9. **Removed:** "Notifications: User action tracking..." from Data Storage section
+
+### Verified Clean:
+- ✅ **PRD_final.md:** Already correctly marks notifications as "⚠️ Partially Implemented" with clear notes
+- ✅ **ARCHITECTURE.md:** Already correctly documents "Notification Backend Without UI" as deliberate design decision
+- ✅ **Privacy_Policy.md:** No misleading claims found
+- ✅ **PROMPT_LOG.md:** Historical record accurate
+
+### Impact:
+**README.md now accurately reflects delivered scope** with no claims of features that were disabled or not fully implemented.
+
+---
+
 ## 📝 Files Updated/Created
 
 ### 1. **Privacy_Policy.md** (Updated)
@@ -204,7 +235,7 @@ Final Documentation Update for Academic Submission
 UPDATED:
 - Privacy_Policy.md: Team attribution, removed unimplemented features, updated dates
 - PROMPT_LOG.md: Added final UX refinements section (Phase 26)
-- README.md: Added architecture diagram reference and documentation index
+- README.md: CORRECTED scope claims - removed notification UI claims, fixed download vs email terminology
 - LICENSE.txt: Updated to team attribution
 - replit.md: Already current with November 23 changes
 
@@ -213,11 +244,19 @@ CREATED:
 - ARCHITECTURE.md: Complete system architecture with Mermaid diagrams
 - COMMIT_SUMMARY_Nov23.md: This summary document
 
+SCOPE CORRECTIONS IN README.md:
+- Removed "Notifications system" from feature list (backend exists, UI disabled)
+- Changed "Download functionality" to "View will PDF functionality"
+- Removed NotificationBell.jsx and NotificationContext.jsx from file structure
+- Updated test checklist to remove "Download" and "View notifications" steps
+- Added "Backend Only - UI Disabled" warning to Notifications API section
+
 VERIFIED:
 - All dates updated to November 23, 2025
 - Team attribution consistent across all files
-- Feature status (implemented vs. excluded) consistent
+- Feature status (implemented vs. excluded) consistent and accurate
 - Documentation cross-references accurate
+- NO misleading scope claims in any documentation
 
 STATUS: Production-ready for academic submission (ENTI333 Final Project)
 ```
