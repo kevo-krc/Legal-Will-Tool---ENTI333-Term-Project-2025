@@ -594,8 +594,8 @@ All project documentation is organized in the **[📚 Additional Documentation](
 
 - **GitHub Repository:** [https://github.com/kevo-krc/Legal-Will-Tool---ENTI333-Term-Project-2025](https://github.com/kevo-krc/Legal-Will-Tool---ENTI333-Term-Project-2025)
 - **Replit Project:** [https://replit.com/@rowenamba/workspace](https://replit.com/@rowenamba/workspace)
-- **Demo Video:** [To be added]
+
 
 ---
 
-**Last Updated:** November 23, 2025 (Schema-Driven Architecture + Enhanced AI Guidance - Production Ready)
+**Last Updated:** December 1, 2025 (GitHub Repo cleanliness + minor README edits)
