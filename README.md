@@ -594,8 +594,12 @@ All project documentation is organized in the **[📚 Additional Documentation](
 
 - **GitHub Repository:** [https://github.com/kevo-krc/Legal-Will-Tool---ENTI333-Term-Project-2025](https://github.com/kevo-krc/Legal-Will-Tool---ENTI333-Term-Project-2025)
 - **Replit Project:** [https://replit.com/@rowenamba/workspace](https://replit.com/@rowenamba/workspace)
+- **Demo Video:** [https://youtu.be/vCT7BFrDFRI](https://youtu.be/vCT7BFrDFRI)
+- **Presentation Slide Deck:** [LEGAL WILL GENERATION TOOL Presentation](./LEGAL%20WILL%20GENERATION%20TOOL%20Presentation.pdf)
+
+- **Blog Post:** Location to be determined
 
 
 ---
 
-**Last Updated:** December 1, 2025 (GitHub Repo cleanliness + minor README edits)
+**Last Updated:** December 2, 2025 (Added presentation slide deck + added more links to README)
